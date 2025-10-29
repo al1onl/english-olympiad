@@ -91,6 +91,7 @@ body {
     max-width: 500px;
     margin: 0 auto;
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    display: none;
 }
 
 .login-form h2 {
@@ -156,11 +157,12 @@ button:hover {
     border-radius: 15px;
     padding: 30px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    display: none;
 }
 
 .admin-header {
     display: flex;
-    justify-content: space-between; /* Виправлено тут */
+    justify-content: space-between;
     align-items: center;
     margin-bottom: 30px;
     padding-bottom: 20px;
@@ -258,9 +260,10 @@ button:hover {
     margin-top: 10px;
 }
 
-/* Стилі для олімпіади */
+/* Олімпіада */
 .olympiad-container {
     max-width: 100%;
+    display: none;
 }
 
 .olympiad-header {
@@ -321,55 +324,6 @@ button:hover {
     margin-bottom: 20px;
 }
 
-.question {
-    font-size: 16px;
-    margin: 0 0 15px 0;
-    font-weight: 600;
-    color: var(--primary);
-}
-
-.hint {
-    font-size: 13px;
-    color: #7f8c8d;
-    background: #ecf0f1;
-    padding: 10px 12px;
-    border-radius: 6px;
-    margin-bottom: 15px;
-    border-left: 3px solid var(--warning);
-}
-
-.top-right {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-}
-
-.timer {
-    background: var(--primary);
-    color: white;
-    padding: 10px 15px;
-    border-radius: 6px;
-    font-weight: 700;
-    min-width: 100px;
-    text-align: center;
-    font-family: 'Courier New', monospace;
-}
-
-.prev-pill {
-    background: white;
-    padding: 8px 12px;
-    border-radius: 6px;
-    border: 2px solid #bdc3c7;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.prev-pill:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-}
-
 .controls {
     display: flex;
     justify-content: space-between;
@@ -396,7 +350,6 @@ button:hover {
 
 .btn-primary:hover {
     background: #2980b9;
-    transform: translateY(-1px);
 }
 
 .btn-danger {
@@ -404,19 +357,10 @@ button:hover {
     color: white;
 }
 
-.btn-danger:hover {
-    background: #c0392b;
-}
-
 .btn-ghost {
     background: transparent;
     border: 2px solid #bdc3c7;
     color: #7f8c8d;
-}
-
-.btn-ghost:hover {
-    border-color: var(--accent);
-    color: var(--accent);
 }
 
 .result {
@@ -428,22 +372,6 @@ button:hover {
     text-align: center;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     border-left: 5px solid var(--accent);
-}
-
-.olympiad-select, .olympiad-input {
-    padding: 10px 12px;
-    border-radius: 6px;
-    border: 2px solid #bdc3c7;
-    margin: 5px 0;
-    font-size: 14px;
-    transition: all 0.3s ease;
-    background: white;
-}
-
-.olympiad-select:focus, .olympiad-input:focus {
-    outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
 }
 
 /* Адаптивність */
@@ -470,10 +398,5 @@ button:hover {
     .task-head {
         flex-direction: column;
         gap: 15px;
-    }
-    
-    .top-right {
-        width: 100%;
-        justify-content: center;
     }
 }
