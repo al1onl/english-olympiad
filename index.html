@@ -16,13 +16,13 @@
 
         <!-- Вибір режиму -->
         <div class="mode-selector" id="modeSelector">
-            <div class="mode-card" onclick="showLogin('student')">
+            <div class="mode-card" data-mode="student">
                 <div class="mode-icon">🎓</div>
                 <h3>Режим учня</h3>
                 <p>Проходження олімпіади</p>
             </div>
             
-            <div class="mode-card" onclick="showLogin('admin')">
+            <div class="mode-card" data-mode="admin">
                 <div class="mode-icon">⚙️</div>
                 <h3>Режим адміністратора</h3>
                 <p>Управління користувачами</p>
@@ -40,8 +40,8 @@
                 <label>Пароль:</label>
                 <input type="password" id="studentPasswordInput" placeholder="Ваш пароль">
             </div>
-            <button onclick="loginStudent()">Увійти до олімпіади</button>
-            <button class="btn-secondary" onclick="showModeSelector()">← Назад</button>
+            <button id="studentLoginBtn">Увійти до олімпіади</button>
+            <button class="btn-secondary" id="backFromStudentBtn">← Назад</button>
         </div>
 
         <!-- Форма входу для адміна -->
@@ -59,8 +59,8 @@
                 <label>Кодове слово:</label>
                 <input type="password" id="adminCodeWord" placeholder="Секретне кодове слово">
             </div>
-            <button onclick="loginAdmin()">Увійти в адмін панель</button>
-            <button class="btn-secondary" onclick="showModeSelector()">← Назад</button>
+            <button id="adminLoginBtn">Увійти в адмін панель</button>
+            <button class="btn-secondary" id="backFromAdminBtn">← Назад</button>
         </div>
 
         <!-- Адмін панель -->
