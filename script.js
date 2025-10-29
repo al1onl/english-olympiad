@@ -1,12 +1,12 @@
 // Конфігурація системи
 const CONFIG = {
     ADMIN_LOGIN: "admin",
-    ADMIN_PASSWORD: "admin123",
+    ADMIN_PASSWORD: "admin123", 
     ADMIN_CODE_WORD: "olympiad2024",
     MAX_USERS: 1000
 };
 
-// Сховище даних (в реальному застосунку це буде база даних)
+// Сховище даних
 let users = JSON.parse(localStorage.getItem('olympiad_users')) || [];
 let userProgress = JSON.parse(localStorage.getItem('olympiad_progress')) || {};
 
@@ -23,8 +23,15 @@ function showLogin(mode) {
     document.querySelector('.mode-selector').style.display = 'none';
     if (mode === 'student') {
         document.getElementById('studentLogin').style.display = 'block';
+        // Очищаємо поля при показі форми
+        document.getElementById('studentLoginInput').value = '';
+        document.getElementById('studentPasswordInput').value = '';
     } else {
         document.getElementById('adminLogin').style.display = 'block';
+        // Очищаємо поля при показі форми
+        document.getElementById('adminLoginInput').value = '';
+        document.getElementById('adminPasswordInput').value = '';
+        document.getElementById('adminCodeWord').value = '';
     }
 }
 
@@ -32,6 +39,9 @@ function showLogin(mode) {
 function loginStudent() {
     const login = document.getElementById('studentLoginInput').value.trim();
     const password = document.getElementById('studentPasswordInput').value.trim();
+    
+    console.log('Спроба входу:', { login, password }); // Додав лог для дебагу
+    console.log('Всі користувачі:', users); // Додав лог для дебагу
     
     if (!login || !password) {
         alert('Будь ласка, заповніть всі поля');
@@ -41,11 +51,13 @@ function loginStudent() {
     const user = users.find(u => u.login === login && u.password === password);
     
     if (user) {
+        console.log('Користувач знайдений:', user); // Додав лог для дебагу
         // Зберігаємо поточного користувача
         localStorage.setItem('current_user', JSON.stringify(user));
         showOlympiad();
     } else {
         alert('Невірний логін або пароль');
+        console.log('Користувач не знайдений'); // Додав лог для дебагу
     }
 }
 
@@ -69,9 +81,19 @@ function showOlympiad() {
     document.getElementById('studentLogin').style.display = 'none';
     document.getElementById('olympiadApp').style.display = 'block';
     
-    // Тут буде код олімпіади з попереднього завдання
-    // Але з можливістю відновлення прогресу
-    initializeOlympiad();
+    // Тимчасовий контент для демонстрації
+    document.getElementById('olympiadApp').innerHTML = `
+        <div class="header">
+            <h1>🏆 Олімпіада з англійської мови</h1>
+            <p>Тестова версія - олімпіада в розробці</p>
+        </div>
+        <div style="background: white; padding: 30px; border-radius: 15px; text-align: center;">
+            <h2>Олімпіада тимчасово недоступна</h2>
+            <p>Основний функціонал олімпіади знаходиться в розробці.</p>
+            <p>Ваш прогрес збережено і ви зможете продовжити пізніше.</p>
+            <button onclick="showModeSelector()" style="margin-top: 20px;">Повернутися на головну</button>
+        </div>
+    `;
 }
 
 // Показати адмін панель
@@ -226,16 +248,32 @@ function createUser() {
             <p><strong>Пароль:</strong> ${password}</p>
             <p><strong>Клас:</strong> ${studentClass}</p>
             ${group ? `<p><strong>Група:</strong> ${group}</p>` : ''}
+            <p><small>Запишіть ці дані! Вони знадобляться для входу.</small></p>
         </div>
     `;
     
     // Очищаємо форму
     document.getElementById('newStudentName').value = '';
     document.getElementById('newStudentGroup').value = '';
+    
+    // Оновлюємо список користувачів
+    setTimeout(() => {
+        showAdminTab('users');
+    }, 2000);
 }
 
 function generateLogin(name) {
-    const baseLogin = name.toLowerCase().replace(/\s+/g, '');
+    // Створюємо базовий логін з імені
+    let baseLogin = name.toLowerCase()
+        .replace(/\s+/g, '')
+        .replace(/[^a-z0-9а-яіїєґ]/g, '')
+        .substring(0, 10);
+    
+    // Якщо логін закороткий, додаємо цифри
+    if (baseLogin.length < 3) {
+        baseLogin += 'user';
+    }
+    
     let login = baseLogin;
     let counter = 1;
     
@@ -243,6 +281,7 @@ function generateLogin(name) {
     while (users.find(u => u.login === login)) {
         login = `${baseLogin}${counter}`;
         counter++;
+        if (counter > 100) break; // Запобігаємо нескінченному циклу
     }
     
     return login;
@@ -266,7 +305,8 @@ function generateUsersList() {
         <div class="user-item">
             <div>
                 <strong>${user.name}</strong><br>
-                <small>Логін: ${user.login}</small>
+                <small style="color: #666;">Логін: <strong>${user.login}</strong></small><br>
+                <small style="color: #888;">Пароль: ${user.password}</small>
             </div>
             <div>${user.class} клас</div>
             <div>${user.group || '-'}</div>
@@ -307,6 +347,11 @@ function deleteUser(userId) {
 }
 
 function exportUsers() {
+    if (users.length === 0) {
+        document.getElementById('exportResult').innerHTML = '<div style="color: orange;">⚠️ Немає даних для експорту</div>';
+        return;
+    }
+    
     const data = users.map(user => ({
         'Ім\'я': user.name,
         'Логін': user.login,
@@ -321,6 +366,11 @@ function exportUsers() {
 }
 
 function exportResults() {
+    if (users.length === 0) {
+        document.getElementById('exportResult').innerHTML = '<div style="color: orange;">⚠️ Немає даних для експорту</div>';
+        return;
+    }
+    
     const data = users.map(user => {
         const progress = userProgress[user.id] || {};
         return {
@@ -365,47 +415,47 @@ function saveProgress() {
     localStorage.setItem('olympiad_progress', JSON.stringify(userProgress));
 }
 
-// Ініціалізація олімпіади з відновленням прогресу
-function initializeOlympiad() {
-    const currentUser = JSON.parse(localStorage.getItem('current_user'));
-    const progress = userProgress[currentUser.id];
-    
-    // Тут буде код ініціалізації олімпіади з попереднього завдання
-    // Але з перевіркою прогресу:
-    
-    if (progress) {
-        if (progress.finished) {
-            // Показати результати
-            showResults(progress);
-        } else if (progress.currentTask) {
-            // Продовжити з поточного завдання
-            startFromTask(progress.currentTask, progress.answers);
-        } else {
-            // Почати з початку
-            startNewTest();
-        }
-    } else {
-        // Новий користувач
-        startNewTest();
-    }
-}
-
-// Функції для роботи з прогрессом в олімпіаді
-function saveCurrentProgress(taskNumber, answers, finished = false) {
-    const currentUser = JSON.parse(localStorage.getItem('current_user'));
-    
-    userProgress[currentUser.id] = {
-        currentTask: finished ? null : taskNumber,
-        answers: answers,
-        finished: finished,
-        score: finished ? calculateScore(answers) : null,
-        finishedAt: finished ? new Date().toISOString() : null
-    };
-    
-    saveProgress();
-}
-
 // Запуск при завантаженні
 document.addEventListener('DOMContentLoaded', function() {
-    showModeSelector();
+    // Перевіряємо, чи є збережений поточний користувач
+    const currentUser = localStorage.getItem('current_user');
+    if (currentUser) {
+        // Якщо користувач вже в системі, пропонуємо продовжити
+        showOlympiad();
+    } else {
+        showModeSelector();
+    }
+});
+
+// Додаємо обробники подій для Enter в формах
+document.addEventListener('DOMContentLoaded', function() {
+    // Для форми учня
+    const studentLoginInput = document.getElementById('studentLoginInput');
+    const studentPasswordInput = document.getElementById('studentPasswordInput');
+    
+    if (studentLoginInput && studentPasswordInput) {
+        studentLoginInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') loginStudent();
+        });
+        studentPasswordInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') loginStudent();
+        });
+    }
+    
+    // Для форми адміна
+    const adminLoginInput = document.getElementById('adminLoginInput');
+    const adminPasswordInput = document.getElementById('adminPasswordInput');
+    const adminCodeWord = document.getElementById('adminCodeWord');
+    
+    if (adminLoginInput && adminPasswordInput && adminCodeWord) {
+        adminLoginInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') adminPasswordInput.focus();
+        });
+        adminPasswordInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') adminCodeWord.focus();
+        });
+        adminCodeWord.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') loginAdmin();
+        });
+    }
 });
