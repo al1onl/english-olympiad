@@ -16,7 +16,7 @@ let olympiadActiveTask = null;
 let olympiadTimerInterval = null;
 
 // Функції для роботи з інтерфейсом
-function showModeSelector() {
+window.showModeSelector = function() {
     document.getElementById('modeSelector').style.display = 'grid';
     document.getElementById('studentLogin').style.display = 'none';
     document.getElementById('adminLogin').style.display = 'none';
@@ -24,7 +24,8 @@ function showModeSelector() {
     document.getElementById('olympiadApp').style.display = 'none';
 }
 
-function showLogin(mode) {
+window.showLogin = function(mode) {
+    console.log('showLogin called with mode:', mode);
     document.getElementById('modeSelector').style.display = 'none';
     if (mode === 'student') {
         document.getElementById('studentLogin').style.display = 'block';
@@ -41,7 +42,7 @@ function showLogin(mode) {
 }
 
 // Вхід для учня
-function loginStudent() {
+window.loginStudent = function() {
     const login = document.getElementById('studentLoginInput').value.trim();
     const password = document.getElementById('studentPasswordInput').value.trim();
     
@@ -61,7 +62,7 @@ function loginStudent() {
 }
 
 // Вхід для адміна
-function loginAdmin() {
+window.loginAdmin = function() {
     const login = document.getElementById('adminLoginInput').value.trim();
     const password = document.getElementById('adminPasswordInput').value.trim();
     const codeWord = document.getElementById('adminCodeWord').value.trim();
@@ -76,7 +77,7 @@ function loginAdmin() {
 }
 
 // Показати адмін панель
-function showAdminPanel() {
+window.showAdminPanel = function() {
     document.getElementById('adminLogin').style.display = 'none';
     document.getElementById('adminPanel').style.display = 'block';
     
@@ -116,7 +117,7 @@ function showAdminPanel() {
     updateUsersList();
 }
 
-function showAdminTab(tabName) {
+window.showAdminTab = function(tabName) {
     document.querySelectorAll('.panel').forEach(panel => panel.classList.remove('active'));
     document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
     
@@ -124,7 +125,7 @@ function showAdminTab(tabName) {
     event.target.classList.add('active');
 }
 
-function createUser() {
+window.createUser = function() {
     const name = document.getElementById('newUserName').value.trim();
     const studentClass = document.getElementById('newUserClass').value;
     
@@ -199,7 +200,7 @@ function updateUsersList() {
     `;
 }
 
-function deleteUser(userId) {
+window.deleteUser = function(userId) {
     if (confirm('Видалити цього користувача?')) {
         users = users.filter(u => u.id !== userId);
         localStorage.setItem('olympiad_users', JSON.stringify(users));
@@ -208,7 +209,7 @@ function deleteUser(userId) {
 }
 
 // Показати олімпіаду
-function showOlympiad() {
+window.showOlympiad = function() {
     document.getElementById('studentLogin').style.display = 'none';
     document.getElementById('olympiadApp').style.display = 'block';
     
@@ -297,7 +298,7 @@ function initOlympiad() {
     goToOlympiad(1);
 }
 
-function goToOlympiad(n) {
+window.goToOlympiad = function(n) {
     if (olympiadActiveTask === n) return;
     
     if (olympiadActiveTask) {
@@ -356,7 +357,7 @@ function updateOlympiadTimerDisplay(sec) {
     timerEl.textContent = `${m}:${s}`;
 }
 
-function finishOlympiad() {
+window.finishOlympiad = function() {
     let score = 0;
     
     if (document.getElementById('answer1')?.value === 'goes') score++;
@@ -377,15 +378,7 @@ function finishOlympiad() {
     pauseOlympiadTimer();
 }
 
-// Додаємо функції в глобальну область
-window.showModeSelector = showModeSelector;
-window.showLogin = showLogin;
-window.loginStudent = loginStudent;
-window.loginAdmin = loginAdmin;
-window.showAdminPanel = showAdminPanel;
-window.showAdminTab = showAdminTab;
-window.createUser = createUser;
-window.deleteUser = deleteUser;
-window.showOlympiad = showOlympiad;
-window.goToOlympiad = goToOlympiad;
-window.finishOlympiad = finishOlympiad;
+// Ініціалізація при завантаженні сторінки
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Сторінка завантажена, функції доступні');
+});
