@@ -10,6 +10,12 @@ const CONFIG = {
 let users = JSON.parse(localStorage.getItem('olympiad_users')) || [];
 let userProgress = JSON.parse(localStorage.getItem('olympiad_progress')) || {};
 
+// Глобальні змінні для олімпіади
+let remaining = {1: 1200, 2: 1200, 3: 1200};
+let activeTask = null;
+let timerInterval = null;
+let prevTarget = 1;
+
 // Функції для роботи з інтерфейсом
 function showModeSelector() {
     document.querySelector('.mode-selector').style.display = 'grid';
@@ -96,7 +102,7 @@ function getOlympiadHTML() {
     <div class="olympiad-container">
         <header>
             <div class="brand">
-                <h1>Олімпіада з Англійської мови — 10 клас (Hard)</h1>
+                <h1>Олімпіада з Англійської мови — 10 клас</h1>
                 <div class="subtitle">Фінальна версія</div>
             </div>
             <div style="color:#fff;font-size:13px">
@@ -105,22 +111,38 @@ function getOlympiadHTML() {
         </header>
 
         <div class="card">
-            <!-- Tasks -->
             <div id="tasks">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
                     <div style="font-weight:700">Олімпіадні завдання — працюйте уважно</div>
                     <div class="top-right">
-                        <div class="prev-pill" id="prevBtn" onclick="goTo(prevTarget)">← Повернутись</div>
+                        <div class="prev-pill" id="prevBtn">← Повернутись</div>
                         <div class="timer" id="timer">20:00</div>
                     </div>
                 </div>
 
                 <!-- Task 1 -->
                 <section id="task1" class="screen">
-                    <div class="task-head"><div><strong>Завдання 1</strong> — Advanced Use of English</div><div class="hint">Вставте правильні слова у пропуски.</div></div>
+                    <div class="task-head">
+                        <div><strong>Завдання 1</strong> — Advanced Use of English</div>
+                        <div class="hint">Вставте правильні слова у пропуски.</div>
+                    </div>
                     <div class="task-box">
                         <p style="line-height:1.6">
-                        Contemporary urban studies increasingly emphasize the need for <select id="t1s1"><option value="">—</option><option value="synthesis">synthesis</option><option value="fragmentation">fragmentation</option><option value="isolation">isolation</option></select> of cross-disciplinary methods. Historically, approaches that privileged narrow disciplinary perspectives resulted in policies that were <select id="t1s2"><option value="">—</option><option value="resilient">resilient</option><option value="short-sighted">short-sighted</option><option value="comprehensive">comprehensive</option></select> and lacked long-term viability.
+                        Contemporary urban studies increasingly emphasize the need for 
+                        <select id="t1s1">
+                            <option value="">—</option>
+                            <option value="synthesis">synthesis</option>
+                            <option value="fragmentation">fragmentation</option>
+                            <option value="isolation">isolation</option>
+                        </select> 
+                        of cross-disciplinary methods. Historically, approaches that privileged narrow disciplinary perspectives resulted in policies that were 
+                        <select id="t1s2">
+                            <option value="">—</option>
+                            <option value="resilient">resilient</option>
+                            <option value="short-sighted">short-sighted</option>
+                            <option value="comprehensive">comprehensive</option>
+                        </select> 
+                        and lacked long-term viability.
                         </p>
                     </div>
                     <div class="controls">
@@ -131,12 +153,22 @@ function getOlympiadHTML() {
 
                 <!-- Task 2 -->
                 <section id="task2" class="screen">
-                    <div class="task-head"><div><strong>Завдання 2</strong> — Reading</div><div class="hint">Прочитайте текст та дайте відповіді.</div></div>
+                    <div class="task-head">
+                        <div><strong>Завдання 2</strong> — Reading</div>
+                        <div class="hint">Прочитайте текст та дайте відповіді.</div>
+                    </div>
                     <div class="task-box">
-                        <p style="font-size:14px;line-height:1.7">Over the last half-century, urbanization has proceeded at an unprecedented rate, compelling scholars to reassess traditional paradigms of growth and governance...</p>
+                        <p style="font-size:14px;line-height:1.7">Over the last half-century, urbanization has proceeded at an unprecedented rate, compelling scholars to reassess traditional paradigms of growth and governance. Initially, urban theory emphasized industrial expansion and spatial planning as the dominant variables; however, contemporary perspectives integrate social capital, environmental integrity and digital infrastructure into cohesive frameworks.</p>
                         <ol style="margin-top:12px">
                             <li>Define path-dependent outcomes: <input id="r2q1" placeholder="your answer" style="width:100%;padding:6px;border-radius:6px;border:1px solid #ddd"></li>
-                            <li>Which is NOT listed? <select id="r2q2"><option value="">—</option><option value="A">social capital</option><option value="B">digital infrastructure</option><option value="C">agrarian reform</option></select></li>
+                            <li>Which is NOT listed? 
+                                <select id="r2q2">
+                                    <option value="">—</option>
+                                    <option value="A">social capital</option>
+                                    <option value="B">digital infrastructure</option>
+                                    <option value="C">agrarian reform</option>
+                                </select>
+                            </li>
                         </ol>
                     </div>
                     <div class="controls">
@@ -147,7 +179,10 @@ function getOlympiadHTML() {
 
                 <!-- Task 3 -->
                 <section id="task3" class="screen">
-                    <div class="task-head"><div><strong>Завдання 3</strong> — Transformations</div><div class="hint">Перепишіть речення.</div></div>
+                    <div class="task-head">
+                        <div><strong>Завдання 3</strong> — Transformations</div>
+                        <div class="hint">Перепишіть речення.</div>
+                    </div>
                     <div class="task-box">
                         <ol>
                             <li>It was unnecessary to wake him. (NEED) — <input id="t3q1" placeholder="Your sentence" style="width:100%;padding:6px;border-radius:6px;border:1px solid #ddd"></li>
@@ -164,7 +199,7 @@ function getOlympiadHTML() {
                     <h3>Результат</h3>
                     <div id="scoreText"></div>
                     <div id="timeSummary" style="margin-top:8px;color:#444"></div>
-                    <button onclick="showModeSelector()" style="margin-top: 20px;">Повернутися на головну</button>
+                    <button onclick="showModeSelector()" style="margin-top: 20px; padding: 10px 20px; background: #6aa84f; color: white; border: none; border-radius: 5px; cursor: pointer;">Повернутися на головну</button>
                 </div>
             </div>
         </div>
@@ -288,38 +323,31 @@ function getOlympiadHTML() {
             padding: 8px;
             border-radius: 6px;
             border: 1px solid #ddd;
+            margin: 2px 0;
         }
     </style>
     `;
 }
 
 // Логіка олімпіади
-let remaining = {1: 1200, 2: 1200, 3: 1200};
-let activeTask = null;
-let timerInterval = null;
-let prevTarget = 1;
-
 function initOlympiadLogic(currentUser, progress) {
-    const screens = {
-        1: document.getElementById('task1'),
-        2: document.getElementById('task2'), 
-        3: document.getElementById('task3')
-    };
+    // Оновлюємо кнопку "Повернутись"
+    const prevBtn = document.getElementById('prevBtn');
+    if (prevBtn) {
+        prevBtn.onclick = function() { goTo(prevTarget); };
+    }
     
     // Відновлюємо прогрес якщо є
     if (progress && progress.answers) {
         loadProgress(progress.answers);
     }
     
-    if (progress && progress.currentTask) {
+    // Відновлюємо поточне завдання або починаємо з першого
+    if (progress && progress.currentTask && !progress.finished) {
         goTo(progress.currentTask);
     } else {
         goTo(1);
     }
-    
-    // Оновлюємо глобальні змінні
-    window.screens = screens;
-    window.currentUser = currentUser;
 }
 
 function goTo(n) {
@@ -327,23 +355,27 @@ function goTo(n) {
     
     if (activeTask) {
         pauseTimer();
-        window.screens[activeTask].classList.remove('active');
+        const currentScreen = document.getElementById('task' + activeTask);
+        if (currentScreen) currentScreen.classList.remove('active');
     }
     
-    window.screens[n].classList.add('active');
-    activeTask = n;
-    prevTarget = n-1 >= 1 ? n-1 : 1;
-    
-    const prevBtn = document.getElementById('prevBtn');
-    if (prevBtn) {
-        prevBtn.style.display = n > 1 ? 'inline-block' : 'none';
+    const newScreen = document.getElementById('task' + n);
+    if (newScreen) {
+        newScreen.classList.add('active');
+        activeTask = n;
+        prevTarget = n-1 >= 1 ? n-1 : 1;
+        
+        const prevBtn = document.getElementById('prevBtn');
+        if (prevBtn) {
+            prevBtn.style.display = n > 1 ? 'inline-block' : 'none';
+        }
+        
+        startTimerFor(n);
+        window.scrollTo({top: 0, behavior: 'smooth'});
+        
+        // Зберігаємо прогрес
+        saveCurrentProgress();
     }
-    
-    startTimerFor(n);
-    window.scrollTo({top: 0, behavior: 'smooth'});
-    
-    // Зберігаємо прогрес
-    saveCurrentProgress();
 }
 
 function startTimerFor(n) {
@@ -438,7 +470,7 @@ function finishTest() {
     const currentUser = JSON.parse(localStorage.getItem('current_user'));
     const answers = getCurrentAnswers();
     
-    // Розрахунок балів (спрощено)
+    // Розрахунок балів
     let score = 0;
     if (answers.t1s1 === 'synthesis') score++;
     if (answers.t1s2 === 'short-sighted') score++;
@@ -476,5 +508,192 @@ function finishTest() {
     pauseTimer();
 }
 
-// Залишок коду адмін панелі залишається без змін...
-// [Тут йде весь код адмін панелі з попереднього повідомлення]
+// АДМІН ПАНЕЛЬ (залишається без змін)
+function showAdminPanel() {
+    document.getElementById('adminLogin').style.display = 'none';
+    document.getElementById('adminPanel').style.display = 'block';
+    initializeAdminPanel();
+}
+
+function initializeAdminPanel() {
+    const adminPanel = document.getElementById('adminPanel');
+    adminPanel.innerHTML = `
+        <div class="admin-header">
+            <h2>Панель адміністратора</h2>
+            <button onclick="showModeSelector()" class="btn-secondary">Вийти</button>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showAdminTab('stats')">Статистика</button>
+            <button class="tab" onclick="showAdminTab('create')">Створити користувача</button>
+            <button class="tab" onclick="showAdminTab('users')">Користувачі</button>
+        </div>
+        
+        <div id="stats" class="panel active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">${users.length}</div>
+                    <div class="stat-label">Всього користувачів</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${getActiveUsersCount()}</div>
+                    <div class="stat-label">Активні користувачі</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${getCompletedTestsCount()}</div>
+                    <div class="stat-label">Завершені тести</div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="create" class="panel">
+            <h3>Створити нового користувача</h3>
+            <div class="form-group">
+                <label>Ім'я учня:</label>
+                <input type="text" id="newStudentName" placeholder="Введіть ім'я учня">
+            </div>
+            <div class="form-group">
+                <label>Клас:</label>
+                <select id="newStudentClass">
+                    <option value="10">10 клас</option>
+                    <option value="11">11 клас</option>
+                </select>
+            </div>
+            <button onclick="createUser()">Створити користувача</button>
+            <div id="creationResult" style="margin-top: 20px;"></div>
+        </div>
+        
+        <div id="users" class="panel">
+            <h3>Список користувачів (${users.length})</h3>
+            <div class="user-list">
+                <div class="user-item header">
+                    <div>Ім'я / Логін</div>
+                    <div>Клас</div>
+                    <div>Прогрес</div>
+                    <div>Дії</div>
+                </div>
+                ${generateUsersList()}
+            </div>
+        </div>
+    `;
+}
+
+function showAdminTab(tabName) {
+    document.querySelectorAll('.panel').forEach(panel => panel.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+    document.getElementById(tabName).classList.add('active');
+    event.target.classList.add('active');
+}
+
+function createUser() {
+    const name = document.getElementById('newStudentName').value.trim();
+    const studentClass = document.getElementById('newStudentClass').value;
+    
+    if (!name) {
+        alert('Будь ласка, введіть ім\'я учня');
+        return;
+    }
+    
+    const login = generateLogin(name);
+    const password = generatePassword();
+    
+    const newUser = {
+        id: Date.now(),
+        name: name,
+        login: login,
+        password: password,
+        class: studentClass,
+        createdAt: new Date().toISOString()
+    };
+    
+    users.push(newUser);
+    saveUsers();
+    
+    document.getElementById('creationResult').innerHTML = `
+        <div class="user-credentials">
+            <h4>✅ Користувача створено!</h4>
+            <p><strong>Ім'я:</strong> ${name}</p>
+            <p><strong>Логін:</strong> ${login}</p>
+            <p><strong>Пароль:</strong> ${password}</p>
+            <p><strong>Клас:</strong> ${studentClass}</p>
+        </div>
+    `;
+    
+    document.getElementById('newStudentName').value = '';
+}
+
+function generateLogin(name) {
+    let baseLogin = name.toLowerCase().replace(/\s+/g, '').substring(0, 10);
+    if (baseLogin.length < 3) baseLogin += 'user';
+    
+    let login = baseLogin;
+    let counter = 1;
+    
+    while (users.find(u => u.login === login)) {
+        login = `${baseLogin}${counter}`;
+        counter++;
+    }
+    
+    return login;
+}
+
+function generatePassword() {
+    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    let password = '';
+    for (let i = 0; i < 6; i++) {
+        password += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return password;
+}
+
+function generateUsersList() {
+    if (users.length === 0) return '<div style="text-align: center; padding: 20px; color: #666;">Користувачі відсутні</div>';
+    
+    return users.map(user => `
+        <div class="user-item">
+            <div><strong>${user.name}</strong><br><small>Логін: ${user.login}</small><br><small>Пароль: ${user.password}</small></div>
+            <div>${user.class} клас</div>
+            <div>${getUserProgress(user.id)}</div>
+            <div><button onclick="deleteUser(${user.id})" class="danger-btn">Видалити</button></div>
+        </div>
+    `).join('');
+}
+
+function getUserProgress(userId) {
+    const progress = userProgress[userId];
+    if (!progress) return 'Не розпочато';
+    if (progress.finished) return `Завершено (${progress.score} балів)`;
+    if (progress.currentTask) return `Завдання ${progress.currentTask}`;
+    return 'В процесі';
+}
+
+function getActiveUsersCount() {
+    return Object.keys(userProgress).length;
+}
+
+function getCompletedTestsCount() {
+    return Object.values(userProgress).filter(p => p.finished).length;
+}
+
+function deleteUser(userId) {
+    if (confirm('Видалити цього користувача?')) {
+        users = users.filter(u => u.id !== userId);
+        delete userProgress[userId];
+        saveUsers();
+        saveProgress();
+        initializeAdminPanel();
+    }
+}
+
+function saveUsers() {
+    localStorage.setItem('olympiad_users', JSON.stringify(users));
+}
+
+function saveProgress() {
+    localStorage.setItem('olympiad_progress', JSON.stringify(userProgress));
+}
+
+// Запуск при завантаженні
+document.addEventListener('DOMContentLoaded', function() {
+    showModeSelector();
+});
