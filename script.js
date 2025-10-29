@@ -16,7 +16,7 @@ let olympiadActiveTask = null;
 let olympiadTimerInterval = null;
 
 // Функції для роботи з інтерфейсом
-window.showModeSelector = function() {
+function showModeSelector() {
     document.getElementById('modeSelector').style.display = 'grid';
     document.getElementById('studentLogin').style.display = 'none';
     document.getElementById('adminLogin').style.display = 'none';
@@ -24,7 +24,7 @@ window.showModeSelector = function() {
     document.getElementById('olympiadApp').style.display = 'none';
 }
 
-window.showLogin = function(mode) {
+function showLogin(mode) {
     console.log('showLogin called with mode:', mode);
     document.getElementById('modeSelector').style.display = 'none';
     if (mode === 'student') {
@@ -42,7 +42,7 @@ window.showLogin = function(mode) {
 }
 
 // Вхід для учня
-window.loginStudent = function() {
+function loginStudent() {
     const login = document.getElementById('studentLoginInput').value.trim();
     const password = document.getElementById('studentPasswordInput').value.trim();
     
@@ -62,7 +62,7 @@ window.loginStudent = function() {
 }
 
 // Вхід для адміна
-window.loginAdmin = function() {
+function loginAdmin() {
     const login = document.getElementById('adminLoginInput').value.trim();
     const password = document.getElementById('adminPasswordInput').value.trim();
     const codeWord = document.getElementById('adminCodeWord').value.trim();
@@ -77,18 +77,18 @@ window.loginAdmin = function() {
 }
 
 // Показати адмін панель
-window.showAdminPanel = function() {
+function showAdminPanel() {
     document.getElementById('adminLogin').style.display = 'none';
     document.getElementById('adminPanel').style.display = 'block';
     
     document.getElementById('adminPanel').innerHTML = `
         <div class="admin-header">
             <h2>Адмін панель</h2>
-            <button class="btn-secondary" onclick="showModeSelector()">Вийти</button>
+            <button class="btn-secondary" id="adminLogoutBtn">Вийти</button>
         </div>
         <div class="tabs">
-            <button class="tab active" onclick="showAdminTab('users')">Користувачі</button>
-            <button class="tab" onclick="showAdminTab('stats')">Статистика</button>
+            <button class="tab active" id="usersTab">Користувачі</button>
+            <button class="tab" id="statsTab">Статистика</button>
         </div>
         <div id="adminUsers" class="panel active">
             <h3>Управління користувачами</h3>
@@ -99,7 +99,7 @@ window.showAdminPanel = function() {
                     <option value="10">10 клас</option>
                     <option value="11">11 клас</option>
                 </select>
-                <button onclick="createUser()">Створити користувача</button>
+                <button id="createUserBtn">Створити користувача</button>
             </div>
             <div id="usersList"></div>
         </div>
@@ -114,10 +114,16 @@ window.showAdminPanel = function() {
         </div>
     `;
     
+    // Додаємо обробники подій для адмін панелі
+    document.getElementById('adminLogoutBtn').addEventListener('click', showModeSelector);
+    document.getElementById('usersTab').addEventListener('click', () => showAdminTab('users'));
+    document.getElementById('statsTab').addEventListener('click', () => showAdminTab('stats'));
+    document.getElementById('createUserBtn').addEventListener('click', createUser);
+    
     updateUsersList();
 }
 
-window.showAdminTab = function(tabName) {
+function showAdminTab(tabName) {
     document.querySelectorAll('.panel').forEach(panel => panel.classList.remove('active'));
     document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
     
@@ -125,7 +131,7 @@ window.showAdminTab = function(tabName) {
     event.target.classList.add('active');
 }
 
-window.createUser = function() {
+function createUser() {
     const name = document.getElementById('newUserName').value.trim();
     const studentClass = document.getElementById('newUserClass').value;
     
@@ -192,15 +198,22 @@ function updateUsersList() {
                     <div>${user.login}</div>
                     <div>${user.password}</div>
                     <div>
-                        <button class="danger-btn" onclick="deleteUser(${user.id})">Видалити</button>
+                        <button class="danger-btn" data-user-id="${user.id}">Видалити</button>
                     </div>
                 </div>
             `).join('')}
         </div>
     `;
+    
+    // Додаємо обробники для кнопок видалення
+    document.querySelectorAll('.danger-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            deleteUser(parseInt(this.getAttribute('data-user-id')));
+        });
+    });
 }
 
-window.deleteUser = function(userId) {
+function deleteUser(userId) {
     if (confirm('Видалити цього користувача?')) {
         users = users.filter(u => u.id !== userId);
         localStorage.setItem('olympiad_users', JSON.stringify(users));
@@ -209,7 +222,7 @@ window.deleteUser = function(userId) {
 }
 
 // Показати олімпіаду
-window.showOlympiad = function() {
+function showOlympiad() {
     document.getElementById('studentLogin').style.display = 'none';
     document.getElementById('olympiadApp').style.display = 'block';
     
@@ -222,7 +235,7 @@ window.showOlympiad = function() {
                     <div class="olympiad-subtitle">Тестова версія</div>
                 </div>
                 <div>
-                    <button onclick="showModeSelector()" style="background: #e74c3c; padding: 8px 16px; border: none; border-radius: 5px; color: white; cursor: pointer; font-weight: 600;">Вийти</button>
+                    <button id="olympiadLogoutBtn" style="background: #e74c3c; padding: 8px 16px; border: none; border-radius: 5px; color: white; cursor: pointer; font-weight: 600;">Вийти</button>
                 </div>
             </div>
 
@@ -252,7 +265,7 @@ window.showOlympiad = function() {
                         </div>
                         <div class="controls">
                             <div></div>
-                            <div><button class="olympiad-btn btn-primary" onclick="goToOlympiad(2)">Далі →</button></div>
+                            <div><button class="olympiad-btn btn-primary" id="nextToTask2">Далі →</button></div>
                         </div>
                     </section>
 
@@ -266,20 +279,27 @@ window.showOlympiad = function() {
                             <input class="olympiad-input" id="answer2" placeholder="Ваша відповідь">
                         </div>
                         <div class="controls">
-                            <div><button class="olympiad-btn btn-ghost" onclick="goToOlympiad(1)">← Назад</button></div>
-                            <div><button class="olympiad-btn btn-primary" onclick="finishOlympiad()">Завершити</button></div>
+                            <div><button class="olympiad-btn btn-ghost" id="backToTask1">← Назад</button></div>
+                            <div><button class="olympiad-btn btn-primary" id="finishOlympiadBtn">Завершити</button></div>
                         </div>
                     </section>
 
                     <div id="resultPanel" class="result">
                         <h3>Результат</h3>
                         <div id="scoreText"></div>
-                        <button onclick="showModeSelector()" style="margin-top: 20px; padding: 10px 20px; background: var(--accent); color: white; border: none; border-radius: 5px; cursor: pointer;">Повернутися на головну</button>
+                        <button id="backToHomeFromResult" style="margin-top: 20px; padding: 10px 20px; background: var(--accent); color: white; border: none; border-radius: 5px; cursor: pointer;">Повернутися на головну</button>
                     </div>
                 </div>
             </div>
         </div>
     `;
+    
+    // Додаємо обробники подій для олімпіади
+    document.getElementById('olympiadLogoutBtn').addEventListener('click', showModeSelector);
+    document.getElementById('nextToTask2').addEventListener('click', () => goToOlympiad(2));
+    document.getElementById('backToTask1').addEventListener('click', () => goToOlympiad(1));
+    document.getElementById('finishOlympiadBtn').addEventListener('click', finishOlympiad);
+    document.getElementById('backToHomeFromResult').addEventListener('click', showModeSelector);
     
     initOlympiad();
 }
@@ -288,17 +308,17 @@ window.showOlympiad = function() {
 function initOlympiad() {
     const prevBtn = document.getElementById('prevBtn');
     if (prevBtn) {
-        prevBtn.onclick = function() { 
+        prevBtn.addEventListener('click', function() { 
             if (olympiadActiveTask > 1) {
                 goToOlympiad(olympiadActiveTask - 1);
             }
-        };
+        });
     }
     
     goToOlympiad(1);
 }
 
-window.goToOlympiad = function(n) {
+function goToOlympiad(n) {
     if (olympiadActiveTask === n) return;
     
     if (olympiadActiveTask) {
@@ -357,7 +377,7 @@ function updateOlympiadTimerDisplay(sec) {
     timerEl.textContent = `${m}:${s}`;
 }
 
-window.finishOlympiad = function() {
+function finishOlympiad() {
     let score = 0;
     
     if (document.getElementById('answer1')?.value === 'goes') score++;
@@ -380,5 +400,23 @@ window.finishOlympiad = function() {
 
 // Ініціалізація при завантаженні сторінки
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Сторінка завантажена, функції доступні');
+    console.log('Сторінка завантажена, ініціалізація...');
+    
+    // Додаємо обробники подій для вибору режиму
+    document.querySelectorAll('.mode-card').forEach(card => {
+        card.addEventListener('click', function() {
+            const mode = this.getAttribute('data-mode');
+            showLogin(mode);
+        });
+    });
+    
+    // Додаємо обробники для кнопок входу
+    document.getElementById('studentLoginBtn').addEventListener('click', loginStudent);
+    document.getElementById('adminLoginBtn').addEventListener('click', loginAdmin);
+    
+    // Додаємо обробники для кнопок "Назад"
+    document.getElementById('backFromStudentBtn').addEventListener('click', showModeSelector);
+    document.getElementById('backFromAdminBtn').addEventListener('click', showModeSelector);
+    
+    console.log('Всі обробники подій додані');
 });
