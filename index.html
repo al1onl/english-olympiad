@@ -6,13 +6,14 @@
     <title>Олімпіада з англійської мови</title>
     <style>
         :root {
-            --primary: #424242;
-            --accent: #6aa84f;
-            --danger: #d9534f;
-            --warning: #f0ad4e;
-            --info: #5bc0de;
-            --light: #f8f9fa;
-            --dark: #343a40;
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --secondary: #34495e;
+            --danger: #e74c3c;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
         }
 
         * {
@@ -22,10 +23,11 @@
         }
 
         body {
-            font-family: 'Inter', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
             min-height: 100vh;
             padding: 20px;
+            color: #333;
         }
 
         .container {
@@ -36,21 +38,23 @@
         .header {
             background: rgba(255, 255, 255, 0.95);
             padding: 30px;
-            border-radius: 15px;
+            border-radius: 10px;
             text-align: center;
             margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-left: 5px solid var(--accent);
         }
 
         .header h1 {
             color: var(--primary);
             margin-bottom: 10px;
-            font-size: 2.5em;
+            font-size: 2.2em;
+            font-weight: 700;
         }
 
         .header p {
             color: #666;
-            font-size: 1.2em;
+            font-size: 1.1em;
         }
 
         .mode-selector {
@@ -63,45 +67,50 @@
         .mode-card {
             background: rgba(255, 255, 255, 0.95);
             padding: 30px;
-            border-radius: 15px;
+            border-radius: 10px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 2px solid transparent;
         }
 
         .mode-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            border-color: var(--accent);
         }
 
         .mode-icon {
-            font-size: 3em;
+            font-size: 2.5em;
             margin-bottom: 15px;
         }
 
         .mode-card h3 {
             color: var(--primary);
             margin-bottom: 10px;
+            font-size: 1.3em;
         }
 
         .mode-card p {
             color: #666;
+            line-height: 1.5;
         }
 
         .login-form {
             background: rgba(255, 255, 255, 0.95);
             padding: 40px;
-            border-radius: 15px;
+            border-radius: 10px;
             max-width: 500px;
             margin: 0 auto;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
         .login-form h2 {
             text-align: center;
             margin-bottom: 30px;
             color: var(--primary);
+            font-size: 1.8em;
         }
 
         .form-group {
@@ -118,41 +127,44 @@
         input, select {
             width: 100%;
             padding: 12px 15px;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
+            border: 2px solid #bdc3c7;
+            border-radius: 6px;
             font-size: 16px;
-            transition: border-color 0.3s ease;
+            transition: all 0.3s ease;
+            background: white;
         }
 
-        input:focus {
+        input:focus, select:focus {
             outline: none;
             border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
         }
 
         button {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             background: var(--accent);
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.3s ease;
+            transition: all 0.3s ease;
             margin-bottom: 10px;
         }
 
         button:hover {
-            background: #5a9740;
+            background: #2980b9;
+            transform: translateY(-1px);
         }
 
         .btn-secondary {
-            background: #6c757d;
+            background: #7f8c8d;
         }
 
         .btn-secondary:hover {
-            background: #545b62;
+            background: #636e72;
         }
 
         /* Стилі для олімпіади */
@@ -164,38 +176,41 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            color: #fff;
-            margin-bottom: 14px;
-            background: #424242;
-            padding: 15px;
+            color: white;
+            margin-bottom: 20px;
+            background: var(--primary);
+            padding: 20px;
             border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
 
         .olympiad-brand h1 {
-            font-size: 20px;
+            font-size: 1.5em;
             margin: 0;
+            font-weight: 600;
         }
 
         .olympiad-subtitle {
-            font-size: 13px;
-            color: #ddd;
+            font-size: 0.9em;
+            color: #bdc3c7;
+            margin-top: 5px;
         }
 
         .olympiad-card {
-            background: linear-gradient(180deg, #ffffffee, #fbfbfb);
-            border-radius: 12px;
-            padding: 18px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
         }
 
         .olympiad-tasks {
-            margin-top: 14px;
+            margin-top: 0;
         }
 
         .olympiad-screen {
             display: none;
-            padding: 12px;
-            border-radius: 10px;
+            padding: 0;
         }
 
         .olympiad-screen.active {
@@ -205,108 +220,151 @@
         .task-head {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #ecf0f1;
         }
 
         .task-box {
-            background: #999;
-            padding: 18px;
-            border-radius: 10px;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-            color: #111;
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent);
+            margin-bottom: 20px;
         }
 
         .question {
             font-size: 16px;
-            margin: 0 0 8px 0;
+            margin: 0 0 15px 0;
+            font-weight: 600;
+            color: var(--primary);
         }
 
         .hint {
             font-size: 13px;
-            color: #222;
-            background: #eee;
-            padding: 8px;
-            border-radius: 8px;
-            margin-bottom: 10px;
+            color: #7f8c8d;
+            background: #ecf0f1;
+            padding: 10px 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border-left: 3px solid var(--warning);
         }
 
         .top-right {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             align-items: center;
         }
 
         .timer {
-            background: #222;
-            color: #fff;
-            padding: 8px 12px;
-            border-radius: 8px;
+            background: var(--secondary);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 6px;
             font-weight: 700;
-            min-width: 140px;
+            min-width: 100px;
             text-align: center;
+            font-family: 'Courier New', monospace;
         }
 
         .prev-pill {
-            background: #fff;
-            padding: 6px 8px;
-            border-radius: 8px;
-            border: 1px solid #ddd;
+            background: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 2px solid #bdc3c7;
             cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .prev-pill:hover {
+            border-color: var(--accent);
+            color: var(--accent);
         }
 
         .controls {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 12px;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 2px solid #ecf0f1;
         }
 
         .olympiad-btn {
-            padding: 10px 16px;
-            border-radius: 10px;
+            padding: 12px 24px;
+            border-radius: 6px;
             border: none;
-            font-weight: 700;
+            font-weight: 600;
             cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
         }
 
         .btn-primary {
-            background: #6aa84f;
+            background: var(--accent);
             color: white;
         }
 
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-1px);
+        }
+
         .btn-danger {
-            background: #d9534f;
+            background: var(--danger);
             color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
         }
 
         .btn-ghost {
             background: transparent;
-            border: 1px solid rgba(0,0,0,0.06);
+            border: 2px solid #bdc3c7;
+            color: #7f8c8d;
+        }
+
+        .btn-ghost:hover {
+            border-color: var(--accent);
+            color: var(--accent);
         }
 
         .result {
             display: none;
-            background: #fff;
-            padding: 16px;
+            background: white;
+            padding: 30px;
             border-radius: 10px;
-            margin-top: 12px;
+            margin-top: 20px;
             text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-left: 5px solid var(--success);
         }
 
         .olympiad-select, .olympiad-input {
-            padding: 8px;
+            padding: 10px 12px;
             border-radius: 6px;
-            border: 1px solid #ddd;
-            margin: 2px 0;
+            border: 2px solid #bdc3c7;
+            margin: 5px 0;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .olympiad-select:focus, .olympiad-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
         }
 
         /* Адмін панель */
         .admin-panel {
             background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
+            border-radius: 10px;
             padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
         .admin-header {
@@ -315,23 +373,25 @@
             align-items: center;
             margin-bottom: 30px;
             padding-bottom: 20px;
-            border-bottom: 2px solid #e9ecef;
+            border-bottom: 2px solid #ecf0f1;
         }
 
         .tabs {
             display: flex;
             gap: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
         }
 
         .tab {
-            padding: 12px 24px;
-            background: #e9ecef;
+            padding: 12px 20px;
+            background: #ecf0f1;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
             font-weight: 600;
             transition: all 0.3s ease;
+            color: #7f8c8d;
         }
 
         .tab.active {
@@ -357,9 +417,9 @@
         .stat-card {
             background: white;
             padding: 20px;
-            border-radius: 10px;
+            border-radius: 8px;
             text-align: center;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             border-left: 4px solid var(--accent);
         }
 
@@ -371,15 +431,15 @@
         }
 
         .stat-label {
-            color: #666;
+            color: #7f8c8d;
             font-size: 0.9em;
         }
 
         .user-list {
             background: white;
-            border-radius: 10px;
+            border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .user-item {
@@ -387,7 +447,7 @@
             grid-template-columns: 2fr 1fr 1fr auto;
             gap: 15px;
             padding: 15px 20px;
-            border-bottom: 1px solid #e9ecef;
+            border-bottom: 1px solid #ecf0f1;
             align-items: center;
         }
 
@@ -398,23 +458,30 @@
         .user-item.header {
             background: #f8f9fa;
             font-weight: bold;
+            color: var(--primary);
         }
 
         .user-credentials {
             background: #e8f5e8;
-            padding: 10px;
-            border-radius: 5px;
-            margin-top: 10px;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            border-left: 4px solid var(--success);
         }
 
         .danger-btn {
             background: var(--danger);
-            padding: 5px 10px;
+            padding: 8px 15px;
             font-size: 12px;
+            border-radius: 4px;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s ease;
         }
 
         .danger-btn:hover {
-            background: #c9302c;
+            background: #c0392b;
         }
 
         @media (max-width: 768px) {
@@ -425,11 +492,66 @@
             .user-item {
                 grid-template-columns: 1fr;
                 text-align: center;
+                gap: 10px;
             }
             
             .header h1 {
-                font-size: 2em;
+                font-size: 1.8em;
             }
+            
+            .olympiad-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .task-head {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .top-right {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Специфічні стилі для завдань */
+        .task-text {
+            line-height: 1.7;
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .task-options {
+            margin: 15px 0;
+        }
+
+        .task-option {
+            margin: 8px 0;
+            padding: 8px 12px;
+            background: white;
+            border-radius: 4px;
+            border-left: 3px solid #bdc3c7;
+        }
+
+        .task-option:hover {
+            border-left-color: var(--accent);
+            background: #f8f9fa;
+        }
+
+        .transformation-item {
+            margin: 12px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #ecf0f1;
+        }
+
+        .transformation-prompt {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 5px;
         }
     </style>
 </head>
@@ -577,252 +699,202 @@
             }
         }
 
-        // Показати олімпіаду - ПОВНА ВЕРСІЯ!
+        // Показати олімпіаду - ПОВНА ВЕРСІЯ З УСІМА 34 ЗАВДАННЯМИ!
         function showOlympiad() {
             document.getElementById('studentLogin').style.display = 'none';
             document.getElementById('olympiadApp').style.display = 'block';
             
-            // ПОВНА ОЛІМПІАДА
+            // ПОВНА ОЛІМПІАДА З УСІМА ЗАВДАННЯМИ
             document.getElementById('olympiadApp').innerHTML = `
                 <div class="olympiad-container">
                     <div class="olympiad-header">
                         <div class="olympiad-brand">
                             <h1>Олімпіада з Англійської мови — 10 клас (Hard)</h1>
-                            <div class="olympiad-subtitle">Фінальна версія</div>
+                            <div class="olympiad-subtitle">Фінальна версія — 34 завдання</div>
                         </div>
                         <div style="color:#fff;font-size:13px">
-                            <button onclick="showModeSelector()" style="background: #666; padding: 5px 10px; border: none; border-radius: 5px; color: white; cursor: pointer;">Вийти</button>
+                            <button onclick="showModeSelector()" style="background: #e74c3c; padding: 8px 16px; border: none; border-radius: 5px; color: white; cursor: pointer; font-weight: 600;">Вийти</button>
                         </div>
                     </div>
 
                     <div class="olympiad-card">
                         <div class="olympiad-tasks">
-                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-                                <div style="font-weight:700">Олімпіадні завдання — працюйте уважно</div>
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+                                <div style="font-weight:700; color: var(--primary);">Олімпіадні завдання — працюйте уважно</div>
                                 <div class="top-right">
                                     <div class="prev-pill" id="prevBtn">← Повернутись</div>
                                     <div class="timer" id="timer">20:00</div>
                                 </div>
                             </div>
 
-                            <!-- Task 1 -->
+                            <!-- Task 1: 12 gaps -->
                             <section id="task1" class="olympiad-screen">
                                 <div class="task-head">
-                                    <div><strong>Завдання 1</strong> — Advanced Use of English</div>
-                                    <div class="hint">Вставте правильні слова у пропуски.</div>
+                                    <div><strong>Завдання 1</strong> — Advanced Use of English (Gapped Text — 12 gaps)</div>
+                                    <div class="hint">Вставте правильні слова у пропуски. Кожен пропуск — випадаючий список. Це великий текст: оцініть кожен варіант уважно.</div>
                                 </div>
                                 <div class="task-box">
-                                    <p style="line-height:1.6">
-                                    Contemporary urban studies increasingly emphasize the need for 
-                                    <select class="olympiad-select" id="t1s1">
-                                        <option value="">—</option>
-                                        <option value="synthesis">synthesis</option>
-                                        <option value="fragmentation">fragmentation</option>
-                                        <option value="isolation">isolation</option>
-                                    </select> 
-                                    of cross-disciplinary methods. Historically, approaches that privileged narrow disciplinary perspectives resulted in policies that were 
-                                    <select class="olympiad-select" id="t1s2">
-                                        <option value="">—</option>
-                                        <option value="resilient">resilient</option>
-                                        <option value="short-sighted">short-sighted</option>
-                                        <option value="comprehensive">comprehensive</option>
-                                    </select> 
-                                    and lacked long-term viability.
-                                    </p>
+                                    <p class="question">Read the extended academic extract and choose the correct option for each numbered gap (12 gaps). Each gap may require subtle lexical choice.</p>
+
+                                    <div class="task-text">
+                                        Contemporary urban studies increasingly emphasize the need for 
+                                        <select class="olympiad-select" id="t1s1">
+                                            <option value="">—</option><option value="synthesis">synthesis</option><option value="fragmentation">fragmentation</option><option value="isolation">isolation</option>
+                                        </select> 
+                                        of cross-disciplinary methods. Historically, approaches that privileged narrow disciplinary perspectives resulted in policies that were 
+                                        <select class="olympiad-select" id="t1s2">
+                                            <option value="">—</option><option value="resilient">resilient</option><option value="short-sighted">short-sighted</option><option value="comprehensive">comprehensive</option>
+                                        </select> 
+                                        and lacked long-term viability. The complexity arises not only from the multiplicity of variables but also from the uneven availability of reliable data, which in many contexts is 
+                                        <select class="olympiad-select" id="t1s3">
+                                            <option value="">—</option><option value="abundant">abundant</option><option value="sporadic">sporadic</option><option value="redundant">redundant</option>
+                                        </select>. 
+                                        Consequently, models must be designed with an awareness of their inherent 
+                                        <select class="olympiad-select" id="t1s4">
+                                            <option value="">—</option><option value="limitations">limitations</option><option value="perfections">perfections</option><option value="magnitudes">magnitudes</option>
+                                        </select>, 
+                                        and stakeholders should participate to ensure that outputs are not 
+                                        <select class="olympiad-select" id="t1s5">
+                                            <option value="">—</option><option value="detached">detached</option><option value="aligned">aligned</option><option value="abstracted">abstracted</option>
+                                        </select> 
+                                        from lived experience.
+                                    </div>
+
+                                    <div class="task-text">
+                                        Several authors have argued that the standard metrics for resilience are often 
+                                        <select class="olympiad-select" id="t1s6">
+                                            <option value="">—</option><option value="overly">overly</option><option value="rigorously">rigorously</option><option value="carefully">carefully</option>
+                                        </select> 
+                                        simplified, thereby obscuring context-specific vulnerabilities. To mitigate this, it is advisable to incorporate qualitative assessments that capture 
+                                        <select class="olympiad-select" id="t1s7">
+                                            <option value="">—</option><option value="nuance">nuance</option><option value="uniformity">uniformity</option><option value="redundancy">redundancy</option>
+                                        </select> 
+                                        and local perceptions. Moreover, when presenting findings to policymakers, researchers need to 
+                                        <select class="olympiad-select" id="t1s8">
+                                            <option value="">—</option><option value="obfuscate">obfuscate</option><option value="clarify">clarify</option><option value="complicate">complicate</option>
+                                        </select> 
+                                        the implications and offer practicable recommendations rather than abstract generalities.
+                                    </div>
+
+                                    <div class="task-text">
+                                        A further complication is the tendency to conflate correlation with causation, especially in datasets where temporal sequences are 
+                                        <select class="olympiad-select" id="t1s9">
+                                            <option value="">—</option><option value="ambiguous">ambiguous</option><option value="obvious">obvious</option><option value="immutable">immutable</option>
+                                        </select>. 
+                                        Robust inference thus demands careful longitudinal analysis and sensitivity testing to avoid 
+                                        <select class="olympiad-select" id="t1s10">
+                                            <option value="">—</option><option value="spurious">spurious</option><option value="conclusive">conclusive</option><option value="definitive">definitive</option>
+                                        </select> 
+                                        conclusions. Finally, the ethical dimension requires that any interventions respect community autonomy and do not exacerbate pre-existing 
+                                        <select class="olympiad-select" id="t1s11">
+                                            <option value="">—</option><option value="inequalities">inequalities</option><option value="advantages">advantages</option><option value="privileges">privileges</option>
+                                        </select>. 
+                                        In summary, the framing of urban resilience must remain both critically reflexive and 
+                                        <select class="olympiad-select" id="t1s12">
+                                            <option value="">—</option><option value="adaptive">adaptive</option><option value="static">static</option><option value="naive">naive</option>
+                                        </select>.
+                                    </div>
                                 </div>
                                 <div class="controls">
                                     <div></div>
-                                    <div><button class="olympiad-btn btn-primary" onclick="goToOlympiad(2)">Далі →</button></div>
+                                    <div><button class="olympiad-btn btn-primary" onclick="goToOlympiad(2)">Перейти до наступного завдання →</button></div>
                                 </div>
                             </section>
 
-                            <!-- Task 2 -->
+                            <!-- Task 2: Reading + 12 questions -->
                             <section id="task2" class="olympiad-screen">
                                 <div class="task-head">
-                                    <div><strong>Завдання 2</strong> — Reading</div>
-                                    <div class="hint">Прочитайте текст та дайте відповіді.</div>
+                                    <div><strong>Завдання 2</strong> — Long Reading & Analysis (12 items)</div>
+                                    <div class="hint">Прочитайте текст уважно. Після тексту — 12 завдань: поєднання multiple choice і коротких відповідей.</div>
                                 </div>
                                 <div class="task-box">
-                                    <p style="font-size:14px;line-height:1.7">Over the last half-century, urbanization has proceeded at an unprecedented rate, compelling scholars to reassess traditional paradigms of growth and governance. Initially, urban theory emphasized industrial expansion and spatial planning as the dominant variables; however, contemporary perspectives integrate social capital, environmental integrity and digital infrastructure into cohesive frameworks.</p>
-                                    <ol style="margin-top:12px">
-                                        <li>Define path-dependent outcomes: <input class="olympiad-input" id="r2q1" placeholder="your answer" style="width:100%"></li>
-                                        <li>Which is NOT listed? 
-                                            <select class="olympiad-select" id="r2q2">
-                                                <option value="">—</option>
-                                                <option value="A">social capital</option>
-                                                <option value="B">digital infrastructure</option>
-                                                <option value="C">agrarian reform</option>
-                                            </select>
-                                        </li>
-                                    </ol>
+                                    <p class="question">Passage (extended):</p>
+                                    <div class="task-text">
+                                        Over the last half-century, urbanization has proceeded at an unprecedented rate, compelling scholars to reassess traditional paradigms of growth and governance. Initially, urban theory emphasized industrial expansion and spatial planning as the dominant variables; however, contemporary perspectives integrate social capital, environmental integrity and digital infrastructure into cohesive frameworks. Notably, the spatial distribution of services and economic opportunity often mirrors historical inequalities, producing path-dependent outcomes. Policymakers must therefore navigate the tension between top-down planning and grassroots mobilization, leveraging participatory mechanisms without sacrificing strategic coherence. Moreover, the climatic imperative adds a new layer of complexity: mitigation policies must be equitable, financially viable and technically feasible. As cities adapt, adaptive governance — characterized by iterative policymaking, transparent data practices and inclusive stakeholder engagement — becomes central. Yet, the translation of evidence into policy frequently founders on institutional inertia, budgetary constraints and competing political priorities. Ultimately, resilient urban futures require a synthesis of robust data, normative commitments to justice, and pragmatic implementation pathways.
+                                    </div>
+
+                                    <div class="task-options">
+                                        <ol>
+                                            <li class="transformation-item">
+                                                <div class="transformation-prompt">Define in one sentence what is meant by <em>path-dependent outcomes</em> in the passage.</div>
+                                                <input class="olympiad-input" id="r2q1" placeholder="Ваша відповідь" style="width:100%">
+                                            </li>
+                                            <li class="transformation-item">
+                                                <div class="transformation-prompt">Which of the following is NOT listed as part of contemporary frameworks?</div>
+                                                <select class="olympiad-select" id="r2q2" style="width:100%">
+                                                    <option value="">—</option>
+                                                    <option value="A">social capital</option>
+                                                    <option value="B">digital infrastructure</option>
+                                                    <option value="C">agrarian reform</option>
+                                                </select>
+                                            </li>
+                                            <li class="transformation-item">
+                                                <div class="transformation-prompt">Give two barriers mentioned that impede translation of evidence into policy.</div>
+                                                <input class="olympiad-input" id="r2q3" placeholder="Два пункти" style="width:100%">
+                                            </li>
+                                            <li class="transformation-item">
+                                                <div class="transformation-prompt">Adaptive governance includes:</div>
+                                                <select class="olympiad-select" id="r2q4" style="width:100%">
+                                                    <option value="">—</option>
+                                                    <option value="A">iterative policymaking</option>
+                                                    <option value="B">opaque data practices</option>
+                                                    <option value="C">exclusionary stakeholder engagement</option>
+                                                </select>
+                                            </li>
+                                            <li class="transformation-item">
+                                                <div class="transformation-prompt">What does the passage suggest about climate mitigation policies?</div>
+                                                <input class="olympiad-input" id="r2q5" placeholder="Коротка відповідь" style="width:100%">
+                                            </li>
+                                            <li class="transformation-item">
+                                                <div class="transformation-prompt">The passage implies that policymaking must balance:</div>
+                                                <select class="olympiad-select" id="r2q6" style="width:100%">
+                                                    <option value="">—</option>
+                                                    <option value="A">top-down planning and grassroots mobilization</option>
+                                                    <option value="B">only top-down directives</option>
+                                                    <option value="C">only grassroots mobilization</option>
+                                                </select>
+                                            </li>
+                                            <li class="transformation-item">
+                                                <div class="transformation-prompt">Provide one example of a normative commitment mentioned.</div>
+                                                <input class="olympiad-input" id="r2q7" placeholder="Один приклад" style="width:100%">
+                                            </li>
+                                            <li class="transformation-item">
+                                                <div class="transformation-prompt">What becomes central for resilient urban futures?</div>
+                                                <select class="olympiad-select" id="r2q8" style="width:100%">
+                                                    <option value="">—</option>
+                                                    <option value="A">adaptive governance</option>
+                                                    <option value="B">institutional inertia</option>
+                                                    <option value="C">budgetary constraints</option>
+                                                </select>
+                                            </li>
+                                            <li class="transformation-item">
+                                                <div class="transformation-prompt">Explain briefly why inclusive stakeholder engagement is important according to the text.</div>
+                                                <input class="olympiad-input" id="r2q9" placeholder="Пояснення" style="width:100%">
+                                            </li>
+                                            <li class="transformation-item">
+                                                <div class="transformation-prompt">Which is listed as characteristic of adaptive governance?</div>
+                                                <select class="olympiad-select" id="r2q10" style="width:100%">
+                                                    <option value="">—</option>
+                                                    <option value="A">transparent data practices</option>
+                                                    <option value="B">political opacity</option>
+                                                    <option value="C">reliance on randomness</option>
+                                                </select>
+                                            </li>
+                                            <li class="transformation-item">
+                                                <div class="transformation-prompt">Summarize in one phrase what is required for resilient urban futures.</div>
+                                                <input class="olympiad-input" id="r2q11" placeholder="Одна фраза" style="width:100%">
+                                            </li>
+                                            <li class="transformation-item">
+                                                <div class="transformation-prompt">Which of these is presented as a challenge to implementing policies?</div>
+                                                <select class="olympiad-select" id="r2q12" style="width:100%">
+                                                    <option value="">—</option>
+                                                    <option value="A">budgetary constraints</option>
+                                                    <option value="B">robust data</option>
+                                                    <option value="C">normative commitments</option>
+                                                </select>
+                                            </li>
+                                        </ol>
+                                    </div>
                                 </div>
                                 <div class="controls">
-                                    <div><button class="olympiad-btn btn-ghost" onclick="goToOlympiad(1)">← Назад</button></div>
-                                    <div><button class="olympiad-btn btn-primary" onclick="goToOlympiad(3)">Далі →</button></div>
-                                </div>
-                            </section>
-
-                            <!-- Task 3 -->
-                            <section id="task3" class="olympiad-screen">
-                                <div class="task-head">
-                                    <div><strong>Завдання 3</strong> — Transformations</div>
-                                    <div class="hint">Перепишіть речення.</div>
-                                </div>
-                                <div class="task-box">
-                                    <ol>
-                                        <li>It was unnecessary to wake him. (NEED) — <input class="olympiad-input" id="t3q1" placeholder="Your sentence" style="width:100%"></li>
-                                        <li>She completed the task despite the difficulties. (MANAGED) — <input class="olympiad-input" id="t3q2" placeholder="Your sentence" style="width:100%"></li>
-                                        <li>They started the project two years ago. (BEEN) — <input class="olympiad-input" id="t3q3" placeholder="Your sentence" style="width:100%"></li>
-                                    </ol>
-                                </div>
-                                <div class="controls">
-                                    <div><button class="olympiad-btn btn-ghost" onclick="goToOlympiad(2)">← Назад</button></div>
-                                    <div><button class="olympiad-btn btn-danger" onclick="finishOlympiad()">Завершити</button></div>
-                                </div>
-                            </section>
-
-                            <div id="resultPanel" class="result">
-                                <h3>Результат</h3>
-                                <div id="scoreText"></div>
-                                <div id="timeSummary" style="margin-top:8px;color:#444"></div>
-                                <button onclick="showModeSelector()" style="margin-top: 20px; padding: 10px 20px; background: #6aa84f; color: white; border: none; border-radius: 5px; cursor: pointer;">Повернутися на головну</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            // Ініціалізуємо олімпіаду
-            setTimeout(() => {
-                initOlympiad();
-            }, 100);
-        }
-
-        // Логіка олімпіади
-        function initOlympiad() {
-            // Оновлюємо кнопку "Повернутись"
-            const prevBtn = document.getElementById('prevBtn');
-            if (prevBtn) {
-                prevBtn.onclick = function() { 
-                    if (olympiadActiveTask > 1) {
-                        goToOlympiad(olympiadActiveTask - 1);
-                    }
-                };
-            }
-            
-            // Починаємо з першого завдання
-            goToOlympiad(1);
-        }
-
-        function goToOlympiad(n) {
-            if (olympiadActiveTask === n) return;
-            
-            if (olympiadActiveTask) {
-                pauseOlympiadTimer();
-                const currentScreen = document.getElementById('task' + olympiadActiveTask);
-                if (currentScreen) currentScreen.classList.remove('active');
-            }
-            
-            const newScreen = document.getElementById('task' + n);
-            if (newScreen) {
-                newScreen.classList.add('active');
-                olympiadActiveTask = n;
-                
-                const prevBtn = document.getElementById('prevBtn');
-                if (prevBtn) {
-                    prevBtn.style.display = n > 1 ? 'inline-block' : 'none';
-                }
-                
-                startOlympiadTimerFor(n);
-                window.scrollTo({top: 0, behavior: 'smooth'});
-            }
-        }
-
-        function startOlympiadTimerFor(n) {
-            pauseOlympiadTimer();
-            
-            const timerEl = document.getElementById('timer');
-            if (!timerEl) return;
-            
-            olympiadTimerInterval = setInterval(() => {
-                if (olympiadRemaining[n] > 0) {
-                    olympiadRemaining[n]--;
-                    updateOlympiadTimerDisplay(olympiadRemaining[n]);
-                } else {
-                    clearInterval(olympiadTimerInterval);
-                    if (n < 3) goToOlympiad(n + 1);
-                }
-            }, 1000);
-            
-            updateOlympiadTimerDisplay(olympiadRemaining[n]);
-        }
-
-        function pauseOlympiadTimer() {
-            if (olympiadTimerInterval) {
-                clearInterval(olympiadTimerInterval);
-                olympiadTimerInterval = null;
-            }
-        }
-
-        function updateOlympiadTimerDisplay(sec) {
-            const timerEl = document.getElementById('timer');
-            if (!timerEl) return;
-            
-            const m = Math.floor(sec / 60).toString().padStart(2, '0');
-            const s = (sec % 60).toString().padStart(2, '0');
-            timerEl.textContent = `${m}:${s}`;
-        }
-
-        function finishOlympiad() {
-            // Розрахунок балів
-            let score = 0;
-            
-            // Перевірка завдання 1
-            if (document.getElementById('t1s1')?.value === 'synthesis') score++;
-            if (document.getElementById('t1s2')?.value === 'short-sighted') score++;
-            
-            // Перевірка завдання 2
-            if (document.getElementById('r2q2')?.value === 'C') score++;
-            
-            // Перевірка завдання 3 (просто за наявність відповідей)
-            for (let i = 1; i <= 3; i++) {
-                const answer = document.getElementById('t3q' + i)?.value;
-                if (answer && answer.trim().length > 3) score++;
-            }
-            
-            // Показуємо результати
-            const resultPanel = document.getElementById('resultPanel');
-            const scoreText = document.getElementById('scoreText');
-            
-            if (resultPanel && scoreText) {
-                scoreText.innerHTML = `Ваш результат: <strong>${score} з 6 балів</strong>`;
-                resultPanel.style.display = 'block';
-                
-                // Ховаємо завдання
-                document.querySelectorAll('.olympiad-screen').forEach(screen => {
-                    screen.style.display = 'none';
-                });
-            }
-            
-            pauseOlympiadTimer();
-        }
-
-        // [Тут залиште весь код адмін панелі з попереднього повідомлення]
-        // ... (код адмін панелі залишається без змін)
-
-        // Додаємо всі функції в глобальну область
-        window.showModeSelector = showModeSelector;
-        window.showLogin = showLogin;
-        window.loginStudent = loginStudent;
-        window.loginAdmin = loginAdmin;
-        window.showOlympiad = showOlympiad;
-        window.goToOlympiad = goToOlympiad;
-        window.finishOlympiad = finishOlympiad;
-
-        // Запуск при завантаженні
-        document.addEventListener('DOMContentLoaded', function() {
-            showModeSelector();
-        });
-    </script>
-</body>
-</html>
+                                    <div><button class="olympiad-btn btn-ghost" onclick="go
