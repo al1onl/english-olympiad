@@ -1,253 +1,290 @@
+// Конфігурація системи
+const CONFIG = {
+    ADMIN_LOGIN: "admin",
+    ADMIN_PASSWORD: "admin123", 
+    ADMIN_CODE_WORD: "olympiad2024",
+    MAX_USERS: 1000
+};
+
+// Сховище даних
+let users = JSON.parse(localStorage.getItem('olympiad_users')) || [];
+let userProgress = JSON.parse(localStorage.getItem('olympiad_progress')) || {};
+
+// Змінні для олімпіади
+let olympiadRemaining = {1: 1200, 2: 1200, 3: 1200};
+let olympiadActiveTask = null;
+let olympiadTimerInterval = null;
+
+// Функції для роботи з інтерфейсом
+function showModeSelector() {
+    document.getElementById('modeSelector').style.display = 'grid';
+    document.getElementById('studentLogin').style.display = 'none';
+    document.getElementById('adminLogin').style.display = 'none';
+    document.getElementById('adminPanel').style.display = 'none';
+    document.getElementById('olympiadApp').style.display = 'none';
+}
+
+function showLogin(mode) {
+    document.getElementById('modeSelector').style.display = 'none';
+    if (mode === 'student') {
+        document.getElementById('studentLogin').style.display = 'block';
+        document.getElementById('adminLogin').style.display = 'none';
+        document.getElementById('studentLoginInput').value = '';
+        document.getElementById('studentPasswordInput').value = '';
+    } else {
+        document.getElementById('adminLogin').style.display = 'block';
+        document.getElementById('studentLogin').style.display = 'none';
+        document.getElementById('adminLoginInput').value = '';
+        document.getElementById('adminPasswordInput').value = '';
+        document.getElementById('adminCodeWord').value = '';
+    }
+}
+
+// Вхід для учня
+function loginStudent() {
+    const login = document.getElementById('studentLoginInput').value.trim();
+    const password = document.getElementById('studentPasswordInput').value.trim();
+    
+    if (!login || !password) {
+        alert('Будь ласка, заповніть всі поля');
+        return;
+    }
+    
+    const user = users.find(u => u.login === login && u.password === password);
+    
+    if (user) {
+        localStorage.setItem('current_user', JSON.stringify(user));
+        showOlympiad();
+    } else {
+        alert('Невірний логін або пароль');
+    }
+}
+
+// Вхід для адміна
+function loginAdmin() {
+    const login = document.getElementById('adminLoginInput').value.trim();
+    const password = document.getElementById('adminPasswordInput').value.trim();
+    const codeWord = document.getElementById('adminCodeWord').value.trim();
+    
+    if (login === CONFIG.ADMIN_LOGIN && 
+        password === CONFIG.ADMIN_PASSWORD && 
+        codeWord === CONFIG.ADMIN_CODE_WORD) {
+        showAdminPanel();
+    } else {
+        alert('Невірні облікові дані адміністратора');
+    }
+}
+
+// Показати адмін панель
+function showAdminPanel() {
+    document.getElementById('adminLogin').style.display = 'none';
+    document.getElementById('adminPanel').style.display = 'block';
+    
+    document.getElementById('adminPanel').innerHTML = `
+        <div class="admin-header">
+            <h2>Адмін панель</h2>
+            <button class="btn-secondary" onclick="showModeSelector()">Вийти</button>
+        </div>
+        <div class="tabs">
+            <button class="tab active" onclick="showAdminTab('users')">Користувачі</button>
+            <button class="tab" onclick="showAdminTab('stats')">Статистика</button>
+        </div>
+        <div id="adminUsers" class="panel active">
+            <h3>Управління користувачами</h3>
+            <div class="form-group">
+                <input type="text" id="newUserName" placeholder="Ім'я учня">
+                <select id="newUserClass">
+                    <option value="9">9 клас</option>
+                    <option value="10">10 клас</option>
+                    <option value="11">11 клас</option>
+                </select>
+                <button onclick="createUser()">Створити користувача</button>
+            </div>
+            <div id="usersList"></div>
+        </div>
+        <div id="adminStats" class="panel">
+            <h3>Статистика</h3>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">${users.length}</div>
+                    <div class="stat-label">Користувачів</div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    updateUsersList();
+}
+
+function showAdminTab(tabName) {
+    document.querySelectorAll('.panel').forEach(panel => panel.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+    
+    document.getElementById('admin' + tabName.charAt(0).toUpperCase() + tabName.slice(1)).classList.add('active');
+    event.target.classList.add('active');
+}
+
+function createUser() {
+    const name = document.getElementById('newUserName').value.trim();
+    const studentClass = document.getElementById('newUserClass').value;
+    
+    if (!name) {
+        alert('Введіть ім\'я учня');
+        return;
+    }
+    
+    const login = generateLogin(name);
+    const password = generatePassword();
+    
+    const newUser = {
+        id: Date.now(),
+        name: name,
+        class: studentClass,
+        login: login,
+        password: password,
+        created: new Date().toLocaleDateString()
+    };
+    
+    users.push(newUser);
+    localStorage.setItem('olympiad_users', JSON.stringify(users));
+    
+    document.getElementById('newUserName').value = '';
+    updateUsersList();
+    
+    alert(`Користувача створено!\nЛогін: ${login}\nПароль: ${password}`);
+}
+
+function generateLogin(name) {
+    const base = name.toLowerCase().replace(/\s+/g, '');
+    let login = base;
+    let counter = 1;
+    
+    while (users.find(u => u.login === login)) {
+        login = base + counter;
+        counter++;
+    }
+    
+    return login;
+}
+
+function generatePassword() {
+    return Math.random().toString(36).slice(-8);
+}
+
+function updateUsersList() {
+    const usersList = document.getElementById('usersList');
+    if (!usersList) return;
+    
+    usersList.innerHTML = `
+        <div class="user-list">
+            <div class="user-item header">
+                <div>Ім'я</div>
+                <div>Клас</div>
+                <div>Логін</div>
+                <div>Пароль</div>
+                <div>Дії</div>
+            </div>
+            ${users.map(user => `
+                <div class="user-item">
+                    <div>${user.name}</div>
+                    <div>${user.class} клас</div>
+                    <div>${user.login}</div>
+                    <div>${user.password}</div>
+                    <div>
+                        <button class="danger-btn" onclick="deleteUser(${user.id})">Видалити</button>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function deleteUser(userId) {
+    if (confirm('Видалити цього користувача?')) {
+        users = users.filter(u => u.id !== userId);
+        localStorage.setItem('olympiad_users', JSON.stringify(users));
+        updateUsersList();
+    }
+}
+
 // Показати олімпіаду
 function showOlympiad() {
     document.getElementById('studentLogin').style.display = 'none';
     document.getElementById('olympiadApp').style.display = 'block';
     
-    // Повноцінна олімпіада
+    // Спрощена версія олімпіади для прикладу
     document.getElementById('olympiadApp').innerHTML = `
         <div class="olympiad-container">
-            <header>
-                <div class="brand">
-                    <h1>Олімпіада з Англійської мови — 10 клас (Hard)</h1>
-                    <div class="subtitle">Фінальна версія</div>
+            <div class="olympiad-header">
+                <div class="olympiad-brand">
+                    <h1>Олімпіада з Англійської мови</h1>
+                    <div class="olympiad-subtitle">Тестова версія</div>
                 </div>
-                <div style="color:#fff;font-size:13px">
-                    <button onclick="showModeSelector()" style="background: #666; padding: 5px 10px; border: none; border-radius: 5px; color: white; cursor: pointer;">Вийти</button>
+                <div>
+                    <button onclick="showModeSelector()" style="background: #e74c3c; padding: 8px 16px; border: none; border-radius: 5px; color: white; cursor: pointer; font-weight: 600;">Вийти</button>
                 </div>
-            </header>
+            </div>
 
-            <div class="card">
-                <div id="tasks">
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-                        <div style="font-weight:700">Олімпіадні завдання — працюйте уважно</div>
+            <div class="olympiad-card">
+                <div class="olympiad-tasks">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+                        <div style="font-weight:700; color: var(--primary);">Олімпіадні завдання</div>
                         <div class="top-right">
-                            <div class="prev-pill" id="prevBtn">← Повернутись</div>
+                            <div class="prev-pill" id="prevBtn" style="display:none">← Назад</div>
                             <div class="timer" id="timer">20:00</div>
                         </div>
                     </div>
 
-                    <!-- Task 1 -->
-                    <section id="task1" class="screen">
+                    <section id="task1" class="olympiad-screen active">
                         <div class="task-head">
-                            <div><strong>Завдання 1</strong> — Advanced Use of English</div>
-                            <div class="hint">Вставте правильні слова у пропуски.</div>
+                            <div><strong>Завдання 1</strong> — Тестове завдання</div>
+                            <div class="hint">Виберіть правильну відповідь</div>
                         </div>
                         <div class="task-box">
-                            <p style="line-height:1.6">
-                            Contemporary urban studies increasingly emphasize the need for 
-                            <select id="t1s1">
+                            <p class="question">She ___ to school every day.</p>
+                            <select class="olympiad-select" id="answer1">
                                 <option value="">—</option>
-                                <option value="synthesis">synthesis</option>
-                                <option value="fragmentation">fragmentation</option>
-                                <option value="isolation">isolation</option>
-                            </select> 
-                            of cross-disciplinary methods. Historically, approaches that privileged narrow disciplinary perspectives resulted in policies that were 
-                            <select id="t1s2">
-                                <option value="">—</option>
-                                <option value="resilient">resilient</option>
-                                <option value="short-sighted">short-sighted</option>
-                                <option value="comprehensive">comprehensive</option>
-                            </select> 
-                            and lacked long-term viability.
-                            </p>
+                                <option value="go">go</option>
+                                <option value="goes">goes</option>
+                                <option value="going">going</option>
+                            </select>
                         </div>
                         <div class="controls">
                             <div></div>
-                            <div><button class="btn btn-primary" onclick="goToOlympiad(2)">Далі →</button></div>
+                            <div><button class="olympiad-btn btn-primary" onclick="goToOlympiad(2)">Далі →</button></div>
                         </div>
                     </section>
 
-                    <!-- Task 2 -->
-                    <section id="task2" class="screen">
+                    <section id="task2" class="olympiad-screen">
                         <div class="task-head">
-                            <div><strong>Завдання 2</strong> — Reading</div>
-                            <div class="hint">Прочитайте текст та дайте відповіді.</div>
+                            <div><strong>Завдання 2</strong> — Друге завдання</div>
+                            <div class="hint">Напишіть відповідь</div>
                         </div>
                         <div class="task-box">
-                            <p style="font-size:14px;line-height:1.7">Over the last half-century, urbanization has proceeded at an unprecedented rate, compelling scholars to reassess traditional paradigms of growth and governance. Initially, urban theory emphasized industrial expansion and spatial planning as the dominant variables; however, contemporary perspectives integrate social capital, environmental integrity and digital infrastructure into cohesive frameworks.</p>
-                            <ol style="margin-top:12px">
-                                <li>Define path-dependent outcomes: <input id="r2q1" placeholder="your answer" style="width:100%;padding:6px;border-radius:6px;border:1px solid #ddd"></li>
-                                <li>Which is NOT listed? 
-                                    <select id="r2q2">
-                                        <option value="">—</option>
-                                        <option value="A">social capital</option>
-                                        <option value="B">digital infrastructure</option>
-                                        <option value="C">agrarian reform</option>
-                                    </select>
-                                </li>
-                            </ol>
+                            <p class="question">Як буде "яблуко" англійською?</p>
+                            <input class="olympiad-input" id="answer2" placeholder="Ваша відповідь">
                         </div>
                         <div class="controls">
-                            <div><button class="btn btn-ghost" onclick="goToOlympiad(1)">← Назад</button></div>
-                            <div><button class="btn btn-primary" onclick="goToOlympiad(3)">Далі →</button></div>
-                        </div>
-                    </section>
-
-                    <!-- Task 3 -->
-                    <section id="task3" class="screen">
-                        <div class="task-head">
-                            <div><strong>Завдання 3</strong> — Transformations</div>
-                            <div class="hint">Перепишіть речення.</div>
-                        </div>
-                        <div class="task-box">
-                            <ol>
-                                <li>It was unnecessary to wake him. (NEED) — <input id="t3q1" placeholder="Your sentence" style="width:100%;padding:6px;border-radius:6px;border:1px solid #ddd"></li>
-                                <li>She completed the task despite the difficulties. (MANAGED) — <input id="t3q2" placeholder="Your sentence" style="width:100%;padding:6px;border-radius:6px;border:1px solid #ddd"></li>
-                                <li>They started the project two years ago. (BEEN) — <input id="t3q3" placeholder="Your sentence" style="width:100%;padding:6px;border-radius:6px;border:1px solid #ddd"></li>
-                            </ol>
-                        </div>
-                        <div class="controls">
-                            <div><button class="btn btn-ghost" onclick="goToOlympiad(2)">← Назад</button></div>
-                            <div><button class="btn btn-danger" onclick="finishOlympiad()">Завершити</button></div>
+                            <div><button class="olympiad-btn btn-ghost" onclick="goToOlympiad(1)">← Назад</button></div>
+                            <div><button class="olympiad-btn btn-primary" onclick="finishOlympiad()">Завершити</button></div>
                         </div>
                     </section>
 
                     <div id="resultPanel" class="result">
                         <h3>Результат</h3>
                         <div id="scoreText"></div>
-                        <div id="timeSummary" style="margin-top:8px;color:#444"></div>
-                        <button onclick="showModeSelector()" style="margin-top: 20px; padding: 10px 20px; background: #6aa84f; color: white; border: none; border-radius: 5px; cursor: pointer;">Повернутися на головну</button>
+                        <button onclick="showModeSelector()" style="margin-top: 20px; padding: 10px 20px; background: var(--accent); color: white; border: none; border-radius: 5px; cursor: pointer;">Повернутися на головну</button>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <style>
-            .olympiad-container {
-                max-width: 100%;
-            }
-            header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                color: #fff;
-                margin-bottom: 14px;
-                background: #424242;
-                padding: 15px;
-                border-radius: 10px;
-            }
-            .brand h1 {
-                font-size: 20px;
-                margin: 0;
-            }
-            .subtitle {
-                font-size: 13px;
-                color: #ddd;
-            }
-            .card {
-                background: linear-gradient(180deg, #ffffffee, #fbfbfb);
-                border-radius: 12px;
-                padding: 18px;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.35);
-            }
-            #tasks {
-                margin-top: 14px;
-            }
-            .screen {
-                display: none;
-                padding: 12px;
-                border-radius: 10px;
-            }
-            .screen.active {
-                display: block;
-            }
-            .task-head {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 8px;
-            }
-            .task-box {
-                background: #999;
-                padding: 18px;
-                border-radius: 10px;
-                box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-                color: #111;
-            }
-            .hint {
-                font-size: 13px;
-                color: #222;
-                background: #eee;
-                padding: 8px;
-                border-radius: 8px;
-                margin-bottom: 10px;
-            }
-            .top-right {
-                display: flex;
-                gap: 10px;
-                align-items: center;
-            }
-            .timer {
-                background: #222;
-                color: #fff;
-                padding: 8px 12px;
-                border-radius: 8px;
-                font-weight: 700;
-                min-width: 140px;
-                text-align: center;
-            }
-            .prev-pill {
-                background: #fff;
-                padding: 6px 8px;
-                border-radius: 8px;
-                border: 1px solid #ddd;
-                cursor: pointer;
-            }
-            .controls {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-top: 12px;
-            }
-            .btn {
-                padding: 10px 16px;
-                border-radius: 10px;
-                border: none;
-                font-weight: 700;
-                cursor: pointer;
-            }
-            .btn-primary {
-                background: #6aa84f;
-                color: white;
-            }
-            .btn-danger {
-                background: #d9534f;
-                color: white;
-            }
-            .btn-ghost {
-                background: transparent;
-                border: 1px solid rgba(0,0,0,0.06);
-            }
-            .result {
-                display: none;
-                background: #fff;
-                padding: 16px;
-                border-radius: 10px;
-                margin-top: 12px;
-                text-align: center;
-            }
-            select, input {
-                padding: 8px;
-                border-radius: 6px;
-                border: 1px solid #ddd;
-                margin: 2px 0;
-            }
-        </style>
     `;
     
-    // Ініціалізуємо олімпіаду
-    setTimeout(() => {
-        initOlympiad();
-    }, 100);
+    initOlympiad();
 }
 
 // Логіка олімпіади
-let olympiadRemaining = {1: 1200, 2: 1200, 3: 1200};
-let olympiadActiveTask = null;
-let olympiadTimerInterval = null;
-
 function initOlympiad() {
-    // Оновлюємо кнопку "Повернутись"
     const prevBtn = document.getElementById('prevBtn');
     if (prevBtn) {
         prevBtn.onclick = function() { 
@@ -257,7 +294,6 @@ function initOlympiad() {
         };
     }
     
-    // Починаємо з першого завдання
     goToOlympiad(1);
 }
 
@@ -297,7 +333,7 @@ function startOlympiadTimerFor(n) {
             updateOlympiadTimerDisplay(olympiadRemaining[n]);
         } else {
             clearInterval(olympiadTimerInterval);
-            if (n < 3) goToOlympiad(n + 1);
+            if (n < 2) goToOlympiad(n + 1);
         }
     }, 1000);
     
@@ -321,32 +357,19 @@ function updateOlympiadTimerDisplay(sec) {
 }
 
 function finishOlympiad() {
-    // Розрахунок балів
     let score = 0;
     
-    // Перевірка завдання 1
-    if (document.getElementById('t1s1')?.value === 'synthesis') score++;
-    if (document.getElementById('t1s2')?.value === 'short-sighted') score++;
+    if (document.getElementById('answer1')?.value === 'goes') score++;
+    if (document.getElementById('answer2')?.value?.toLowerCase() === 'apple') score++;
     
-    // Перевірка завдання 2
-    if (document.getElementById('r2q2')?.value === 'C') score++;
-    
-    // Перевірка завдання 3 (просто за наявність відповідей)
-    for (let i = 1; i <= 3; i++) {
-        const answer = document.getElementById('t3q' + i)?.value;
-        if (answer && answer.trim().length > 3) score++;
-    }
-    
-    // Показуємо результати
     const resultPanel = document.getElementById('resultPanel');
     const scoreText = document.getElementById('scoreText');
     
     if (resultPanel && scoreText) {
-        scoreText.innerHTML = `Ваш результат: <strong>${score} з 6 балів</strong>`;
+        scoreText.innerHTML = `Ваш результат: <strong>${score} з 2 балів</strong>`;
         resultPanel.style.display = 'block';
         
-        // Ховаємо завдання
-        document.querySelectorAll('.screen').forEach(screen => {
+        document.querySelectorAll('.olympiad-screen').forEach(screen => {
             screen.style.display = 'none';
         });
     }
@@ -355,5 +378,14 @@ function finishOlympiad() {
 }
 
 // Додаємо функції в глобальну область
+window.showModeSelector = showModeSelector;
+window.showLogin = showLogin;
+window.loginStudent = loginStudent;
+window.loginAdmin = loginAdmin;
+window.showAdminPanel = showAdminPanel;
+window.showAdminTab = showAdminTab;
+window.createUser = createUser;
+window.deleteUser = deleteUser;
+window.showOlympiad = showOlympiad;
 window.goToOlympiad = goToOlympiad;
 window.finishOlympiad = finishOlympiad;
