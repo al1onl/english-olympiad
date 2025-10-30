@@ -48,7 +48,6 @@ class Utils {
                 <span class="notification-message">${message}</span>
             </div>
         `;
-        
         notification.style.cssText = `
             position: fixed;
             top: 20px;
@@ -67,11 +66,9 @@ class Utils {
         `;
         
         document.body.appendChild(notification);
-        
         setTimeout(() => {
             notification.style.transform = 'translateX(0)';
         }, 100);
-        
         setTimeout(() => {
             notification.style.transform = 'translateX(400px)';
             setTimeout(() => {
@@ -110,11 +107,9 @@ class Utils {
             .replace(/\s+/g, '')
             .replace(/[^a-z0-9а-яіїєґ]/g, '')
             .substring(0, 8);
-        
         const users = JSON.parse(localStorage.getItem('olympiad_users')) || [];
         let login = base;
         let counter = 1;
-        
         while (users.find(user => user.login === login)) {
             login = base + counter;
             counter++;
@@ -143,7 +138,6 @@ class Utils {
         const users = JSON.parse(localStorage.getItem('olympiad_users')) || [];
         const usedNumbers = users.map(u => u.studentNumber).filter(n => n);
         let number;
-        
         do {
             number = Math.floor(Math.random() * 10000) + 1;
         } while (usedNumbers.includes(number));
@@ -334,14 +328,12 @@ class OlympiadManager {
                 this.handleFullscreenExit();
             }
         });
-
         // Відстеження видимості сторінки
         document.addEventListener('visibilitychange', () => {
             if (document.hidden && !this.isFinished) {
                 this.handleVisibilityChange();
             }
         });
-
         // Запобігання виходу зі сторінки
         window.addEventListener('beforeunload', (e) => {
             if (!this.isFinished) {
@@ -354,7 +346,6 @@ class OlympiadManager {
     // Обробка виходу з повноекранного режиму
     handleFullscreenExit() {
         if (this.isFinished) return;
-        
         this.fullscreenExitCount++;
         this.pauseTimer();
         
@@ -375,7 +366,6 @@ class OlympiadManager {
         if (warning) {
             warning.textContent = `Увага! Ви вийшли з повноекранного режиму ${this.fullscreenExitCount} разів. Після ${CONFIG.MAX_FULLSCREEN_EXITS} виходів тест буде автоматично завершено!`;
             warning.style.display = 'block';
-            
             Utils.showNotification(
                 `Ви вийшли з повноекранного режиму ${this.fullscreenExitCount}/${CONFIG.MAX_FULLSCREEN_EXITS} разів`, 
                 'warning'
@@ -392,7 +382,6 @@ class OlympiadManager {
             `Тест примусово завершено! Ви вийшли з повноекранного режиму ${this.fullscreenExitCount} разів.`, 
             'error'
         );
-        
         this.finishOlympiad();
     }
 
@@ -435,7 +424,6 @@ class OlympiadManager {
         const timerElement = document.getElementById('timer');
         if (timerElement) {
             timerElement.textContent = Utils.formatTime(this.timeRemaining);
-            
             // Зміна кольору при малому часі
             if (this.timeRemaining < 300) {
                 timerElement.style.background = 'linear-gradient(135deg, var(--danger), var(--danger-dark))';
@@ -449,7 +437,6 @@ class OlympiadManager {
     // Наступне завдання
     nextTask() {
         this.saveCurrentTaskAnswers();
-        
         if (this.currentTask < this.totalTasks) {
             this.totalTimeSpent += (CONFIG.TASK_TIME - this.timeRemaining);
             this.currentTask++;
@@ -468,11 +455,12 @@ class OlympiadManager {
     showTask(taskNumber) {
         if (this.isFinished && !this.viewMode) return;
         
+        this.currentTask = taskNumber; // Встановлюємо поточне завдання
+        
         // Приховати всі завдання
-        document.querySelectorAll('.task-container').forEach(task => {
+        document.querySelectorAll('.task-section').forEach(task => {
             task.style.display = 'none';
         });
-        
         // Показати поточне завдання
         const currentTaskElement = document.getElementById(`task${taskNumber}`);
         if (currentTaskElement) {
@@ -482,7 +470,6 @@ class OlympiadManager {
         
         // Оновити навігацію
         this.updateNavigation(taskNumber);
-        
         // Завантажити збережені відповіді
         this.loadTaskAnswers(taskNumber);
     }
@@ -493,7 +480,7 @@ class OlympiadManager {
         const nextBtn1 = document.getElementById('nextBtn1');
         const nextBtn2 = document.getElementById('nextBtn2');
         const finishBtn = document.getElementById('finishBtn');
-        
+
         if (prevBtn) {
             prevBtn.style.display = taskNumber > 1 ? 'block' : 'none';
             prevBtn.onclick = () => this.previousTask();
@@ -501,13 +488,16 @@ class OlympiadManager {
 
         // Оновити текст кнопок
         if (nextBtn1) {
-            nextBtn1.textContent = taskNumber === 1 ? 'Перейти до завдання 2 →' : 'Далі →';
+            nextBtn1.textContent = 'Перейти до завдання 2 →';
+            nextBtn1.onclick = () => this.nextTask(); // Виправляємо прив'язку
         }
         if (nextBtn2) {
-            nextBtn2.textContent = taskNumber === 2 ? 'Перейти до завдання 3 →' : 'Далі →';
+            nextBtn2.textContent = 'Перейти до завдання 3 →';
+            nextBtn2.onclick = () => this.nextTask(); // Виправляємо прив'язку
         }
         if (finishBtn) {
             finishBtn.textContent = this.viewMode ? 'Завершити перегляд' : 'Завершити олімпіаду';
+            finishBtn.onclick = () => this.finishOlympiad(); // Виправляємо прив'язку
         }
     }
 
@@ -528,49 +518,39 @@ class OlympiadManager {
     // Завантажити відповіді завдання
     loadTaskAnswers(taskNumber) {
         const savedAnswers = this.answers[`task${taskNumber}`] || {};
-        
-        for (let i = 1; i <= 12; i++) {
-            const select = document.getElementById(`t1s${i}`);
-            const input = document.getElementById(`r2q${i}`) || document.getElementById(`t3q${i}`);
+        const taskElement = document.getElementById(`task${taskNumber}`);
+        if (!taskElement) return;
+
+        taskElement.querySelectorAll('select, input').forEach(element => {
+            const id = element.id;
+            const qId = id.substring(id.startsWith('r2q') || id.startsWith('t1s') ? 3 : 3); // t1s1 -> 1, t3q1 -> 1
+            const qKey = id.startsWith('r2q') ? `q${qId}` : (id.startsWith('t1s') ? `q${id.substring(3)}` : `q${qId}`);
             
-            if (select && savedAnswers[`q${i}`]) {
-                select.value = savedAnswers[`q${i}`];
+            // Складний ключ для t1s
+            if (id.startsWith('t1s')) {
+                if (savedAnswers[id]) element.value = savedAnswers[id];
+            } 
+            // Ключі для task 2 і 3
+            else if (id.startsWith('r2q') || id.startsWith('t3q')) {
+                const key = id; // r2q1, t3q1
+                if (savedAnswers[key]) element.value = savedAnswers[key];
             }
-            if (input && savedAnswers[`q${i}`]) {
-                input.value = savedAnswers[`q${i}`];
-            }
-        }
+        });
     }
 
     // Отримати відповіді завдання
     getTaskAnswers(taskNumber) {
         const answers = {};
-        
-        switch (taskNumber) {
-            case 1:
-                for (let i = 1; i <= 12; i++) {
-                    const select = document.getElementById(`t1s${i}`);
-                    if (select) answers[`q${i}`] = select.value;
-                }
-                break;
-                
-            case 2:
-                for (let i = 1; i <= 12; i++) {
-                    const element = document.getElementById(`r2q${i}`);
-                    if (element) answers[`q${i}`] = element.value;
-                }
-                break;
-                
-            case 3:
-                for (let i = 1; i <= 10; i++) {
-                    const input = document.getElementById(`t3q${i}`);
-                    if (input) answers[`q${i}`] = input.value;
-                }
-                break;
-        }
+        const taskElement = document.getElementById(`task${taskNumber}`);
+        if (!taskElement) return answers;
+
+        taskElement.querySelectorAll('select, input').forEach(element => {
+            answers[element.id] = element.value;
+        });
         
         return answers;
     }
+
 
     // Увійти в повноекранний режим
     enterFullscreen() {
@@ -583,8 +563,15 @@ class OlympiadManager {
 
     // Завершити олімпіаду
     finishOlympiad() {
-        if (this.isFinished) return;
+        if (this.isFinished && !this.viewMode) return; // Не завершувати, якщо вже завершено
         
+        if (this.viewMode) {
+            // Якщо ми в режимі перегляду, просто показуємо результати
+            this.showResults();
+            Utils.showSuccess('Перегляд завершено.');
+            return;
+        }
+
         this.isFinished = true;
         this.stopTimer();
         this.saveCurrentTaskAnswers();
@@ -596,7 +583,6 @@ class OlympiadManager {
         
         // Зберегти результати
         this.saveResults();
-        
         // Показати результати
         this.showResults();
         
@@ -612,6 +598,9 @@ class OlympiadManager {
         const score = this.calculateScore();
         const score12 = Utils.calculate12PointScore(score, CONFIG.MAX_SCORE);
         
+        // Рахуємо загальний час
+        this.totalTimeSpent += (CONFIG.TASK_TIME - this.timeRemaining);
+
         progress[currentUser.id] = {
             completed: true,
             timestamp: new Date().toISOString(),
@@ -619,51 +608,50 @@ class OlympiadManager {
             fullscreenExits: this.fullscreenExitCount,
             score: score,
             score12: score12,
-            answers: this.answers,
-            tasks: {
-                task1: this.getTaskAnswers(1),
-                task2: this.getTaskAnswers(2),
-                task3: this.getTaskAnswers(3)
-            }
+            answers: this.answers // Зберігаємо всі відповіді
         };
-        
         DataStorage.saveProgress(progress);
     }
 
     // Розрахувати бали
     calculateScore() {
         let score = 0;
-        
+        const answers = this.answers;
+
         // Завдання 1: 12 питань
-        for (let i = 1; i <= 12; i++) {
-            const select = document.getElementById(`t1s${i}`);
-            if (select && select.value === CONFIG.CORRECT_ANSWERS.task1[`t1s${i}`]) {
-                score += 1;
+        if (answers.task1) {
+            for (let i = 1; i <= 12; i++) {
+                const key = `t1s${i}`;
+                if (answers.task1[key] && answers.task1[key] === CONFIG.CORRECT_ANSWERS.task1[key]) {
+                    score += 1;
+                }
             }
         }
         
         // Завдання 2: 12 питань
-        Object.keys(CONFIG.CORRECT_ANSWERS.task2).forEach(id => {
-            const element = document.getElementById(id);
-            if (element && element.value === CONFIG.CORRECT_ANSWERS.task2[id]) {
-                score += 1;
-            }
-        });
-        
-        // Короткі відповіді завдання 2 (6 питань)
-        const shortAnswers = ['r2q1', 'r2q3', 'r2q5', 'r2q7', 'r2q9', 'r2q11'];
-        shortAnswers.forEach(id => {
-            const input = document.getElementById(id);
-            if (input && input.value.trim().length > 5) {
-                score += 1;
-            }
-        });
+        if (answers.task2) {
+            // MC (6 питань)
+            Object.keys(CONFIG.CORRECT_ANSWERS.task2).forEach(id => {
+                if (answers.task2[id] && answers.task2[id] === CONFIG.CORRECT_ANSWERS.task2[id]) {
+                    score += 1;
+                }
+            });
+            // Короткі відповіді (6 питань)
+            const shortAnswers = ['r2q1', 'r2q3', 'r2q5', 'r2q7', 'r2q9', 'r2q11'];
+            shortAnswers.forEach(id => {
+                if (answers.task2[id] && answers.task2[id].trim().length > 5) {
+                    score += 1;
+                }
+            });
+        }
         
         // Завдання 3: 10 питань
-        for (let i = 1; i <= 10; i++) {
-            const input = document.getElementById(`t3q${i}`);
-            if (input && input.value.trim().length > 10) {
-                score += 1;
+        if (answers.task3) {
+            for (let i = 1; i <= 10; i++) {
+                const key = `t3q${i}`;
+                if (answers.task3[key] && answers.task3[key].trim().length > 10) {
+                    score += 1;
+                }
             }
         }
         
@@ -678,6 +666,7 @@ class OlympiadManager {
         if (resultsScreen && tasksContainer) {
             tasksContainer.style.display = 'none';
             resultsScreen.style.display = 'block';
+            resultsScreen.classList.add('fade-in'); // Додаємо анімацію
             this.displayResults();
         }
     }
@@ -689,8 +678,11 @@ class OlympiadManager {
         const progress = DataStorage.getProgress();
         const userProgress = progress[currentUser.id];
         
-        if (!resultsContent || !userProgress) return;
-        
+        if (!resultsContent || !userProgress) {
+            resultsContent.innerHTML = `<h2 style="color: var(--danger);">Помилка завантаження результатів.</h2>`;
+            return;
+        }
+
         resultsContent.innerHTML = `
             <div class="header-section">
                 <div class="logo">🎉</div>
@@ -776,6 +768,7 @@ class OlympiadManager {
         document.querySelectorAll('input, select').forEach(element => {
             element.disabled = true;
             element.style.opacity = '0.7';
+            element.style.cursor = 'not-allowed';
         });
         
         // Показуємо навігацію для перегляду
@@ -785,6 +778,9 @@ class OlympiadManager {
         // Показуємо перше завдання
         this.showTask(1);
         
+        // Оновлюємо кнопки навігації для режиму перегляду
+        this.updateNavigation(1); // Оновлюємо для першого завдання
+        
         // Додаємо кнопку повернення до результатів
         this.addBackToResultsButton();
         
@@ -793,18 +789,18 @@ class OlympiadManager {
 
     // Додати кнопку повернення до результатів
     addBackToResultsButton() {
-        const taskHeader = document.querySelector('.task-header');
+        const taskHeader = document.querySelector('.task-navigation');
         if (taskHeader && !document.getElementById('backToResultsBtn')) {
             const backBtn = document.createElement('button');
             backBtn.id = 'backToResultsBtn';
             backBtn.textContent = '← До результатів';
             backBtn.className = 'btn-secondary';
-            backBtn.style.marginRight = '15px';
+            backBtn.style.padding = '12px 20px';
             backBtn.addEventListener('click', () => {
                 this.showResults();
             });
-            
-            taskHeader.querySelector('div').prepend(backBtn);
+            // Додаємо кнопку перед таймером
+            taskHeader.querySelector('div:last-child').prepend(backBtn);
         }
     }
 }
@@ -813,7 +809,7 @@ class OlympiadManager {
 class EnglishOlympiadApp {
     constructor() {
         this.olympiadManager = null;
-        this.init();
+        // **ВИПРАВЛЕННЯ:** Ми не запускаємо init() одразу
     }
 
     // Ініціалізація додатку
@@ -830,16 +826,15 @@ class EnglishOlympiadApp {
             this.initAdminPage();
         } else if (path.includes('student.html')) {
             this.initStudentPage();
-        } else {
+        } else if (path.includes('index.html') || path === '/') {
             this.initMainPage();
         }
     }
 
     // Глобальні слухачі подій
     setupGlobalEventListeners() {
-        document.addEventListener('DOMContentLoaded', () => {
-            this.onPageLoaded();
-        });
+        // Ми вже в DOMContentLoaded, тому можемо додати анімацію
+        this.onPageLoaded();
     }
 
     // Подія завантаження сторінки
@@ -852,6 +847,7 @@ class EnglishOlympiadApp {
         this.setupModeSelection();
         this.setupLoginForms();
         this.addRippleEffects();
+        console.log('🏠 Main page initialized');
     }
 
     // Додати ефекти ripple до кнопок
@@ -867,7 +863,6 @@ class EnglishOlympiadApp {
     setupModeSelection() {
         document.querySelectorAll('.mode-card[data-mode]').forEach(card => {
             card.addEventListener('click', (e) => {
-                Utils.createRipple(e);
                 const mode = card.getAttribute('data-mode');
                 setTimeout(() => this.showLoginForm(mode), 300);
             });
@@ -877,25 +872,17 @@ class EnglishOlympiadApp {
     // Налаштування форм входу
     setupLoginForms() {
         document.getElementById('studentLoginBtn').addEventListener('click', (e) => {
-            Utils.createRipple(e);
             this.handleStudentLogin();
         });
-        
         document.getElementById('adminLoginBtn').addEventListener('click', (e) => {
-            Utils.createRipple(e);
             this.handleAdminLogin();
         });
-        
         document.getElementById('backFromStudentBtn').addEventListener('click', (e) => {
-            Utils.createRipple(e);
             this.showMainMenu();
         });
-        
         document.getElementById('backFromAdminBtn').addEventListener('click', (e) => {
-            Utils.createRipple(e);
             this.showMainMenu();
         });
-
         // Enter для форм
         document.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
@@ -918,7 +905,6 @@ class EnglishOlympiadApp {
     // Показати форму входу
     showLoginForm(mode) {
         document.getElementById('modeSelector').style.display = 'none';
-        
         if (mode === 'student') {
             document.getElementById('studentLogin').style.display = 'block';
             document.getElementById('adminLogin').style.display = 'none';
@@ -940,11 +926,9 @@ class EnglishOlympiadApp {
         
         const users = DataStorage.getUsers();
         const user = users.find(u => u.login === login && u.password === password);
-        
         if (user) {
             DataStorage.setCurrentUser(user);
             Utils.showSuccess(`Ласкаво просимо, ${user.name}!`);
-            
             setTimeout(() => {
                 window.location.href = 'student.html';
             }, 1000);
@@ -983,39 +967,32 @@ class EnglishOlympiadApp {
 
         this.setupAdminPanel();
         Utils.showSuccess('Адмін панель активована');
+        console.log('⚙️ Admin page initialized');
     }
 
     // Налаштування адмін-панелі
     setupAdminPanel() {
         this.addRippleEffects();
-        
         // Вкладки
         document.querySelectorAll('.tab').forEach(tab => {
             tab.addEventListener('click', (e) => {
-                Utils.createRipple(e);
                 const tabName = tab.getAttribute('data-tab');
                 this.switchAdminTab(tabName);
             });
         });
-
         // Створення користувача
         document.getElementById('createUserBtn').addEventListener('click', (e) => {
-            Utils.createRipple(e);
             this.createUser();
         });
-
         // Пошук
         document.getElementById('userSearch').addEventListener('input', (e) => {
             this.filterUsers(e.target.value);
         });
-
         // Вихід
         document.getElementById('adminLogoutBtn').addEventListener('click', (e) => {
-            Utils.createRipple(e);
             DataStorage.setAdminAuthenticated(false);
             window.location.href = 'index.html';
         });
-
         // Завантажити дані
         this.updateUsersList();
         this.updateStats();
@@ -1060,7 +1037,6 @@ class EnglishOlympiadApp {
             studentNumber: null,
             created: new Date().toLocaleString('uk-UA')
         };
-        
         const users = DataStorage.getUsers();
         users.push(newUser);
         
@@ -1165,7 +1141,6 @@ class EnglishOlympiadApp {
             user.login.toLowerCase().includes(searchTerm.toLowerCase()) ||
             (user.studentNumber && user.studentNumber.toString().includes(searchTerm))
         );
-        
         const container = document.getElementById('usersListContainer');
         if (!container) return;
         
@@ -1192,7 +1167,7 @@ class EnglishOlympiadApp {
                         }</div>
                         <div><code>${user.login}</code></div>
                         <div><code>${user.password}</code></div>
-                        <div>${user.studentNumber ? 
+                        <div>${user.studentNumber ?
                             '<span class="status-badge active">АКТИВНИЙ</span>' : 
                             '<span class="status-badge inactive">НЕАКТИВНИЙ</span>'
                         }</div>
@@ -1235,7 +1210,6 @@ class EnglishOlympiadApp {
             class10Users: users.filter(u => u.class == 10).length,
             class11Users: users.filter(u => u.class == 11).length
         };
-        
         Object.entries(stats).forEach(([id, value]) => {
             const element = document.getElementById(id);
             if (element) {
@@ -1255,6 +1229,7 @@ class EnglishOlympiadApp {
         this.updateStudentInterface(currentUser);
         this.setupStudentEventListeners();
         Utils.showSuccess(`Ласкаво просимо, ${currentUser.name}! Готові до олімпіади?`);
+        console.log('🎓 Student page initialized');
     }
 
     // Оновити інтерфейс учня
@@ -1293,47 +1268,34 @@ class EnglishOlympiadApp {
         this.addRippleEffects();
         
         document.getElementById('startBtn').addEventListener('click', (e) => {
-            Utils.createRipple(e);
             this.startOlympiad();
         });
         
         document.getElementById('logoutBtn').addEventListener('click', (e) => {
-            Utils.createRipple(e);
             if (confirm('Вийти з системи?')) {
                 DataStorage.clearCurrentUser();
                 window.location.href = 'index.html';
             }
         });
 
-        // Навігація між завданнями
+        // Навігація між завданнями (буде керована менеджером)
         document.getElementById('nextBtn1').addEventListener('click', (e) => {
-            Utils.createRipple(e);
             if (this.olympiadManager) this.olympiadManager.nextTask();
         });
-        
         document.getElementById('nextBtn2').addEventListener('click', (e) => {
-            Utils.createRipple(e);
             if (this.olympiadManager) this.olympiadManager.nextTask();
         });
-        
         document.getElementById('prevBtn2').addEventListener('click', (e) => {
-            Utils.createRipple(e);
             if (this.olympiadManager) this.olympiadManager.previousTask();
         });
-        
         document.getElementById('prevBtn3').addEventListener('click', (e) => {
-            Utils.createRipple(e);
             if (this.olympiadManager) this.olympiadManager.previousTask();
         });
-        
         document.getElementById('finishBtn').addEventListener('click', (e) => {
-            Utils.createRipple(e);
             if (this.olympiadManager) this.olympiadManager.finishOlympiad();
         });
-
         // Глобальна кнопка "Назад"
         document.getElementById('prevBtn').addEventListener('click', (e) => {
-            Utils.createRipple(e);
             if (this.olympiadManager) this.olympiadManager.previousTask();
         });
     }
@@ -1346,14 +1308,20 @@ class EnglishOlympiadApp {
         // Ініціалізація менеджера олімпіади
         this.olympiadManager = new OlympiadManager();
         this.olympiadManager.init();
-        
         // Запуск повноекранного режиму
         this.olympiadManager.enterFullscreen();
     }
 }
 
-// 🚀 Ініціалізація додатку
-let app = new EnglishOlympiadApp();
-window.app = app;
+// 🚀 ІНІЦІАЛІЗАЦІЯ ДОДАТКУ (ВИПРАВЛЕНО)
+let app; // Створюємо змінну
 
-console.log('🎯 English Olympiad System loaded successfully!');
+// Чекаємо, поки весь HTML завантажиться
+document.addEventListener('DOMContentLoaded', () => {
+    // Тільки тепер ініціалізуємо додаток
+    app = new EnglishOlympiadApp();
+    app.init(); // Запускаємо ініціалізацію
+    window.app = app; // Робимо доступним глобально (для onclick в HTML)
+
+    console.log('🎯 English Olympiad System loaded successfully!');
+});
