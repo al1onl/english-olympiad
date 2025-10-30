@@ -408,6 +408,43 @@ button {
     letter-spacing: 1px;
 }
 
+/* Таблиця результатів для адміна */
+.results-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+.results-table thead th {
+    background: var(--accent-primary);
+    color: var(--bg-color);
+    padding: 15px;
+    text-align: left;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.results-table tbody tr {
+    background: var(--btn-dark);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.results-table tbody tr:hover {
+    background: var(--hover-bg);
+}
+
+.results-table td {
+    padding: 15px;
+}
+
+.results-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+
 /* 9. Адмін-панель */
 .tabs {
     border-bottom: 2px solid var(--border-color);
@@ -421,6 +458,7 @@ button {
     border-bottom: 3px solid transparent;
     font-weight: 600;
     text-transform: uppercase;
+    cursor: pointer;
 }
 
 .tab.active {
@@ -602,5 +640,12 @@ button {
     
     .task-navigation {
         flex-direction: column;
+    }
+    
+    .results-table {
+        font-size: 0.8rem;
+    }
+    .results-table thead th, .results-table tbody td {
+        padding: 10px;
     }
 }
