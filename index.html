@@ -1,55 +1,120 @@
-<div id="studentLogin" class="app-container hidden">
-    <h2>Вхід для Учня</h2>
-    <p class="subtitle">Будь ласка, введіть свій логін та пароль, надані адміністратором.</p>
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Olympiad - Cloud Edition</title>
     
-    <form id="studentLoginForm" style="max-width: 400px; margin: 0 auto;">
+    <link rel="stylesheet" href="style.css"> 
+</head>
+<body>
+
+    <div class="container">
         
-        <div id="studentError" class="forced-message hidden" style="margin-bottom: 20px;">
-            Невірний логін або пароль.
+        <div id="mainView" class="app-container">
+            <h1>Olympiad System.</h1>
+            <h2>Оберіть ваш режим</h2>
+            <p class="subtitle">Ласкаво просимо до системи проведення олімпіади. Продовжуйте як учень або адміністратор.</p>
+
+            <div id="modeSelector" style="display: flex; gap: 20px; justify-content: center; margin-top: 50px;">
+                <button class="btn-primary" data-mode="student" style="min-width: 250px;">
+                    Я — Учень
+                </button>
+                <button class="btn-secondary" data-mode="admin" style="min-width: 250px;">
+                    Я — Адміністратор
+                </button>
+            </div>
         </div>
 
-        <div style="margin-bottom: 20px;">
-            <input type="text" id="studentLoginInput" placeholder="Логін (Email)" required style="margin-bottom: 15px;">
-        </div>
-        
-        <div style="margin-bottom: 30px;">
-            <input type="password" id="studentPasswordInput" placeholder="Пароль" required>
-        </div>
-        
-        <button type="submit" class="btn-primary" style="width: 100%; margin-bottom: 15px;">Увійти до системи</button>
-        
-        <button type="button" data-action="backToMain" class="btn-secondary" style="width: 100%;">
-            ← Назад до головної
-        </button>
-    </form>
-</div>
+        <div id="studentLogin" class="app-container hidden">
+            <h2>Вхід для Учня</h2>
+            <p class="subtitle">Будь ласка, введіть свій логін та пароль, надані адміністратором.</p>
+            
+            <form id="studentLoginForm" style="max-width: 400px; margin: 0 auto;">
+                
+                <div id="studentError" class="forced-message hidden" style="margin-bottom: 20px;">
+                    Невірний логін або пароль.
+                </div>
 
-<div id="adminLogin" class="app-container hidden">
-    <h2>Вхід для Адміністратора</h2>
-    <p class="subtitle">Для доступу введіть дані адміністратора та кодове слово.</p>
-    
-    <form id="adminLoginForm" style="max-width: 400px; margin: 0 auto;">
-
-        <div id="adminError" class="forced-message hidden" style="margin-bottom: 20px;">
-            Невірні дані адміністратора.
+                <div style="margin-bottom: 20px;">
+                    <input type="text" id="studentLoginInput" placeholder="Логін (Email)" required style="margin-bottom: 15px;">
+                </div>
+                
+                <div style="margin-bottom: 30px;">
+                    <input type="password" id="studentPasswordInput" placeholder="Пароль" required>
+                </div>
+                
+                <button type="submit" class="btn-primary" style="width: 100%; margin-bottom: 15px;">Увійти до системи</button>
+                
+                <button type="button" data-action="backToMain" class="btn-secondary" style="width: 100%;">
+                    ← Назад до головної
+                </button>
+            </form>
         </div>
 
-        <div style="margin-bottom: 15px;">
-            <input type="text" id="adminLoginInput" placeholder="Логін (Email)" required>
-        </div>
-        
-        <div style="margin-bottom: 15px;">
-            <input type="password" id="adminPasswordInput" placeholder="Пароль" required>
-        </div>
-        
-        <div style="margin-bottom: 30px;">
-            <input type="password" id="adminCodeWord" placeholder="Кодове слово" required>
-        </div>
-        
-        <button type="submit" class="btn-primary" style="width: 100%; margin-bottom: 15px;">Увійти як Адмін</button>
+        <div id="adminLogin" class="app-container hidden">
+            <h2>Вхід для Адміністратора</h2>
+            <p class="subtitle">Для доступу введіть дані адміністратора та кодове слово.</p>
+            
+            <form id="adminLoginForm" style="max-width: 400px; margin: 0 auto;">
 
-        <button type="button" data-action="backToMain" class="btn-secondary" style="width: 100%;">
-            ← Назад до головної
-        </button>
-    </form>
-</div>
+                <div id="adminError" class="forced-message hidden" style="margin-bottom: 20px;">
+                    Невірні дані адміністратора.
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <input type="text" id="adminLoginInput" placeholder="Логін (Email)" required>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <input type="password" id="adminPasswordInput" placeholder="Пароль" required>
+                </div>
+                
+                <div style="margin-bottom: 30px;">
+                    <input type="password" id="adminCodeWord" placeholder="Кодове слово" required>
+                </div>
+                
+                <button type="submit" class="btn-primary" style="width: 100%; margin-bottom: 15px;">Увійти як Адмін</button>
+
+                <button type="button" data-action="backToMain" class="btn-secondary" style="width: 100%;">
+                    ← Назад до головної
+                </button>
+            </form>
+        </div>
+
+        <div id="studentAppView" class="app-container hidden">
+            <h1 style="text-align: center;">Секція Учня</h1>
+            <p>Цей екран буде містити привітання, кнопки старту та завдання олімпіади.</p>
+            <button id="studentLogoutBtn" class="btn-danger">Вийти</button>
+        </div>
+
+        <div id="adminAppView" class="app-container hidden">
+            <h1 style="text-align: center;">Адміністративна Панель</h1>
+            <p>Цей екран буде містити статистику, управління користувачами та результатами.</p>
+            <button id="adminLogoutBtn" class="btn-danger">Вийти</button>
+        </div>
+        
+    </div> <div id="notificationArea" class="notification-area"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script>
+      // ВСТАВТЕ ВАШ КОНФІГ FIREBASE ТУТ
+      const firebaseConfig = {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_AUTH_DOMAIN",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_STORAGE_BUCKET",
+        messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+        appId: "YOUR_APP_ID"
+      };
+      // Ініціалізація
+      const app = firebase.initializeApp(firebaseConfig);
+      const auth = app.auth();
+      const db = app.firestore();
+    </script>
+
+    <script src="script.js"></script>
+</body>
+</html>
