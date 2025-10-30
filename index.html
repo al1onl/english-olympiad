@@ -5,67 +5,94 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Олімпіада з англійської мови</title>
     <link rel="stylesheet" href="styles.css">
-    <meta name="theme-color" content="#424242">
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>🏆 Олімпіада з англійської мови</h1>
-            <p>Оберіть режим роботи</p>
+        <div class="main-card">
+            <div class="header-section">
+                <div class="logo">🏆</div>
+                <h1>Олімпіада з англійської мови</h1>
+                <p class="subtitle">Академічна платформа для оцінювання знань</p>
+            </div>
+
+            <div class="mode-selector" id="modeSelector">
+                <div class="mode-card" data-mode="student">
+                    <div class="card-icon">🎓</div>
+                    <div class="card-content">
+                        <h3>Учень</h3>
+                        <p>Проходження олімпіадних завдань</p>
+                        <div class="card-badge">Тестування</div>
+                    </div>
+                </div>
+                
+                <div class="mode-card" data-mode="admin">
+                    <div class="card-icon">⚙️</div>
+                    <div class="card-content">
+                        <h3>Адміністратор</h3>
+                        <p>Управління системою та користувачами</p>
+                        <div class="card-badge">Адміністрування</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="studentLogin" class="login-form" style="display: none;">
+                <div class="form-header">
+                    <h2>Вхід для учня</h2>
+                    <div class="form-icon">🔐</div>
+                </div>
+                <div class="form-group">
+                    <label>Логін</label>
+                    <input type="text" id="studentLoginInput" placeholder="Введіть ваш логін">
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" id="studentPasswordInput" placeholder="Введіть ваш пароль">
+                </div>
+                <button id="studentLoginBtn" class="btn-primary">
+                    <span>Увійти до системи</span>
+                    <div class="btn-icon">→</div>
+                </button>
+                <button class="btn-secondary" id="backFromStudentBtn">
+                    <span>← Повернутися</span>
+                </button>
+                <div id="studentError" class="error-message"></div>
+            </div>
+
+            <div id="adminLogin" class="login-form" style="display: none;">
+                <div class="form-header">
+                    <h2>Адміністративний доступ</h2>
+                    <div class="form-icon">🔑</div>
+                </div>
+                <div class="form-group">
+                    <label>Логін адміністратора</label>
+                    <input type="text" id="adminLoginInput" placeholder="admin">
+                </div>
+                <div class="form-group">
+                    <label>Пароль адміністратора</label>
+                    <input type="password" id="adminPasswordInput" placeholder="Введіть пароль">
+                </div>
+                <div class="form-group">
+                    <label>Кодове слово</label>
+                    <input type="password" id="adminCodeWord" placeholder="Секретне кодове слово">
+                </div>
+                <button id="adminLoginBtn" class="btn-primary">
+                    <span>Увійти в адмін панель</span>
+                    <div class="btn-icon">⚙️</div>
+                </button>
+                <button class="btn-secondary" id="backFromAdminBtn">
+                    <span>← Повернутися</span>
+                </button>
+                <div id="adminError" class="error-message"></div>
+            </div>
         </div>
 
-        <div class="mode-selector" id="modeSelector">
-            <div class="mode-card" data-mode="student">
-                <div class="mode-icon">🎓</div>
-                <h3>Режим учня</h3>
-                <p>Проходження олімпіади</p>
-            </div>
-            
-            <div class="mode-card" data-mode="admin">
-                <div class="mode-icon">⚙️</div>
-                <h3>Режим адміністратора</h3>
-                <p>Управління користувачами</p>
-            </div>
-        </div>
-
-        <div id="studentLogin" class="login-form" style="display: none;">
-            <h2>Вхід для учня</h2>
-            <div class="form-group">
-                <label>Логін:</label>
-                <input type="text" id="studentLoginInput" placeholder="Ваш логін">
-            </div>
-            <div class="form-group">
-                <label>Пароль:</label>
-                <input type="password" id="studentPasswordInput" placeholder="Ваш пароль">
-            </div>
-            <button id="studentLoginBtn">Увійти до олімпіади</button>
-            <button class="btn-secondary" id="backFromStudentBtn">← Назад</button>
-            <div id="studentError" class="error-message"></div>
-        </div>
-
-        <div id="adminLogin" class="login-form" style="display: none;">
-            <h2>Вхід для адміністратора</h2>
-            <div class="form-group">
-                <label>Логін адміна:</label>
-                <input type="text" id="adminLoginInput" placeholder="admin">
-            </div>
-            <div class="form-group">
-                <label>Пароль адміна:</label>
-                <input type="password" id="adminPasswordInput" placeholder="Пароль">
-            </div>
-            <div class="form-group">
-                <label>Кодове слово:</label>
-                <input type="password" id="adminCodeWord" placeholder="Секретне кодове слово">
-            </div>
-            <button id="adminLoginBtn">Увійти в адмін панель</button>
-            <button class="btn-secondary" id="backFromAdminBtn">← Назад</button>
-            <div id="adminError" class="error-message"></div>
+        <div class="footer">
+            <p>Академічна система олімпіад • 2024</p>
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Обробники для карток вибору режиму
             document.querySelectorAll('.mode-card[data-mode]').forEach(card => {
                 card.addEventListener('click', function() {
                     const mode = this.getAttribute('data-mode');
@@ -73,15 +100,11 @@
                 });
             });
 
-            // Обробники для форми учня
             document.getElementById('studentLoginBtn').addEventListener('click', handleStudentLogin);
             document.getElementById('backFromStudentBtn').addEventListener('click', showMainMenu);
-
-            // Обробники для форми адміна
             document.getElementById('adminLoginBtn').addEventListener('click', handleAdminLogin);
             document.getElementById('backFromAdminBtn').addEventListener('click', showMainMenu);
 
-            // Enter для форми входу
             document.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     if (document.getElementById('studentLogin').style.display !== 'none') {
@@ -116,7 +139,7 @@
             const password = document.getElementById('studentPasswordInput').value.trim();
             
             if (!login || !password) {
-                showError('studentError', 'Будь ласка, заповніть всі поля');
+                showError('studentError', 'Будь ласка, заповніть всі обов\'язкові поля');
                 return;
             }
             
@@ -127,7 +150,7 @@
                 localStorage.setItem('current_user', JSON.stringify(user));
                 window.location.href = 'student.html';
             } else {
-                showError('studentError', 'Невірний логін або пароль. Зверніться до адміністратора.');
+                showError('studentError', 'Невірні облікові дані. Перевірте логін та пароль.');
             }
         }
 
@@ -140,7 +163,7 @@
                 localStorage.setItem('admin_authenticated', 'true');
                 window.location.href = 'admin.html';
             } else {
-                showError('adminError', 'Невірні облікові дані адміністратора');
+                showError('adminError', 'Неавторизований доступ. Перевірте облікові дані.');
             }
         }
 
