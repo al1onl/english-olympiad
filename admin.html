@@ -41,7 +41,7 @@
                 </div>
                 <button id="createUserBtn" class="btn-primary">Створити користувача</button>
                 
-                <div id="createdCredentials" class="credentials-box">
+                <div id="createdCredentials" class="credentials-box" style="display: none;">
                     <h3>✅ Користувача створено!</h3>
                     <div id="credentialsInfo"></div>
                     <button id="copyCredentialsBtn" class="btn-secondary">Копіювати дані</button>
@@ -80,13 +80,216 @@
                         <div class="stat-label">11 клас</div>
                     </div>
                 </div>
-                <div class="export-section">
-                    <button id="exportUsersBtn" class="btn-primary">Експортувати список користувачів</button>
-                </div>
             </div>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        // Перевірка авторизації адміна
+        if (localStorage.getItem('admin_authenticated') !== 'true') {
+            window.location.href = 'index.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Обробники вкладок
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabName = this.getAttribute('data-tab');
+                    switchAdminTab(tabName);
+                });
+            });
+
+            // Обробник створення користувача
+            document.getElementById('createUserBtn').addEventListener('click', createUser);
+
+            // Обробник пошуку
+            document.getElementById('userSearch').addEventListener('input', function(e) {
+                filterUsers(e.target.value);
+            });
+
+            // Обробник виходу
+            document.getElementById('adminLogoutBtn').addEventListener('click', function() {
+                localStorage.removeItem('admin_authenticated');
+                window.location.href = 'index.html';
+            });
+
+            // Завантажити початкові дані
+            updateUsersList();
+            updateStats();
+        });
+
+        function switchAdminTab(tabName) {
+            // Деактивувати всі вкладки
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.panel').forEach(panel => panel.classList.remove('active'));
+            
+            // Активувати обрану вкладку
+            document.querySelector(`.tab[data-tab="${tabName}"]`).classList.add('active');
+            document.getElementById(`${tabName}Panel`).classList.add('active');
+            
+            // Оновити дані
+            if (tabName === 'users') updateUsersList();
+            if (tabName === 'stats') updateStats();
+        }
+
+        function createUser() {
+            const name = document.getElementById('newUserName').value.trim();
+            const studentClass = document.getElementById('newUserClass').value;
+            const group = document.getElementById('newUserGroup').value.trim();
+            
+            if (!name) {
+                alert('Будь ласка, введіть ім\'я учня');
+                return;
+            }
+            
+            const login = generateLogin(name);
+            const password = generatePassword();
+            
+            const newUser = {
+                id: Date.now(),
+                name: name,
+                class: studentClass,
+                group: group,
+                login: login,
+                password: password,
+                created: new Date().toLocaleString('uk-UA')
+            };
+            
+            const users = JSON.parse(localStorage.getItem('olympiad_users')) || [];
+            users.push(newUser);
+            localStorage.setItem('olympiad_users', JSON.stringify(users));
+            
+            showCreatedCredentials(newUser);
+            document.getElementById('newUserName').value = '';
+            document.getElementById('newUserGroup').value = '';
+            updateStats();
+        }
+
+        function generateLogin(name) {
+            const base = name.toLowerCase().replace(/\s+/g, '').substring(0, 8);
+            const users = JSON.parse(localStorage.getItem('olympiad_users')) || [];
+            let login = base;
+            let counter = 1;
+            
+            while (users.find(user => user.login === login)) {
+                login = base + counter;
+                counter++;
+            }
+            return login;
+        }
+
+        function generatePassword() {
+            return Math.random().toString(36).slice(-8);
+        }
+
+        function showCreatedCredentials(user) {
+            const credentialsBox = document.getElementById('createdCredentials');
+            const credentialsInfo = document.getElementById('credentialsInfo');
+            
+            credentialsInfo.innerHTML = `
+                <p><strong>Ім'я:</strong> ${user.name}</p>
+                <p><strong>Клас:</strong> ${user.class}</p>
+                <p><strong>Логін:</strong> ${user.login}</p>
+                <p><strong>Пароль:</strong> ${user.password}</p>
+                <p><strong>Дата створення:</strong> ${user.created}</p>
+            `;
+            
+            credentialsBox.style.display = 'block';
+            
+            // Обробник копіювання
+            document.getElementById('copyCredentialsBtn').onclick = function() {
+                const text = `Ім'я: ${user.name}\nКлас: ${user.class}\nЛогін: ${user.login}\nПароль: ${user.password}`;
+                navigator.clipboard.writeText(text);
+                alert('Дані скопійовано!');
+            };
+        }
+
+        function updateUsersList() {
+            const container = document.getElementById('usersListContainer');
+            const users = JSON.parse(localStorage.getItem('olympiad_users')) || [];
+            
+            if (users.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;">Користувачів ще не створено</div>';
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="user-item header">
+                    <div>Ім'я</div>
+                    <div>Клас</div>
+                    <div>Логін</div>
+                    <div>Пароль</div>
+                    <div>Дата створення</div>
+                    <div>Дії</div>
+                </div>
+                ${users.map(user => `
+                    <div class="user-item">
+                        <div>${user.name}</div>
+                        <div>${user.class} клас</div>
+                        <div>${user.login}</div>
+                        <div>${user.password}</div>
+                        <div>${user.created}</div>
+                        <div>
+                            <button class="btn-danger" onclick="deleteUser(${user.id})">Видалити</button>
+                        </div>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        function filterUsers(searchTerm) {
+            const users = JSON.parse(localStorage.getItem('olympiad_users')) || [];
+            const filtered = users.filter(user => 
+                user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                user.login.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+            
+            const container = document.getElementById('usersListContainer');
+            if (filtered.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">Користувачів не знайдено</div>';
+            } else {
+                container.innerHTML = `
+                    <div class="user-item header">
+                        <div>Ім'я</div>
+                        <div>Клас</div>
+                        <div>Логін</div>
+                        <div>Пароль</div>
+                        <div>Дата створення</div>
+                        <div>Дії</div>
+                    </div>
+                    ${filtered.map(user => `
+                        <div class="user-item">
+                            <div>${user.name}</div>
+                            <div>${user.class} клас</div>
+                            <div>${user.login}</div>
+                            <div>${user.password}</div>
+                            <div>${user.created}</div>
+                            <div>
+                                <button class="btn-danger" onclick="deleteUser(${user.id})">Видалити</button>
+                            </div>
+                        </div>
+                    `).join('')}
+                `;
+            }
+        }
+
+        function deleteUser(userId) {
+            if (confirm('Видалити цього користувача?')) {
+                const users = JSON.parse(localStorage.getItem('olympiad_users')) || [];
+                const updatedUsers = users.filter(user => user.id !== userId);
+                localStorage.setItem('olympiad_users', JSON.stringify(updatedUsers));
+                updateUsersList();
+                updateStats();
+            }
+        }
+
+        function updateStats() {
+            const users = JSON.parse(localStorage.getItem('olympiad_users')) || [];
+            document.getElementById('totalUsers').textContent = users.length;
+            document.getElementById('class9Users').textContent = users.filter(u => u.class == 9).length;
+            document.getElementById('class10Users').textContent = users.filter(u => u.class == 10).length;
+            document.getElementById('class11Users').textContent = users.filter(u => u.class == 11).length;
+        }
+    </script>
 </body>
 </html>
