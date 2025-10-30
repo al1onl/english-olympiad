@@ -9,13 +9,11 @@
 </head>
 <body>
     <div class="container">
-        <!-- Заголовок -->
         <div class="header">
             <h1>🏆 Олімпіада з англійської мови</h1>
             <p>Оберіть режим роботи</p>
         </div>
 
-        <!-- Вибір режиму -->
         <div class="mode-selector" id="modeSelector">
             <div class="mode-card" data-mode="student">
                 <div class="mode-icon">🎓</div>
@@ -30,7 +28,6 @@
             </div>
         </div>
 
-        <!-- Форма входу для учня -->
         <div id="studentLogin" class="login-form" style="display: none;">
             <h2>Вхід для учня</h2>
             <div class="form-group">
@@ -46,7 +43,6 @@
             <div id="studentError" class="error-message"></div>
         </div>
 
-        <!-- Форма входу для адміна -->
         <div id="adminLogin" class="login-form" style="display: none;">
             <h2>Вхід для адміністратора</h2>
             <div class="form-group">
@@ -68,10 +64,7 @@
     </div>
 
     <script>
-        // Проста ініціалізація без помилок
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('Сторінка завантажена');
-            
             // Обробники для карток вибору режиму
             document.querySelectorAll('.mode-card[data-mode]').forEach(card => {
                 card.addEventListener('click', function() {
@@ -112,16 +105,9 @@
             if (mode === 'student') {
                 document.getElementById('studentLogin').style.display = 'block';
                 document.getElementById('adminLogin').style.display = 'none';
-                // Очистити поля
-                document.getElementById('studentLoginInput').value = '';
-                document.getElementById('studentPasswordInput').value = '';
             } else {
                 document.getElementById('adminLogin').style.display = 'block';
                 document.getElementById('studentLogin').style.display = 'none';
-                // Очистити поля
-                document.getElementById('adminLoginInput').value = '';
-                document.getElementById('adminPasswordInput').value = '';
-                document.getElementById('adminCodeWord').value = '';
             }
         }
 
@@ -134,7 +120,6 @@
                 return;
             }
             
-            // Перевірка з локальним сховищем
             const users = JSON.parse(localStorage.getItem('olympiad_users')) || [];
             const user = users.find(u => u.login === login && u.password === password);
             
