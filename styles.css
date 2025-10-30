@@ -1,15 +1,9 @@
 :root {
-    --primary: #2c3e50;
-    --accent: #3498db;
-    --secondary: #34495e;
-    --danger: #e74c3c;
-    --success: #27ae60;
-    --warning: #f39c12;
-    --light: #ecf0f1;
-    --dark: #2c3e50;
-    --text-dark: #2c3e50;
-    --text-light: #7f8c8d;
-    --border: #bdc3c7;
+    --primary: #424242;
+    --accent: #6aa84f;
+    --danger: #d9534f;
+    --light: #f8f9fa;
+    --dark: #343a40;
 }
 
 * {
@@ -19,11 +13,10 @@
 }
 
 body {
-    font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
-    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    font-family: 'Inter', Arial, sans-serif;
+    background: linear-gradient(135deg, #424242 0%, #2c3e50 100%);
     min-height: 100vh;
     padding: 20px;
-    color: var(--text-dark);
 }
 
 .container {
@@ -31,7 +24,6 @@ body {
     margin: 0 auto;
 }
 
-/* Заголовок */
 .header {
     background: rgba(255, 255, 255, 0.95);
     padding: 30px;
@@ -39,22 +31,19 @@ body {
     text-align: center;
     margin-bottom: 30px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    border-left: 5px solid var(--accent);
 }
 
 .header h1 {
     color: var(--primary);
     margin-bottom: 10px;
     font-size: 2.5em;
-    font-weight: 700;
 }
 
 .header p {
-    color: var(--text-light);
+    color: #666;
     font-size: 1.2em;
 }
 
-/* Вибір режиму */
 .mode-selector {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -70,13 +59,11 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    border: 2px solid transparent;
 }
 
 .mode-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 15px 30px rgba(0,0,0,0.2);
-    border-color: var(--accent);
 }
 
 .mode-icon {
@@ -87,15 +74,12 @@ body {
 .mode-card h3 {
     color: var(--primary);
     margin-bottom: 10px;
-    font-size: 1.3em;
 }
 
 .mode-card p {
-    color: var(--text-light);
-    line-height: 1.5;
+    color: #666;
 }
 
-/* Форми входу */
 .login-form {
     background: rgba(255, 255, 255, 0.95);
     padding: 40px;
@@ -103,14 +87,12 @@ body {
     max-width: 500px;
     margin: 0 auto;
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    display: none;
 }
 
 .login-form h2 {
     text-align: center;
     margin-bottom: 30px;
     color: var(--primary);
-    font-size: 1.8em;
 }
 
 .form-group {
@@ -124,62 +106,50 @@ label {
     color: var(--primary);
 }
 
-input, select, textarea {
+input, select {
     width: 100%;
     padding: 12px 15px;
-    border: 2px solid var(--border);
+    border: 2px solid #e9ecef;
     border-radius: 8px;
     font-size: 16px;
-    transition: all 0.3s ease;
-    background: white;
+    transition: border-color 0.3s ease;
 }
 
-input:focus, select:focus, textarea:focus {
+input:focus, select:focus {
     outline: none;
     border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
 }
 
 button {
-    padding: 12px 24px;
+    width: 100%;
+    padding: 12px;
+    background: var(--accent);
+    color: white;
     border: none;
     border-radius: 8px;
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
-    margin: 5px;
+    transition: background 0.3s ease;
+    margin-bottom: 10px;
 }
 
-.btn-primary {
-    background: var(--accent);
-    color: white;
-}
-
-.btn-primary:hover {
-    background: #2980b9;
-    transform: translateY(-2px);
+button:hover {
+    background: #5a9740;
 }
 
 .btn-secondary {
-    background: var(--secondary);
-    color: white;
+    background: #6c757d;
 }
 
 .btn-secondary:hover {
-    background: #2c3e50;
+    background: #545b62;
 }
 
 .btn-danger {
     background: var(--danger);
-    color: white;
 }
 
-.btn-danger:hover {
-    background: #c0392b;
-}
-
-/* Повідомлення про помилки */
 .error-message {
     background: #fee;
     color: var(--danger);
@@ -187,10 +157,8 @@ button {
     border-radius: 6px;
     margin-top: 15px;
     border-left: 4px solid var(--danger);
-    display: none;
 }
 
-/* Адмін панель */
 .admin-panel {
     background: rgba(255, 255, 255, 0.95);
     border-radius: 15px;
@@ -204,31 +172,23 @@ button {
     align-items: center;
     margin-bottom: 30px;
     padding-bottom: 20px;
-    border-bottom: 2px solid var(--border);
+    border-bottom: 2px solid #e9ecef;
 }
 
-.admin-header h1 {
-    color: var(--primary);
-    font-size: 2em;
-}
-
-/* Вкладки */
 .tabs {
     display: flex;
     gap: 10px;
-    margin-bottom: 30px;
-    flex-wrap: wrap;
+    margin-bottom: 20px;
 }
 
 .tab {
     padding: 12px 24px;
-    background: var(--light);
+    background: #e9ecef;
     border: none;
     border-radius: 8px;
     cursor: pointer;
     font-weight: 600;
     transition: all 0.3s ease;
-    color: var(--text-light);
 }
 
 .tab.active {
@@ -244,22 +204,14 @@ button {
     display: block;
 }
 
-/* Бокси з обліковими даними */
 .credentials-box {
     background: #e8f5e8;
     padding: 20px;
     border-radius: 8px;
     margin-top: 20px;
-    border-left: 4px solid var(--success);
-    display: none;
+    border-left: 4px solid var(--accent);
 }
 
-.credentials-box h3 {
-    color: var(--success);
-    margin-bottom: 15px;
-}
-
-/* Сітка статистики */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -269,7 +221,7 @@ button {
 
 .stat-card {
     background: white;
-    padding: 25px;
+    padding: 20px;
     border-radius: 10px;
     text-align: center;
     box-shadow: 0 3px 10px rgba(0,0,0,0.1);
@@ -277,18 +229,17 @@ button {
 }
 
 .stat-number {
-    font-size: 2.5em;
+    font-size: 2em;
     font-weight: bold;
     color: var(--primary);
     margin-bottom: 5px;
 }
 
 .stat-label {
-    color: var(--text-light);
+    color: #666;
     font-size: 0.9em;
 }
 
-/* Список користувачів */
 .user-list {
     background: white;
     border-radius: 10px;
@@ -301,7 +252,7 @@ button {
     grid-template-columns: 2fr 1fr 1fr 1fr auto;
     gap: 15px;
     padding: 15px 20px;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid #e9ecef;
     align-items: center;
 }
 
@@ -310,128 +261,14 @@ button {
 }
 
 .user-item.header {
-    background: var(--light);
+    background: #f8f9fa;
     font-weight: bold;
-    color: var(--primary);
 }
 
-/* Пошук */
 .search-box {
     margin-bottom: 20px;
 }
 
-.search-box input {
-    max-width: 400px;
-}
-
-/* Олімпіада */
-.olympiad-container {
-    max-width: 100%;
-}
-
-.olympiad-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    color: white;
-    margin-bottom: 20px;
-    background: var(--primary);
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-}
-
-.olympiad-brand h1 {
-    font-size: 1.5em;
-    margin: 0;
-    font-weight: 600;
-}
-
-.olympiad-subtitle {
-    font-size: 0.9em;
-    color: #bdc3c7;
-    margin-top: 5px;
-}
-
-.olympiad-controls {
-    display: flex;
-    gap: 15px;
-    align-items: center;
-}
-
-.olympiad-card {
-    background: white;
-    border-radius: 10px;
-    padding: 25px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    margin-bottom: 20px;
-}
-
-.timer {
-    background: var(--secondary);
-    color: white;
-    padding: 10px 15px;
-    border-radius: 6px;
-    font-weight: 700;
-    min-width: 100px;
-    text-align: center;
-    font-family: 'Courier New', monospace;
-    font-size: 1.1em;
-}
-
-/* Завдання олімпіади */
-.task-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 2px solid var(--border);
-}
-
-.task-box {
-    background: #f8f9fa;
-    padding: 25px;
-    border-radius: 8px;
-    border-left: 4px solid var(--accent);
-    margin-bottom: 20px;
-}
-
-.question {
-    font-size: 16px;
-    margin: 0 0 15px 0;
-    font-weight: 600;
-    color: var(--primary);
-}
-
-.hint {
-    font-size: 13px;
-    color: var(--text-light);
-    background: var(--light);
-    padding: 10px 12px;
-    border-radius: 6px;
-    margin-bottom: 15px;
-    border-left: 3px solid var(--warning);
-}
-
-.controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 25px;
-    padding-top: 20px;
-    border-top: 2px solid var(--border);
-}
-
-.olympiad-screen {
-    display: none;
-}
-
-.olympiad-screen.active {
-    display: block;
-}
-
-/* Адаптивність */
 @media (max-width: 768px) {
     .mode-selector {
         grid-template-columns: 1fr;
@@ -440,42 +277,9 @@ button {
     .user-item {
         grid-template-columns: 1fr;
         text-align: center;
-        gap: 10px;
     }
     
     .header h1 {
         font-size: 2em;
     }
-    
-    .olympiad-header {
-        flex-direction: column;
-        gap: 15px;
-        text-align: center;
-    }
-    
-    .olympiad-controls {
-        flex-direction: column;
-        width: 100%;
-    }
-    
-    .task-head {
-        flex-direction: column;
-        gap: 15px;
-    }
-    
-    .tabs {
-        flex-direction: column;
-    }
-    
-    .admin-header {
-        flex-direction: column;
-        gap: 15px;
-        text-align: center;
-    }
-}
-
-/* Експорт */
-.export-section {
-    margin-top: 30px;
-    text-align: center;
 }
