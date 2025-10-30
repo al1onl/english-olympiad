@@ -3,13 +3,43 @@
 <head>
     <title>Генератор іконок</title>
     <style>
-        body { font-family: Arial; padding: 20px; }
-        .icon-preview { display: inline-block; margin: 10px; text-align: center; }
-        .icon { border: 1px solid #ccc; background: #424242; color: white; display: flex; align-items: center; justify-content: center; }
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background: #f0f0f0; 
+            color: #333;
+        }
+        h1 {
+            color: #111;
+        }
+        .icon-preview { 
+            display: inline-block; 
+            margin: 15px; 
+            text-align: center; 
+            border: 1px solid #ddd;
+            background: #fff;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .icon { 
+            border: 1px solid #ccc; 
+            background: #424242; 
+            color: white; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            border-radius: 4px;
+        }
+        code {
+            background: #e0e0e0;
+            padding: 2px 5px;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
     <h1>Створення іконок для олімпіади</h1>
+    <p>Цей файл допомагає створити іконки для PWA (Progressive Web App).</p>
     
     <div class="icon-preview">
         <div class="icon" style="width: 192px; height: 192px; font-size: 48px;">🏆</div>
@@ -28,7 +58,5 @@
         <li>Збережіть як <code>icon-192.png</code> та <code>icon-512.png</code></li>
         <li>Завантажте в кореневу папку проекту на GitHub</li>
     </ol>
-    
-    <p><strong>Альтернативно:</strong> Видаліть блок "icons" з manifest.json</p>
 </body>
 </html>
