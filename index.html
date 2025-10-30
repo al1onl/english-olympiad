@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Олімпіада з англійської мови</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#424242">
 </head>
 <body>
@@ -88,6 +87,17 @@
             // Обробники для форми адміна
             document.getElementById('adminLoginBtn').addEventListener('click', handleAdminLogin);
             document.getElementById('backFromAdminBtn').addEventListener('click', showMainMenu);
+
+            // Enter для форми входу
+            document.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    if (document.getElementById('studentLogin').style.display !== 'none') {
+                        handleStudentLogin();
+                    } else if (document.getElementById('adminLogin').style.display !== 'none') {
+                        handleAdminLogin();
+                    }
+                }
+            });
         });
 
         function showMainMenu() {
@@ -102,9 +112,16 @@
             if (mode === 'student') {
                 document.getElementById('studentLogin').style.display = 'block';
                 document.getElementById('adminLogin').style.display = 'none';
+                // Очистити поля
+                document.getElementById('studentLoginInput').value = '';
+                document.getElementById('studentPasswordInput').value = '';
             } else {
                 document.getElementById('adminLogin').style.display = 'block';
                 document.getElementById('studentLogin').style.display = 'none';
+                // Очистити поля
+                document.getElementById('adminLoginInput').value = '';
+                document.getElementById('adminPasswordInput').value = '';
+                document.getElementById('adminCodeWord').value = '';
             }
         }
 
@@ -125,7 +142,7 @@
                 localStorage.setItem('current_user', JSON.stringify(user));
                 window.location.href = 'student.html';
             } else {
-                showError('studentError', 'Невірний логін або пароль');
+                showError('studentError', 'Невірний логін або пароль. Зверніться до адміністратора.');
             }
         }
 
@@ -147,6 +164,9 @@
             if (element) {
                 element.textContent = message;
                 element.style.display = 'block';
+                setTimeout(() => {
+                    element.style.display = 'none';
+                }, 5000);
             }
         }
     </script>
