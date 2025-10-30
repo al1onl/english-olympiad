@@ -1,13 +1,10 @@
 /**
  * =====================================
- * ФАЙЛ: script.js (ФІНАЛЬНА ВЕРСІЯ ДЛЯ СТРУКТУРИ MPA - index.html, student.html, admin.html)
+ * ФАЙЛ: script.js (ФІНАЛЬНА ВЕРСІЯ ДЛЯ СТРУКТУРИ MPA)
  * =====================================
- * * ВИПРАВЛЕННЯ: 
- * 1. Фікс помилки `Cannot read properties of undefined (reading 'bind')` шляхом використання 
- * опціонального ланцюжка (`?.`) та перевірок існування DOM-елементів.
- * 2. Рефакторинг логіки для роботи в трьох окремих HTML-файлах (MPA).
- * 3. Повна інтеграція динамічної пагінації та завантаження даних у Адмін-панелі (admin.html).
- * 4. Логіка перенаправлення після входу.
+ * Цей код є максимально надійним для роботи на трьох різних HTML-сторінках.
+ * * * УВАГА: Для роботи пагінації в Адмін-панелі потрібно СТВОРИТИ КОМПОЗИТНИЙ ІНДЕКС 
+ * у Firestore за полями (role, name, __name__).
  */
 
 // Глобальні об'єкти Firebase доступні через firebase-config.js: auth, db
@@ -16,26 +13,23 @@ class OlympiadApp {
     constructor() {
         console.log("OlympiadApp ініціалізується...");
 
-        this.adminCodeword = "test2024"; // КОДОВЕ СЛОВО АДМІНА!
+        this.adminCodeword = "test2024"; 
         this.currentTaskIndex = 0;
         this.timer = null;
         this.studentAnswers = {};
         this.PAGE_SIZE = 10;
         this.paginationState = {
             currentPage: 1,
-            lastVisible: null,
             pageHistory: [null]
         };
 
         this.OLYMPIAD_DATA = this.getOlympiadData();
 
-        // 1. DOM Елементи (Завантажуємо лише ті, що є на поточній сторінці)
         this.dom = this.getDOMElements();
 
-        // 2. Ініціалізація слухачів подій (з перевірками)
         this.initEventListeners();
 
-        // 3. Перевірка статусу автентифікації та запуск логіки
+        // Запуск логіки відповідно до поточної сторінки
         this.setupAuthListener();
     }
 
@@ -107,14 +101,8 @@ class OlympiadApp {
         ];
     }
 
-    /**
-     * ====================================================
-     * ЧАСТИНА 1: ІНІЦІАЛІЗАЦІЯ ТА СЛУХАЧІ ПОДІЙ
-     * ====================================================
-     */
-
     getDOMElements() {
-        // Збираємо всі можливі елементи. Якщо елемент відсутній на поточній сторінці, буде null.
+        // Опціональне завантаження елементів для поточної сторінки
         return {
             // General
             notificationArea: document.getElementById('notificationArea'),
@@ -168,7 +156,7 @@ class OlympiadApp {
     }
 
     initEventListeners() {
-        // Index.html listeners
+        // Index.html listeners (використовуємо ?. для безпеки)
         this.dom.showStudentLoginBtn?.addEventListener('click', () => this.showLoginForm('student'));
         this.dom.showAdminLoginBtn?.addEventListener('click', () => this.showLoginForm('admin'));
         this.dom.backToMainStudent?.addEventListener('click', () => this.resetToMain());
@@ -200,36 +188,38 @@ class OlympiadApp {
 
     showLoginForm(mode) {
         // Працює лише на index.html
-        if (!document.getElementById('modeSelector')) return;
+        if (!this.dom.modeSelector) return;
 
-        document.getElementById('modeSelector').classList.add('hidden');
-        this.dom.studentLogin.classList.add('hidden');
-        this.dom.adminLogin.classList.add('hidden');
+        this.dom.modeSelector.classList.add('hidden');
+        this.dom.studentLogin?.classList.add('hidden');
+        this.dom.adminLogin?.classList.add('hidden');
 
         if (mode === 'student') {
-            this.dom.studentLogin.classList.remove('hidden');
+            this.dom.studentLogin?.classList.remove('hidden');
         } else if (mode === 'admin') {
-            this.dom.adminLogin.classList.remove('hidden');
+            this.dom.adminLogin?.classList.remove('hidden');
         }
     }
 
     resetToMain() {
         // Працює лише на index.html
-        if (!document.getElementById('modeSelector')) return;
+        if (!this.dom.modeSelector) return;
 
-        document.getElementById('modeSelector').classList.remove('hidden');
-        this.dom.studentLogin.classList.add('hidden');
-        this.dom.adminLogin.classList.add('hidden');
-        this.dom.studentError.classList.add('hidden');
-        this.dom.adminError.classList.add('hidden');
+        this.dom.modeSelector.classList.remove('hidden');
+        this.dom.studentLogin?.classList.add('hidden');
+        this.dom.adminLogin?.classList.add('hidden');
+        this.dom.studentError?.classList.add('hidden');
+        this.dom.adminError?.classList.add('hidden');
     }
 
     showNotification(message, type = 'success') {
+        if (!this.dom.notificationArea) return;
+
         const notificationDiv = document.createElement('div');
         notificationDiv.className = `notification notification-${type}`;
         notificationDiv.textContent = message;
 
-        this.dom.notificationArea?.appendChild(notificationDiv);
+        this.dom.notificationArea.appendChild(notificationDiv);
 
         setTimeout(() => {
             notificationDiv.classList.add('show');
@@ -240,7 +230,7 @@ class OlympiadApp {
             setTimeout(() => {
                 notificationDiv.remove();
             }, 500);
-        }, 4000);
+        }, 6000); // Збільшено час відображення
     }
 
     /**
@@ -251,7 +241,6 @@ class OlympiadApp {
 
     setupAuthListener() {
         if (typeof auth === 'undefined') {
-            console.error("Firebase Auth не визначено.");
             return;
         }
 
@@ -259,27 +248,13 @@ class OlympiadApp {
             if (user) {
                 this.loadUserProfileAndRedirect(user);
             } else {
-                // Якщо користувач не автентифікований, і ми не на головній, перенаправляємо на index.html
+                // Якщо користувач не автентифікований, і ми не на index.html, перенаправляємо на index.html
                 const currentPath = window.location.pathname;
-                if (!currentPath.includes('index.html') && currentPath !== '/') {
+                if (!currentPath.includes('index.html') && currentPath.includes('.html')) {
                     window.location.href = 'index.html';
                 }
             }
         });
-
-        // Додаткова перевірка ролі, якщо користувач вже на сторінці
-        if (document.getElementById('studentAppView')) {
-            auth.currentUser?.getIdTokenResult().then(token => {
-                // Тут мала б бути перевірка через claims, але ми використовуємо Firestore
-                if (!auth.currentUser) return;
-                this.loadUserProfileAndRedirect(auth.currentUser);
-            });
-        } else if (document.getElementById('adminAppView')) {
-            auth.currentUser?.getIdTokenResult().then(token => {
-                if (!auth.currentUser) return;
-                this.loadUserProfileAndRedirect(auth.currentUser);
-            });
-        }
     }
 
     async loadUserProfileAndRedirect(user) {
@@ -295,24 +270,22 @@ class OlympiadApp {
                     if (!currentPath.includes('admin.html')) {
                         window.location.href = 'admin.html';
                     } else if (this.dom.adminTabs) {
-                        // Якщо ми вже на admin.html, рендеримо дані
                         this.loadAdminData();
                     }
                 } else { // student
                     if (!currentPath.includes('student.html')) {
                         window.location.href = 'student.html';
                     } else if (this.dom.studentIntro) {
-                        // Якщо ми вже на student.html, рендеримо дані
                         this.renderStudentIntro(userData);
                     }
                 }
             } else {
-                this.showNotification("Помилка: Профіль не знайдено.", "error");
+                this.showNotification("Помилка: Профіль не знайдено. Вихід.", "error");
                 this.logout();
             }
         } catch (error) {
             console.error("Помилка завантаження профілю:", error);
-            this.showNotification("Помилка завантаження профілю.", "error");
+            this.showNotification("Помилка завантаження профілю. Вихід.", "error");
             this.logout();
         }
     }
@@ -321,14 +294,12 @@ class OlympiadApp {
         e.preventDefault();
         const email = this.dom.studentLoginForm.querySelector('#studentLoginInput').value;
         const password = this.dom.studentLoginForm.querySelector('#studentPasswordInput').value;
-
         this.dom.studentError?.classList.add('hidden');
 
         try {
             await auth.signInWithEmailAndPassword(email, password);
-            // Перенаправлення відбудеться через setupAuthListener
         } catch (error) {
-            let message = "Невірний логін або пароль.";
+            let message = "Невірний логін або пароль учня.";
             this.dom.studentError.textContent = message;
             this.dom.studentError.classList.remove('hidden');
         }
@@ -339,18 +310,16 @@ class OlympiadApp {
         const email = this.dom.adminLoginForm.querySelector('#adminLoginInput').value;
         const password = this.dom.adminLoginForm.querySelector('#adminPasswordInput').value;
         const codeword = this.dom.adminLoginForm.querySelector('#adminCodeWord').value;
-
         this.dom.adminError?.classList.add('hidden');
 
         if (codeword !== this.adminCodeword) {
-            this.dom.adminError.textContent = "Невірне кодове слово.";
+            this.dom.adminError.textContent = "Невірне кодове слово адміністратора.";
             this.dom.adminError.classList.remove('hidden');
             return;
         }
 
         try {
             await auth.signInWithEmailAndPassword(email, password);
-            // Перенаправлення відбудеться через setupAuthListener
         } catch (error) {
             let message = "Невірний логін або пароль адміністратора.";
             this.dom.adminError.textContent = message;
@@ -360,7 +329,6 @@ class OlympiadApp {
 
     logout() {
         auth.signOut().then(() => {
-            this.showNotification("Ви успішно вийшли.", "success");
             window.location.href = 'index.html';
         }).catch(error => {
             console.error("Помилка виходу:", error);
@@ -375,7 +343,6 @@ class OlympiadApp {
      */
 
     renderStudentIntro(userData) {
-        // Логіка працює лише на student.html
         if (!this.dom.studentIntro) return;
 
         this.dom.introUserName.textContent = `Вітаємо, ${userData.name}!`;
@@ -395,9 +362,9 @@ class OlympiadApp {
         } else {
             this.dom.startOlympiadBtn.disabled = false;
             this.dom.startOlympiadBtn.textContent = '🔥 Розпочати Олімпіаду';
-            this.dom.studentTasks.classList.add('hidden');
+            this.dom.studentTasks?.classList.add('hidden');
             this.dom.studentIntro.classList.remove('hidden');
-            this.dom.studentResults.classList.add('hidden');
+            this.dom.studentResults?.classList.add('hidden');
         }
 
         if (!userData.completed && userData.answers) {
@@ -422,7 +389,8 @@ class OlympiadApp {
                 });
             });
 
-            this.loadTasksAndStartTimer();
+            this.loadTasksAndStartTimer(this.OLYMPIAD_DATA[0].duration); // Починаємо з таймера для першого завдання
+            this.renderTask(0);
         }
     }
 
@@ -431,6 +399,7 @@ class OlympiadApp {
     }
 
     loadTaskContent(task) {
+        // ... (Логіка завантаження контенту)
         const contentHTML = task.questions.map(q => {
             const currentAnswer = this.studentAnswers[q.id] || '';
 
@@ -521,8 +490,8 @@ class OlympiadApp {
     showResultsScreen(finalScore) {
         if (!this.dom.studentResults) return;
 
-        this.dom.studentIntro.classList.add('hidden');
-        this.dom.studentTasks.classList.add('hidden');
+        this.dom.studentIntro?.classList.add('hidden');
+        this.dom.studentTasks?.classList.add('hidden');
         this.dom.studentResults.classList.remove('hidden');
 
         const totalMaxScore = this.OLYMPIAD_DATA.reduce((sum, task) => sum + task.points, 0);
@@ -608,7 +577,7 @@ class OlympiadApp {
         document.getElementById(`${tabId}Panel`)?.classList.remove('hidden');
 
         if (tabId === 'users') {
-            this.paginationState = { currentPage: 1, lastVisible: null, pageHistory: [null] };
+            this.paginationState = { currentPage: 1, pageHistory: [null] };
             this.loadUsersTable();
         } else if (tabId === 'stats') {
              this.renderStats();
@@ -644,43 +613,46 @@ class OlympiadApp {
 
         } catch (error) {
             console.error("Помилка завантаження статистики:", error);
-            this.showNotification("Помилка завантаження статистики.", "error");
+            this.showNotification("Помилка завантаження статистики. Перевірте підключення Firestore.", "error");
         }
     }
 
     async loadUsersTable() {
         if (typeof db === 'undefined' || !this.dom.resultsTableBody) return;
 
-        const startAt = this.paginationState.pageHistory[this.paginationState.currentPage - 1];
+        // Вибираємо останній документ попередньої сторінки (або null для першої)
+        const startAtRef = this.paginationState.pageHistory[this.paginationState.currentPage - 1];
 
         try {
             let query = db.collection('users')
                 .where('role', '==', 'student')
-                .orderBy('name')
-                .limit(this.PAGE_SIZE + 1);
+                .orderBy('name') // Сортування за ім'ям (вимагає композитного індексу!)
+                .limit(this.PAGE_SIZE + 1); // Запитуємо на 1 більше для перевірки наявності наступної сторінки
 
-            if (startAt) {
-                query = query.startAfter(startAt);
+            if (startAtRef) {
+                query = query.startAfter(startAtRef);
             }
 
             const snapshot = await query.get();
             const users = [];
-            let lastVisibleDoc = null;
 
+            // Визначаємо, чи є наступна сторінка
             const hasNextPage = snapshot.docs.length > this.PAGE_SIZE;
-            const currentDocs = hasNextPage ? snapshot.docs.slice(0, this.PAGE_SIZE) : snapshot.docs;
+            
+            // Беремо лише потрібну кількість документів
+            const docsToRender = hasNextPage ? snapshot.docs.slice(0, this.PAGE_SIZE) : snapshot.docs;
 
-            currentDocs.forEach((doc, index) => {
+            docsToRender.forEach(doc => {
                 users.push(doc.data());
-                lastVisibleDoc = doc; 
             });
 
-            if (this.paginationState.currentPage === this.paginationState.pageHistory.length && hasNextPage) {
-                this.paginationState.pageHistory.push(snapshot.docs[this.PAGE_SIZE]);
-            } else if (!hasNextPage && this.paginationState.pageHistory.length > this.paginationState.currentPage) {
-                 this.paginationState.pageHistory = this.paginationState.pageHistory.slice(0, this.paginationState.currentPage);
+            // Якщо є наступна сторінка і ми на останній завантаженій сторінці в історії, 
+            // зберігаємо посилання на перший елемент наступної сторінки
+            if (hasNextPage && this.paginationState.currentPage === this.paginationState.pageHistory.length) {
+                this.paginationState.pageHistory.push(snapshot.docs[this.PAGE_SIZE - 1]);
             }
-
+            
+            // Оновлюємо вміст таблиці
             this.dom.resultsTableBody.innerHTML = users.map((res, index) => {
                 const globalIndex = ((this.paginationState.currentPage - 1) * this.PAGE_SIZE) + index + 1;
                 const statusText = res.completed ? 'Завершено' : (Object.keys(res.answers || {}).length > 0 ? 'В процесі' : 'Очікує старту');
@@ -702,13 +674,25 @@ class OlympiadApp {
 
         } catch (error) {
             console.error("Помилка завантаження користувачів:", error);
-            this.showNotification("Помилка завантаження користувачів для таблиці.", "error");
+             // Спеціальне сповіщення для користувача про індекс
+            if (error.code === 'failed-precondition' && error.message.includes('requires an index')) {
+                this.dom.resultsTableBody.innerHTML = `<tr><td colspan="6" class="error-message">
+                    ПОМИЛКА: Для коректної роботи таблиці необхідно створити композитний індекс у Firebase. 
+                    Скористайтеся посиланням у консолі (F12) або інструкціями вище.
+                </td></tr>`;
+                this.updatePaginationControls(false, 0);
+            } else {
+                this.showNotification("Помилка завантаження користувачів для таблиці.", "error");
+            }
         }
     }
 
     updatePaginationControls(hasNextPage, currentCount) {
         this.dom.prevPageBtn.disabled = this.paginationState.currentPage === 1;
+        
+        // Кнопка "Наступна" доступна, якщо Firebase повернув більше, ніж PAGE_SIZE
         this.dom.nextPageBtn.disabled = !hasNextPage;
+        
         this.dom.paginationInfo.textContent = `Сторінка ${this.paginationState.currentPage}`;
     }
 
@@ -718,6 +702,10 @@ class OlympiadApp {
             this.paginationState.currentPage++;
         } else if (direction === -1 && this.paginationState.currentPage > 1) { 
             this.paginationState.currentPage--;
+            // При поверненні назад видаляємо останній елемент з pageHistory, який посилається на наступну сторінку
+            if (this.paginationState.pageHistory.length > this.paginationState.currentPage) {
+                 this.paginationState.pageHistory.pop(); 
+            }
         }
 
         this.loadUsersTable();
