@@ -3,192 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Олімпіада - Режим Учня</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Олімпіада - Учень</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css"> 
 </head>
 <body>
-    <div class="container">
 
-        <div class="student-header glass-card">
-            <h1>📝 Англійська олімпіада</h1>
-            <button id="logoutBtn" class="btn-secondary">Вийти</button>
-        </div>
+    <div id="notificationArea" class="notification-area"></div>
 
-        <div id="intro" class="main-card glass-card" style="margin-top: 20px;">
-            <h2 style="margin-bottom: 20px;">Ласкаво просимо!</h2>
-            <div id="studentInfo" class="student-info-section">
-                </div>
-            <p style="color: var(--text-secondary); margin-bottom: 30px;">
-                Олімпіада складається з 3 завдань. На виконання всіх завдань відведено 60 хвилин (20 хвилин на секцію).
-                Після старту тест перейде в повноекранний режим. Вихід з повноекрану більше ніж 7 разів призведе до примусового завершення.
-            </p>
-            <button id="startBtn" class="btn-primary" style="padding: 15px 30px; font-size: 1.1rem;">
-                🚀 Розпочати олімпіаду
-            </button>
-        </div>
+    <div id="studentAppView" class="container app-container">
+        <header class="app-header">
+            <h1 style="flex-grow: 1;">Olympiad Master (Учень)</h1>
+            <button id="studentLogoutBtn" class="btn-danger-small">Вихід</button>
+        </header>
 
-        <div id="tasks" class="tasks-section" style="display: none; margin-top: 20px;">
-
-            <div class="task-navigation glass-card">
-                <div>
-                    <button id="prevBtn" class="btn-secondary" style="display: none;">← Попереднє</button>
-                </div>
-                <div style="text-align: center;">
-                    <div style="font-size: 0.8rem; color: var(--text-secondary);">ЧАС, ЩО ЗАЛИШИВСЯ</div>
-                    <div id="timer">20:00</div>
-                </div>
-                <div>
-                    </div>
-            </div>
-
-            <div id="fullscreenWarning" class="error-message" style="display: none; margin-bottom: 20px;"></div>
-
-            <div id="task1" class="task-section main-card glass-card" style="display: none;">
-                <h2 class="task-title">Завдання 1. Lexical and Grammatical Transformations (12 балів)</h2>
-                <p style="color: var(--text-secondary); margin-bottom: 30px;">Доповніть речення, змінивши слова у дужках на правильну форму.</p>
-
-                <div class="task-content">
-                    <div class="question-block"><p class="question-text">1. The article requires a careful ____________ of all the sources. (SYNTHESIZE)</p><input type="text" id="t1s1" class="answer-input" placeholder="Ваша відповідь"></div>
-                    <div class="question-block"><p class="question-text">2. Her constant focus on minor details made her look ____________. (SHORT-SIGHT)</p><input type="text" id="t1s2" class="answer-input" placeholder="Ваша відповідь"></div>
-                    <div class="question-block"><p class="question-text">3. The sightings of the rare bird were ____________ and difficult to confirm. (SPORADICALLY)</p><input type="text" id="t1s3" class="answer-input" placeholder="Ваша відповідь"></div>
-                    <div class="question-block"><p class="question-text">4. Every technological advance brings with it certain ____________. (LIMIT)</p><input type="text" id="t1s4" class="answer-input" placeholder="Ваша відповідь"></div>
-                    <div class="question-block"><p class="question-text">5. He maintained a professional, almost ____________ attitude during the meeting. (DETACH)</p><input type="text" id="t1s5" class="answer-input" placeholder="Ваша відповідь"></div>
-                    <div class="question-block"><p class="question-text">6. We found the speaker to be ____________ concerned with public image. (OVER)</p><input type="text" id="t1s6" class="answer-input" placeholder="Ваша відповідь"></div>
-                    <div class="question-block"><p class="question-text">7. She spoke about the subtle ____________ of the poem. (NUANCED)</p><input type="text" id="t1s7" class="answer-input" placeholder="Ваша відповідь"></div>
-                    <div class="question-block"><p class="question-text">8. Could you please ____________ your position on this matter? (CLARITY)</p><input type="text" id="t1s8" class="answer-input" placeholder="Ваша відповідь"></div>
-                    <div class="question-block"><p class="question-text">9. His language was often ____________, leaving room for misinterpretation. (AMBIGUITY)</p><input type="text" id="t1s9" class="answer-input" placeholder="Ваша відповідь"></div>
-                    <div class="question-block"><p class="question-text">10. They dismissed the findings as ____________ data from a biased source. (SPUR)</p><input type="text" id="t1s10" class="answer-input" placeholder="Ваша відповідь"></div>
-                    <div class="question-block"><p class="question-text">11. The report highlighted growing social and economic ____________. (EQUAL)</p><input type="text" id="t1s11" class="answer-input" placeholder="Ваша відповідь"></div>
-                    <div class="question-block"><p class="question-text">12. An ____________ strategy is essential in a changing market. (ADAPT)</p><input type="text" id="t1s12" class="answer-input" placeholder="Ваша відповідь"></div>
-                </div>
-
-                <div id="task1Controls" class="task-controls">
-                    <div></div>
-                    <button id="nextBtn1" class="btn-primary" style="padding: 15px 25px;">
-                        Завдання 2 →
-                    </button>
-                </div>
-            </div>
-
-            <div id="task2" class="task-section main-card glass-card" style="display: none;">
-                <h2 class="task-title">Завдання 2. Читання та розуміння тексту (12 балів)</h2>
-                <p style="color: var(--text-secondary); margin-bottom: 30px;">Прочитайте текст і дайте відповіді на 12 питань (6 - вибір відповіді, 6 - коротка відповідь).</p>
-                
-                <div class="text-for-reading glass-card" style="padding: 25px; margin-bottom: 30px; text-align: justify; background: rgba(0,0,0,0.2);">
-                    <h3 style="margin-bottom: 15px; color: var(--accent);">The Curious Case of Collective Intelligence</h3>
-                    <p>Collective intelligence, the ability of a group to make decisions or solve problems better than any single member, has long fascinated scientists. The classic example is the "wisdom of crowds," where the average guess of a large group is often startlingly close to the truth, even if individual guesses are wildly inaccurate. This phenomenon relies on three key elements: diversity of opinion, independence of members, and decentralization of knowledge. When these conditions are met, errors tend to cancel each other out.</p>
-                    <p>However, collective intelligence is not foolproof. When crowds lack independence—for instance, if members influence each other's opinions, leading to herd mentality—the wisdom quickly turns into foolishness. Furthermore, groups often fail when the problem is complex or requires deep, specialized knowledge, rather than a simple aggregation of common sense. The challenge is not merely to gather people, but to structure their interaction in a way that maximizes diversity while ensuring constructive synthesis of ideas.</p>
-                </div>
-
-                <div class="task-content">
-                    <div class="question-block"><p class="question-text">1. What is the classic example of collective intelligence mentioned in the text? (Коротка відповідь)</p><input type="text" id="r2q1" class="answer-input" placeholder="Ваша відповідь"></div>
-                    <div class="question-block"><p class="question-text">3. What is the primary risk if crowds lack independence? (Коротка відповідь)</p><input type="text" id="r2q3" class="answer-input" placeholder="Ваша відповідь"></div>
-                    <div class="question-block"><p class="question-text">5. What does the text suggest is the main challenge of collective intelligence? (Коротка відповідь)</p><input type="text" id="r2q5" class="answer-input" placeholder="Ваша відповідь"></div>
-                    <div class="question-block"><p class="question-text">7. What is required for the "wisdom of crowds" to work? (Коротка відповідь)</p><input type="text" id="r2q7" class="answer-input" placeholder="Ваша відповідь"></div>
-                    <div class="question-block"><p class="question-text">9. When do groups often fail? (Коротка відповідь)</p><input type="text" id="r2q9" class="answer-input" placeholder="Ваша відповідь"></div>
-                    <div class="question-block"><p class="question-text">11. What is the process that allows errors to cancel out? (Коротка відповідь)</p><input type="text" id="r2q11" class="answer-input" placeholder="Ваша відповідь"></div>
-                    
-                    <div class="question-block">
-                        <p class="question-text">2. What is the purpose of collective intelligence?</p>
-                        <select id="r2q2" class="answer-select">
-                            <option value="">Оберіть варіант</option>
-                            <option value="A">To simplify complex problems for a single member.</option>
-                            <option value="B">To ensure individual guesses are always accurate.</option>
-                            <option value="C">To solve problems better than any single member.</option>
-                        </select>
-                    </div>
-                    <div class="question-block">
-                        <p class="question-text">4. What is one of the key elements that collective intelligence relies on?</p>
-                        <select id="r2q4" class="answer-select">
-                            <option value="">Оберіть варіант</option>
-                            <option value="A">Diversity of opinion.</option>
-                            <option value="B">Centralization of knowledge.</option>
-                            <option value="C">Unanimity of thought.</option>
-                        </select>
-                    </div>
-                    <div class="question-block">
-                        <p class="question-text">6. What happens when members influence each other's opinions?</p>
-                        <select id="r2q6" class="answer-select">
-                            <option value="">Оберіть варіант</option>
-                            <option value="A">The wisdom of crowds turns into foolishness.</option>
-                            <option value="B">The collective knowledge is deepened.</option>
-                            <option value="C">Independence of members is maximized.</option>
-                        </select>
-                    </div>
-                    <div class="question-block">
-                        <p class="question-text">8. The term 'decentralization' in the text refers to:</p>
-                        <select id="r2q8" class="answer-select">
-                            <option value="">Оберіть варіант</option>
-                            <option value="A">Spreading knowledge among many members.</option>
-                            <option value="B">Giving power to a single, central leader.</option>
-                            <option value="C">The process of making errors cancel out.</option>
-                        </select>
-                    </div>
-                    <div class="question-block">
-                        <p class="question-text">10. The word 'foolproof' most closely means:</p>
-                        <select id="r2q10" class="answer-select">
-                            <option value="">Оберіть варіант</option>
-                            <option value="A">Infallible.</option>
-                            <option value="B">Complicated.</option>
-                            <option value="C">Transparent.</option>
-                        </select>
-                    </div>
-                    <div class="question-block">
-                        <p class="question-text">12. What kind of problem is *not* easily solved by simple crowd aggregation?</p>
-                        <select id="r2q12" class="answer-select">
-                            <option value="">Оберіть варіант</option>
-                            <option value="A">One requiring deep, specialized knowledge.</option>
-                            <option value="B">One requiring a simple common sense aggregation.</option>
-                            <option value="C">One where opinions are diverse.</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div id="task2Controls" class="task-controls">
-                    <button id="prevBtn2" class="btn-secondary" style="padding: 15px 25px;">
-                        ← Завдання 1
-                    </button>
-                    <button id="nextBtn2" class="btn-primary" style="padding: 15px 25px;">
-                        Завдання 3 →
-                    </button>
-                </div>
-            </div>
-
-            <div id="task3" class="task-section main-card glass-card" style="display: none;">
-                <h2 class="task-title">Завдання 3. Перетворення ключових слів (10 балів)</h2>
-                <p style="color: var(--text-secondary); margin-bottom: 30px;">Перефразуйте речення так, щоб воно мало те саме значення, використовуючи надане слово у незмінній формі.</p>
-
-                <div class="task-content">
-                    <div class="question-block"><p class="question-text">1. The accident was caused by his failure to stop. (DID)</p><input type="text" id="t3q1" class="answer-input" placeholder="Напишіть перефразоване речення..."></div>
-                    <div class="question-block"><p class="question-text">2. We won't be able to finish on time. (POSSIBLE)</p><input type="text" id="t3q2" class="answer-input" placeholder="Напишіть перефразоване речення..."></div>
-                    <div class="question-block"><p class="question-text">3. It's difficult to see how we can proceed. (EASY)</p><input type="text" id="t3q3" class="answer-input" placeholder="Напишіть перефразоване речення..."></div>
-                    <div class="question-block"><p class="question-text">4. They only started to cooperate after the crisis. (UNTIL)</p><input type="text" id="t3q4" class="answer-input" placeholder="Напишіть перефразоване речення..."></div>
-                    <div class="question-block"><p class="question-text">5. She finally realized how serious the situation was. (CAME)</p><input type="text" id="t3q5" class="answer-input" placeholder="Напишіть перефразоване речення..."></div>
-                    <div class="question-block"><p class="question-text">6. He regrets not having said goodbye to her. (WISHES)</p><input type="text" id="t3q6" class="answer-input" placeholder="Напишіть перефразоване речення..."></div>
-                    <div class="question-block"><p class="question-text">7. They cancelled the match because of the bad weather. (CALLED)</p><input type="text" id="t3q7" class="answer-input" placeholder="Напишіть перефразоване речення..."></div>
-                    <div class="question-block"><p class="question-text">8. I found the meeting rather boring. (DID)</p><input type="text" id="t3q8" class="answer-input" placeholder="Напишіть перефразоване речення..."></div>
-                    <div class="question-block"><p class="question-text">9. It's impossible to finish on time without help. (ABLE)</p><input type="text" id="t3q9" class="answer-input" placeholder="Напишіть перефразоване речення..."></div>
-                    <div class="question-block"><p class="question-text">10. The teacher insisted on early submission. (DEMAND)</p><input type="text" id="t3q10" class="answer-input" placeholder="Напишіть перефразоване речення..."></div>
-                </div>
-
-                <div id="task3Controls" class="task-controls">
-                    <button id="prevBtn3" class="btn-secondary" style="padding: 15px 25px;">
-                        ← Завдання 2
-                    </button>
-                    <button id="finishBtn" class="btn-primary" style="padding: 15px 30px; background: linear-gradient(135deg, var(--danger), var(--danger-dark));">
-                        Завершити олімпіаду
-                    </button>
-                </div>
-            </div>
+        <main class="app-content">
             
-        </div>
-
-        <div id="resultsScreen" class="main-card glass-card results-section" style="display: none;">
-            <div id="resultsContent">
+            <div id="studentIntro" class="intro-section">
+                <h2 id="introUserName">Вітаємо!</h2>
+                <div id="introUserInfo" class="user-info-card">
+                    <p><strong>ПІБ:</strong> Завантаження...</p>
+                    <p><strong>Клас:</strong> Завантаження...</p>
                 </div>
-        </div>
+                <button id="startOlympiadBtn" class="btn-large btn-success" style="margin-top: 30px;">
+                    🔥 Розпочати Олімпіаду
+                </button>
+            </div>
+
+            <div id="studentTasks" class="task-section hidden">
+                <div class="task-header">
+                    <h2>Завдання 1 / 3</h2>
+                    <div class="timer-display">
+                        <span id="timerDisplay">00:00</span>
+                    </div>
+                </div>
+
+                <div id="taskContentContainer" class="task-content">
+                    </div>
+
+                <div class="task-controls">
+                    <button id="prevTaskBtn" class="btn-secondary" disabled>← Попереднє завдання</button>
+                    <button id="nextTaskBtn" class="btn-primary">Наступне завдання →</button>
+                    <button id="finishOlympiadBtn" class="btn-danger hidden">Завершити олімпіаду</button>
+                </div>
+            </div>
+
+            <div id="studentResults" class="results-section hidden">
+                <div id="resultsContent">
+                    <h2>Ваші попередні результати</h2>
+                    </div>
+                <button id="resultsLogoutBtn" class="btn-danger-small" style="margin-top: 20px;">
+                    Вийти з системи
+                </button>
+            </div>
+        </main>
     </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
     
+    <script src="firebase-config.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
