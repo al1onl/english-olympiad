@@ -224,6 +224,28 @@ class DataStorage {
             return false; 
         }
     }
+    
+    // --- НОВА ФУНКЦІОНАЛЬНІСТЬ ДЛЯ ЕКСПОРТУ/ІМПОРТУ (ВИПРАВЛЕННЯ БАГУ) ---
+    static exportUsers() {
+        return JSON.stringify(this.getUsers(), null, 2);
+    }
+
+    static importUsers(jsonString) {
+        try {
+            const importedUsers = JSON.parse(jsonString);
+            // Проста перевірка формату
+            if (Array.isArray(importedUsers) && importedUsers.every(u => typeof u.name === 'string' && typeof u.login === 'string')) {
+                // Зберігаємо нові дані, повністю замінюючи старі
+                this.saveUsers(importedUsers); 
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error("Import Error:", error);
+            return false;
+        }
+    }
+    // --------------------------------------------------------------------
 
     static getCurrentUser() {
         try { return JSON.parse(localStorage.getItem('current_user')); } catch (error) { return null; }
@@ -742,7 +764,7 @@ class OlympiadManager {
             : '';
 
         resultsContent.innerHTML = `
-            <div class="header-section">
+            <div class="header-section" style="text-align: center;">
                 <h1>Олімпіаду завершено!</h1>
                 <p class="subtitle">Ваші результати збережено в системі</p>
             </div>
@@ -754,7 +776,7 @@ class OlympiadManager {
                 <div class="stat-card card-content"><div class="stat-number">${userProgress.fullscreenExits}</div><div class="stat-label">Виходи з повноекрану</div></div>
             </div>
             <div style="text-align: center; margin: 30px 0;">
-                <button id="viewAnswersBtn" class="btn-secondary ripple-effect" style="padding: 15px 30px; font-size: 1.1rem;">
+                <button id="viewAnswersBtn" class="btn-primary ripple-effect" style="padding: 15px 30px; font-size: 1.1rem;">
                     📝 Переглянути свої відповіді
                 </button>
             </div>
@@ -836,7 +858,7 @@ class EnglishOlympiadApp {
             this.handleAdminLogin(); 
         });
         
-        // Додаємо ріпл ефект до всіх кнопок
+        // Додаємо ріпл ефект до всіх кнопок (забезпечуємо, щоб працювало на всіх пристроях)
         document.querySelectorAll('button').forEach(button => {
             button.addEventListener('click', Utils.createRipple);
         });
@@ -902,10 +924,10 @@ class EnglishOlympiadApp {
         
         // Відображення інформації про учня
         const infoHtml = `
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; text-align: center;">
-                <div><span style="font-size: 2.5rem;">🏫</span><div style="font-weight: 700;">${currentUser.class} клас</div></div>
-                <div><span style="font-size: 2.5rem;">🔢</span><div class="code-badge">${currentUser.studentNumber || 'N/A'}</div></div>
-                <div><span style="font-size: 2.5rem;">📊</span><div style="font-weight: 700; color: ${progress && progress.completed ? 'var(--success)' : 'var(--warning)'};">${progress && progress.completed ? 'ЗАВЕРШЕНО' : 'ОЧІКУЄ'}</div></div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 30px; text-align: center;">
+                <div><span class="icon-text">🏫</span><div style="font-weight: 700;">${currentUser.class} клас</div></div>
+                <div><span class="icon-text">🔢</span><div class="code-badge">${currentUser.studentNumber || 'N/A'}</div></div>
+                <div><span class="icon-text">📊</span><div style="font-weight: 700; color: ${progress && progress.completed ? 'var(--success)' : 'var(--warning)'};">${progress && progress.completed ? 'ЗАВЕРШЕНО' : 'ОЧІКУЄ'}</div></div>
             </div>
         `;
         Utils.getEl('introUserInfo').innerHTML = infoHtml;
@@ -933,11 +955,36 @@ class EnglishOlympiadApp {
         }
     }
     
-    // --- Admin App Initialization ---
+    // --- Admin App Initialization & New Import/Export Methods ---
     initAdminApp() {
         this.updateStats();
         this.updateUsersList();
         this.updateResultsTable();
+        
+        // Dynamically inject Import/Export controls into the Users Panel
+        const usersPanel = Utils.getEl('usersPanel');
+        if (usersPanel && !Utils.getEl('importExportControls')) {
+            const controlsHtml = `
+                <div id="importExportControls" style="display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 25px;">
+                    <button id="exportUsersBtn" class="btn-secondary ripple-effect" style="flex-grow: 1; min-width: 150px;">
+                        ⬇️ Експортувати користувачів
+                    </button>
+                    <label for="importUsersFile" class="btn-secondary ripple-effect" style="flex-grow: 1; text-align: center; cursor: pointer; padding: 16px 20px; min-width: 150px; font-weight: 700; text-transform: uppercase;">
+                        ⬆️ Імпортувати користувачів
+                    </label>
+                    <input type="file" id="importUsersFile" accept=".json" style="display: none;">
+                </div>
+                <p class="export-hint">⚠️ Використовуйте 'Експорт' та 'Імпорт' для перенесення списку учнів між різними пристроями.</p>
+            `;
+            usersPanel.insertAdjacentHTML('afterbegin', controlsHtml);
+            
+            // Add event listeners for the dynamically created elements
+            Utils.getEl('exportUsersBtn').addEventListener('click', (e) => { Utils.createRipple(e); this.exportUsers(); });
+            // Add ripple to the custom file input label
+            document.querySelector('label[for="importUsersFile"]').addEventListener('click', Utils.createRipple); 
+
+            Utils.getEl('importUsersFile').addEventListener('change', (e) => this.handleImportFile(e));
+        }
         
         Utils.getEl('adminLogoutBtn').addEventListener('click', () => {
             DataStorage.setAdminAuthenticated(false);
@@ -955,6 +1002,42 @@ class EnglishOlympiadApp {
         
         Utils.getEl('userSearch').addEventListener('input', (e) => { this.filterUsers(e.target.value); });
     }
+    
+    // --- НОВІ МЕТОДИ ІМПОРТУ/ЕКСПОРТУ ---
+    exportUsers() {
+        const usersData = DataStorage.exportUsers();
+        const blob = new Blob([usersData], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `olympiad_users_${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        Utils.showSuccess('Список користувачів експортовано.');
+    }
+    
+    handleImportFile(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const jsonString = e.target.result;
+            if (DataStorage.importUsers(jsonString)) {
+                Utils.showSuccess('Користувачі успішно імпортовані та замінили старий список. Тепер вони доступні на цьому пристрої.');
+                this.updateStats();
+                this.updateUsersList();
+                this.updateResultsTable();
+                // Скидаємо інпут, щоб можна було імпортувати той самий файл повторно
+                event.target.value = ''; 
+            } else {
+                Utils.showNotification('Помилка імпорту. Перевірте формат файлу.', 'error');
+            }
+        };
+        reader.readAsText(file);
+    }
+    // ------------------------------------
 
     switchAdminTab(tabName) {
         document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
@@ -992,7 +1075,7 @@ class EnglishOlympiadApp {
             Utils.getEl('createUserForm').reset();
             this.updateStats();
             this.updateUsersList();
-            Utils.showSuccess('Користувача створено успішно!');
+            Utils.showSuccess('Користувача створено успішно! Не забудьте експортувати список для інших пристроїв.');
         }
     }
     
@@ -1002,10 +1085,11 @@ class EnglishOlympiadApp {
             
         credentialsInfo.innerHTML = `
             <p><strong>Ім'я:</strong> ${user.name} | <strong>Клас:</strong> ${user.class}</p>
-            <div style="display: flex; gap: 20px; margin: 15px 0; background: var(--input-bg); padding: 10px; border-radius: 4px; border: 1px solid var(--border-color);">
+            <div style="display: flex; flex-wrap: wrap; gap: 20px; margin: 15px 0; background: var(--input-bg); padding: 15px; border-radius: 4px; border: 1px solid var(--border-color);">
                 <div><strong>Логін:</strong> <code class="code-badge">${user.login}</code></div>
                 <div><strong>Пароль:</strong> <code class="code-badge">${user.password}</code></div>
             </div>
+            <p style="color: var(--warning); font-size: 0.9rem;">Переконайтеся, що ці дані збережені або передані учневі. Вони знадобляться на будь-якому пристрої!</p>
         `;
         Utils.show(credentialsBox);
         
@@ -1040,7 +1124,7 @@ class EnglishOlympiadApp {
         if (!container) return;
         
         if (users.length === 0) {
-             container.innerHTML = `<div class="card-content" style="padding: 30px; text-align: center; color: var(--text-secondary);">Користувачів ще немає.</div>`;
+             container.innerHTML = `<div class="card-content" style="padding: 30px; text-align: center; color: var(--text-secondary);">Користувачів ще немає. Створіть їх або імпортуйте список.</div>`;
              return;
         }
 
@@ -1069,7 +1153,7 @@ class EnglishOlympiadApp {
                     <div><code class="code-badge">${user.login}</code></div>
                     <div class="status-badge ${statusClass}">${status}</div>
                     <div>
-                        <button class="btn-icon btn-danger" onclick="app.deleteUser(${user.id})">
+                        <button class="btn-icon btn-danger ripple-effect" onclick="window.app.deleteUser(${user.id})" title="Видалити користувача">
                             <span class="material-icons">delete</span>
                         </button>
                     </div>
@@ -1105,73 +1189,57 @@ class EnglishOlympiadApp {
             this.updateUsersList();
             this.updateStats();
             this.updateResultsTable();
-            Utils.showSuccess('Користувача та його результати видалено');
+            Utils.showSuccess('Користувача та його результати видалено.');
         } else {
-            Utils.showNotification('Помилка при видаленні', 'error');
+             Utils.showNotification('Помилка при видаленні користувача.', 'error');
         }
     }
     
     updateResultsTable() {
-        const allUsers = DataStorage.getUsers();
+        const users = DataStorage.getUsers();
         const progress = DataStorage.getProgress();
-        const completedUsers = allUsers.filter(u => progress[u.id] && progress[u.id].completed);
-        const tableContainer = Utils.getEl('resultsTableContainer');
+        const tableBody = Utils.getEl('resultsTableBody');
         
+        if (!tableBody) return;
+        
+        const completedUsers = users
+            .map(user => ({ user, progress: progress[user.id] }))
+            .filter(item => item.progress && item.progress.completed)
+            .sort((a, b) => b.progress.score - a.progress.score); // Сортування за балами
+            
         if (completedUsers.length === 0) {
-            tableContainer.innerHTML = `<p style="text-align: center; color: var(--text-secondary); padding: 30px;">❌ Жоден учень ще не завершив олімпіаду.</p>`;
+            tableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-secondary); padding: 30px;">Жоден учень ще не завершив олімпіаду.</td></tr>`;
             return;
         }
 
-        // Сортування: 1. За 12-бальними балами (спадання), 2. За часом (зростання)
-        const sortedUsers = completedUsers.sort((a, b) => {
-            const scoreA = progress[a.id].score12;
-            const scoreB = progress[b.id].score12;
-            const timeA = progress[a.id].timeSpent;
-            const timeB = progress[b.id].timeSpent;
+        tableBody.innerHTML = completedUsers.map((item, index) => {
+            const p = item.progress;
+            const rank = index + 1;
             
-            if (scoreB !== scoreA) return scoreB - scoreA;
-            return timeA - timeB;
-        });
-        
-        // Генеруємо таблицю
-        let tableHTML = `
-            <table id="resultsTable" class="admin-table">
-            <thead>
+            let statusHtml = p.forced 
+                ? `<span class="status-badge danger">Примусово</span>` 
+                : `<span class="status-badge success">Завершено</span>`;
+
+            return `
                 <tr>
-                    <th>№</th><th>ПІБ</th><th>Клас</th><th>Сирі бали</th><th>12-бальна</th><th>Час</th><th>Статус</th>
-                </tr>
-            </thead>
-            <tbody>
-        `;
-        
-        sortedUsers.forEach((user, index) => {
-            const p = progress[user.id];
-            const statusBadge = p.forced 
-                ? '<span class="status-badge danger">ПРИМУС.</span>' 
-                : '<span class="status-badge success">ОК</span>';
-                
-            tableHTML += `
-                <tr>
-                    <td>${index + 1}</td>
-                    <td>${user.name}</td>
-                    <td>${user.class}</td>
-                    <td>${p.score}/${CONFIG.MAX_SCORE}</td>
-                    <td><span class="score-badge">${p.score12}/12</span></td>
-                    <td>${Utils.formatTime(p.timeSpent)}</td>
-                    <td>${statusBadge}</td>
+                    <td>${rank}</td>
+                    <td>${item.user.name}</td>
+                    <td>${item.user.class}</td>
+                    <td class="score-badge">${p.score} / ${CONFIG.MAX_SCORE}</td>
+                    <td class="score-badge" style="color: var(--accent-primary);">${p.score12} / 12</td>
+                    <td>${statusHtml}</td>
                 </tr>
             `;
-        });
-        
-        tableHTML += `</tbody></table>`;
-        tableContainer.innerHTML = tableHTML;
+        }).join('');
     }
 }
 
-// 🚀 ІНІЦІАЛІЗАЦІЯ ДОДАТКУ
-let app; 
 document.addEventListener('DOMContentLoaded', () => {
-    app = new EnglishOlympiadApp();
-    app.init(); 
-    window.app = app; 
+    // Перевіряємо, чи існує головний елемент 'mainView', щоб уникнути помилок
+    if (Utils.getEl('mainView')) {
+        window.app = new EnglishOlympiadApp();
+        window.app.init();
+    } else {
+        console.error("The 'mainView' element is missing. HTML structure might be incomplete.");
+    }
 });
