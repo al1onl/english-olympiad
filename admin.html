@@ -20,7 +20,6 @@
                 <button class="tab" data-tab="stats">Статистика</button>
             </div>
 
-            <!-- Панель створення користувача -->
             <div id="createPanel" class="panel active">
                 <h2>Створити нового користувача</h2>
                 <div class="form-group">
@@ -48,7 +47,6 @@
                 </div>
             </div>
 
-            <!-- Панель списку користувачів -->
             <div id="usersPanel" class="panel">
                 <h2>Список користувачів</h2>
                 <div class="search-box">
@@ -59,7 +57,6 @@
                 </div>
             </div>
 
-            <!-- Панель статистики -->
             <div id="statsPanel" class="panel">
                 <h2>Статистика системи</h2>
                 <div class="stats-grid">
@@ -119,15 +116,12 @@
         });
 
         function switchAdminTab(tabName) {
-            // Деактивувати всі вкладки
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.panel').forEach(panel => panel.classList.remove('active'));
             
-            // Активувати обрану вкладку
             document.querySelector(`.tab[data-tab="${tabName}"]`).classList.add('active');
             document.getElementById(`${tabName}Panel`).classList.add('active');
             
-            // Оновити дані
             if (tabName === 'users') updateUsersList();
             if (tabName === 'stats') updateStats();
         }
@@ -196,7 +190,6 @@
             
             credentialsBox.style.display = 'block';
             
-            // Обробник копіювання
             document.getElementById('copyCredentialsBtn').onclick = function() {
                 const text = `Ім'я: ${user.name}\nКлас: ${user.class}\nЛогін: ${user.login}\nПароль: ${user.password}`;
                 navigator.clipboard.writeText(text);
