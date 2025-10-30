@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Олімпіада з англійської мови - Учень</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="olympiad-container">
+            <div class="olympiad-header">
+                <div class="olympiad-brand">
+                    <h1>Олімпіада з Англійської мови</h1>
+                    <div class="olympiad-subtitle" id="studentInfo">Завантаження...</div>
+                </div>
+                <div class="olympiad-controls">
+                    <div class="timer" id="timer">60:00</div>
+                    <button id="olympiadLogoutBtn" class="btn-danger">Вийти</button>
+                </div>
+            </div>
+
+            <!-- Екран завантаження -->
+            <div id="loadingScreen" class="olympiad-card">
+                <div style="text-align: center; padding: 40px;">
+                    <h2>Завантаження олімпіади...</h2>
+                    <p>Будь ласка, зачекайте</p>
+                </div>
+            </div>
+
+            <!-- Основна олімпіада -->
+            <div id="olympiadContent" style="display: none;">
+                <!-- Тут буде динамічно створюватися контент олімпіади -->
+            </div>
+
+            <!-- Результати -->
+            <div id="resultsScreen" class="olympiad-card" style="display: none;">
+                <div style="text-align: center; padding: 40px;">
+                    <h2>Олімпіада завершена!</h2>
+                    <div id="resultsContent"></div>
+                    <button id="backToHomeBtn" class="btn-primary" style="margin-top: 20px;">Повернутися на головну</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
