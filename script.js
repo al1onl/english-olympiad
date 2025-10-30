@@ -379,7 +379,9 @@ class OlympiadManager {
         if (taskNumber === this.totalTasks) {
             Utils.hide(nextBtn);
             Utils.show(finishBtn);
-            finishBtn.disabled = this.viewMode; // Блокуємо кнопку завершення в режимі перегляду
+            // У режимі перегляду кнопка "Завершити" не потрібна
+            finishBtn.disabled = this.viewMode; 
+            if(this.viewMode) finishBtn.textContent = "На головну";
         } else {
             Utils.show(nextBtn);
             Utils.hide(finishBtn);
@@ -390,28 +392,45 @@ class OlympiadManager {
     }
     
     nextTask() {
-        if (this.viewMode) return;
-        
-        this.saveCurrentTaskAnswers();
-        
-        // Облік часу: додаємо витрачений час до загального часу
-        this.totalTimeSpent += (CONFIG.TASK_TIME - this.timeRemaining);
-        
+        // Виправлено: дозволяємо навігацію в режимі перегляду
         if (this.currentTask < this.totalTasks) {
+            
+            // --- Логіка для Режиму Тестування ---
+            if (!this.viewMode) {
+                this.saveCurrentTaskAnswers();
+                // Облік часу: додаємо витрачений час до загального часу
+                this.totalTimeSpent += (CONFIG.TASK_TIME - this.timeRemaining);
+                this.timeRemaining = CONFIG.TASK_TIME; // Скидаємо таймер для нового завдання
+                this.startTimer();
+                Utils.showSuccess(`Перехід до завдання ${this.currentTask + 1}`);
+            }
+
+            // --- Навігація в Обох Режимах ---
             this.currentTask++;
-            this.timeRemaining = CONFIG.TASK_TIME; // Скидаємо таймер для нового завдання
             this.showTask(this.currentTask);
-            this.startTimer();
-            Utils.showSuccess(`Перехід до завдання ${this.currentTask}`);
-        } else {
-            this.finishOlympiad();
+            
+        } else if (this.currentTask === this.totalTasks) {
+            if (this.viewMode) {
+                 // У режимі перегляду остання кнопка "Завершити" діє як "На головну"
+                 DataStorage.clearCurrentUser();
+                 Utils.getEl('studentTasks').classList.remove('view-mode');
+                 this.router.renderView('main');
+            } else {
+                this.finishOlympiad();
+            }
         }
     }
 
     previousTask() {
+        // Виправлено: дозволяємо навігацію в режимі перегляду
         if (this.currentTask > 1) {
-            // Зберігаємо відповіді, але не скидаємо таймер і не обліковуємо час (припускаємо, що учень повертається)
-            this.saveCurrentTaskAnswers();
+            
+            // --- Логіка для Режиму Тестування ---
+            if (!this.viewMode) {
+                this.saveCurrentTaskAnswers();
+            }
+            
+            // --- Навігація в Обох Режимах ---
             this.currentTask--;
             this.showTask(this.currentTask);
             
@@ -443,12 +462,42 @@ class OlympiadManager {
             // Блокування в режимі перегляду
             if (this.viewMode) { 
                 element.disabled = true; 
-                element.style.opacity = '0.7'; 
-                element.style.cursor = 'default';
+                element.classList.add('view-mode-input');
+                
+                // Додавання візуалізації правильних/неправильних відповідей для завдань з автоперевіркою
+                const taskId = `task${taskNumber}`;
+                if (CONFIG.CORRECT_ANSWERS[taskId]) {
+                    const isSelect = element.tagName.toLowerCase() === 'select';
+                    const isAutochecked = CONFIG.CORRECT_ANSWERS[taskId][element.id];
+                    
+                    if (isAutochecked) {
+                         const userAnswer = (isSelect ? element.value.toUpperCase() : element.value.toLowerCase());
+                         const correctAnswer = (isSelect ? isAutochecked.toUpperCase() : isAutochecked.toLowerCase());
+
+                         if (userAnswer === correctAnswer) {
+                            element.classList.add('correct-answer');
+                            element.parentNode.classList.add('correct-answer-block');
+                         } else if (userAnswer !== '') {
+                            element.classList.add('wrong-answer');
+                            element.parentNode.classList.add('wrong-answer-block');
+                            
+                            // Додаємо правильну відповідь під полем
+                            const correctHint = document.createElement('span');
+                            correctHint.className = 'correct-hint';
+                            correctHint.textContent = `✅ Правильно: ${correctAnswer}`;
+                            element.parentNode.appendChild(correctHint);
+                         }
+                    } else if (taskId === 'task2' && ['r2q1', 'r2q3', 'r2q5', 'r2q7', 'r2q9', 'r2q11'].includes(element.id)) {
+                        // Для коротких відповідей у завданні 2 та всього завдання 3 (які не перевіряються)
+                        element.parentNode.classList.add('manual-check-block');
+                    } else if (taskId === 'task3') {
+                        element.parentNode.classList.add('manual-check-block');
+                    }
+                }
+
             } else { 
                 element.disabled = false; 
-                element.style.opacity = '1'; 
-                element.style.cursor = 'text';
+                element.classList.remove('view-mode-input', 'correct-answer', 'wrong-answer');
             }
         });
 
@@ -459,6 +508,20 @@ class OlympiadManager {
              // Сховати навігацію тесту та таймер в режимі перегляду
              Utils.hide(Utils.getEl('timerDisplay'));
              Utils.getEl('taskContentContainer').style.marginTop = '20px';
+             
+             // Вмикаємо логіку кнопки "На головну" для останнього завдання
+             const finishBtn = Utils.getEl('finishOlympiadBtn');
+             if (taskNumber === this.totalTasks && finishBtn) {
+                 finishBtn.textContent = "На головну";
+                 finishBtn.onclick = () => {
+                     DataStorage.clearCurrentUser();
+                     Utils.getEl('studentTasks').classList.remove('view-mode');
+                     this.router.renderView('main');
+                 };
+             } else if (finishBtn) {
+                 finishBtn.textContent = "Завершити олімпіаду";
+                 finishBtn.onclick = () => this.finishOlympiad();
+             }
         }
     }
 
@@ -539,7 +602,7 @@ class OlympiadManager {
         
         const warning = Utils.getEl('fullscreenWarning');
         Utils.show(warning);
-        warning.textContent = `Увага! Ви вийшли з повноекранного режиму ${this.fullscreenExitCount} разів. Тест призупинено.`;
+        warning.innerHTML = `⚠️ Увага! Ви вийшли з повноекранного режиму <span style="font-weight: bold; color: var(--danger);">${this.fullscreenExitCount}</span> разів. Тест призупинено.`;
         
         if (this.fullscreenExitCount >= CONFIG.MAX_FULLSCREEN_EXITS) {
             this.forceFinish();
@@ -550,15 +613,13 @@ class OlympiadManager {
                     document.documentElement.requestFullscreen().catch(() => {});
                 }
             }, 2000);
-            
-            // Якщо не вдалося увійти, попереджаємо і чекаємо наступної дії користувача
         }
     }
     
     forceFinish() {
         this.isFinished = true;
         this.stopTimer();
-        Utils.getEl('fullscreenWarning').textContent = 'ТЕСТ ПРИМУСОВО ЗАВЕРШЕНО! Перевищено ліміт виходів.';
+        Utils.getEl('fullscreenWarning').innerHTML = '🔴 <span style="font-weight: bold;">ТЕСТ ПРИМУСОВО ЗАВЕРШЕНО!</span> Перевищено ліміт виходів.';
         this.finishOlympiad(true);
     }
 
@@ -647,7 +708,7 @@ class OlympiadManager {
         const resultsContent = Utils.getEl('resultsContent');
         
         const forcedMessage = userProgress.forced 
-            ? '<p style="color: var(--danger); font-weight: bold; margin-bottom: 10px;">🔴 Тест був примусово завершений через порушення правил (перевищено ліміт виходів з повноекрану).</p>' 
+            ? '<p class="forced-message">🔴 Тест був примусово завершений через порушення правил (перевищено ліміт виходів з повноекрану).</p>' 
             : '';
 
         resultsContent.innerHTML = `
@@ -659,17 +720,17 @@ class OlympiadManager {
             ${forcedMessage}
             <div class="stats-grid" style="margin: 40px 0;">
                 <div class="stat-card glass-card"><div class="stat-number">${userProgress.score}/${CONFIG.MAX_SCORE}</div><div class="stat-label">Сирі бали</div></div>
-                <div class="stat-card glass-card"><div class="stat-number">${userProgress.score12}/12</div><div class="stat-label">12-бальна система</div></div>
+                <div class="stat-card glass-card"><div class="stat-number score-final">${userProgress.score12}/12</div><div class="stat-label">12-бальна система</div></div>
                 <div class="stat-card glass-card"><div class="stat-number">${Utils.formatTime(userProgress.timeSpent)}</div><div class="stat-label">Витрачено часу</div></div>
                 <div class="stat-card glass-card"><div class="stat-number">${userProgress.fullscreenExits}</div><div class="stat-label">Виходи з повноекрану</div></div>
             </div>
             <div style="text-align: center; margin: 30px 0;">
-                <button id="viewAnswersBtn" class="btn-primary" style="padding: 15px 30px; font-size: 1.1rem;">
+                <button id="viewAnswersBtn" class="btn-primary ripple-effect" style="padding: 15px 30px; font-size: 1.1rem;">
                     📝 Переглянути свої відповіді
                 </button>
             </div>
             <div style="text-align: center; margin-top: 30px;">
-                <button id="backToHomeBtn" class="btn-secondary" style="padding: 12px 24px;">
+                <button id="backToHomeBtn" class="btn-secondary ripple-effect" style="padding: 12px 24px;">
                     ← Повернутися на головну
                 </button>
             </div>
@@ -738,6 +799,11 @@ class EnglishOlympiadApp {
             e.preventDefault(); 
             this.handleAdminLogin(); 
         });
+        
+        // Додаємо ріпл ефект до всіх кнопок
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('click', Utils.createRipple);
+        });
     }
     
     showLoginForm(mode) {
@@ -802,8 +868,8 @@ class EnglishOlympiadApp {
         const infoHtml = `
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; text-align: center;">
                 <div><span style="font-size: 2.5rem;">🏫</span><div style="font-weight: 700;">${currentUser.class} клас</div></div>
-                <div><span style="font-size: 2.5rem;">🔢</span><div style="font-weight: 700; color: var(--accent);">${currentUser.studentNumber || 'N/A'}</div></div>
-                <div><span style="font-size: 2.5rem;">📊</span><div style="font-weight: 700; color: ${progress && progress.completed ? 'var(--success)' : 'var(--warning)'};">${progress && progress.completed ? 'ЗАВЕРШЕНО' : 'ОЧІКУЄ'}</div></div>
+                <div><span style="font-size: 2.5rem;">🔢</span><div class="code-badge">${currentUser.studentNumber || 'N/A'}</div></div>
+                <div><span style="font-size: 2.5rem;">📊</span><div style="font-weight: 700; color: ${progress && progress.completed ? 'var(--success-dark)' : 'var(--warning-dark)'};">${progress && progress.completed ? 'ЗАВЕРШЕНО' : 'ОЧІКУЄ'}</div></div>
             </div>
         `;
         Utils.getEl('introUserInfo').innerHTML = infoHtml;
@@ -899,11 +965,11 @@ class EnglishOlympiadApp {
         const credentialsInfo = Utils.getEl('credentialsInfo');
             
         credentialsInfo.innerHTML = `
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0;">
-                <div><strong>Логін:</strong> <code>${user.login}</code></div>
-                <div><strong>Пароль:</strong> <code>${user.password}</code></div>
-            </div>
             <p><strong>Ім'я:</strong> ${user.name} | <strong>Клас:</strong> ${user.class}</p>
+            <div style="display: flex; gap: 20px; margin: 15px 0; background: var(--input-bg); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                <div><strong>Логін:</strong> <code class="code-badge">${user.login}</code></div>
+                <div><strong>Пароль:</strong> <code class="code-badge">${user.password}</code></div>
+            </div>
         `;
         Utils.show(credentialsBox);
         
@@ -963,8 +1029,8 @@ class EnglishOlympiadApp {
                 <div class="user-item glass-card">
                     <div>${user.name}</div>
                     <div>${user.class}</div>
-                    <div class="student-number-badge">${user.studentNumber || 'N/A'}</div>
-                    <div><code>${user.login}</code></div>
+                    <div class="code-badge">${user.studentNumber || 'N/A'}</div>
+                    <div><code class="code-badge">${user.login}</code></div>
                     <div class="status-badge ${statusClass}">${status}</div>
                     <div>
                         <button class="btn-danger btn-small" onclick="app.deleteUser(${user.id})">🗑️</button>
@@ -1071,5 +1137,4 @@ document.addEventListener('DOMContentLoaded', () => {
     app.init(); 
     // Робимо APP глобальною, щоб мати доступ до методів (наприклад, deleteUser) з HTML-коду
     window.app = app; 
-    console.log('✅ Olympiad System loaded in SPA mode. Navigation errors eliminated.');
 });
