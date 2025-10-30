@@ -82,21 +82,23 @@
             </form>
         </div>
 
-        <div id="studentAppView" class="app-container hidden">
+        <div id="studentAppView" class="app-container hidden" style="text-align: left;">
              <div id="studentIntro" class="intro-section">
-                <h1 id="introUserName">Вітаємо!</h1>
-                <div id="introUserInfo" class="text-for-reading" style="margin-bottom: 40px;">
+                <h1 id="introUserName" style="text-align: center;">Вітаємо!</h1>
+                <div id="introUserInfo" class="text-for-reading" style="margin-bottom: 40px; text-align: left;">
                     <p>Інформація про профіль завантажується...</p>
                 </div>
-                <button id="startOlympiadBtn" class="btn-primary" style="font-size: 1.2rem; padding: 20px 40px; margin-top: 20px;">
-                    🔥 Розпочати Олімпіаду
-                </button>
-                <button id="studentLogoutBtn" class="btn-secondary" style="margin-top: 20px;">Вийти з системи</button>
+                <div style="text-align: center;">
+                    <button id="startOlympiadBtn" class="btn-primary" style="font-size: 1.2rem; padding: 20px 40px; margin-top: 20px;">
+                        🔥 Розпочати Олімпіаду
+                    </button>
+                    <button id="studentLogoutBtn" class="btn-secondary" style="margin-top: 20px; display: block; margin: 20px auto 0 auto;">Вийти з системи</button>
+                </div>
             </div>
 
             <div id="studentTasks" class="hidden">
                  <div class="task-header">
-                    <h2>Завдання <span id="currentTaskNum">1</span> / 5</h2>
+                    <h2>Завдання</h2>
                     <div id="timerDisplay" class="timer-display">20:00</div>
                 </div>
 
@@ -112,7 +114,7 @@
             </div>
 
             <div id="studentResults" class="hidden" style="text-align: center;">
-                <h1>Результати</h1>
+                <h1>Ваші Результати</h1>
                 <div id="resultsContent" class="text-for-reading">
                     <p>Ваші результати відобразяться тут після завершення перевірки.</p>
                 </div>
@@ -121,8 +123,8 @@
            
         </div>
 
-        <div id="adminAppView" class="app-container hidden">
-            <h1>Адміністративна Панель</h1>
+        <div id="adminAppView" class="app-container hidden" style="text-align: left;">
+            <h1 style="text-align: center;">Адміністративна Панель</h1>
             
             <div class="tabs">
                 <div class="tab active" data-tab="stats">Статистика</div>
@@ -174,10 +176,10 @@
             </div>
 
             <div id="createPanel" class="hidden" style="max-width: 600px; margin: 0 auto;">
-                <h2>Створення Нового Учня</h2>
+                <h2 style="text-align: center;">Створення Нового Учня</h2>
                 
                 <form id="createUserForm" style="margin-bottom: 40px;">
-                    <p class="subtitle">Система автоматично згенерує логін та простий пароль.</p>
+                    <p class="subtitle" style="text-align: center;">Система автоматично згенерує логін та простий пароль.</p>
                     
                     <div style="margin-bottom: 20px;">
                         <input type="text" id="newUserName" placeholder="ПІБ Учня (Іванов Іван)" required>
@@ -194,7 +196,7 @@
                     <button type="submit" class="btn-primary" style="width: 100%;">Створити обліковий запис</button>
                 </form>
 
-                <div id="createdCredentials" class="text-for-reading hidden">
+                <div id="createdCredentials" class="text-for-reading hidden" style="text-align: center;">
                     <h3>✅ Обліковий запис успішно створено!</h3>
                     <div id="credentialsInfo">
                         </div>
@@ -204,25 +206,29 @@
                 </div>
             </div>
 
-        </div> </div> <div id="notificationArea" class="notification-area"></div>
+        </div> 
+        
+    </div> 
+
+    <div id="notificationArea" class="notification-area"></div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script>
       // ВСТАВТЕ ВАШ КОНФІГ FIREBASE ТУТ
- const firebaseConfig = {
-  apiKey: "AIzaSyAPnJFF03dqUF6hc9J4i5sL-K02LjavA5Q",
-  authDomain: "olympiad-app-2024-591ee.firebaseapp.com",
-  projectId: "olympiad-app-2024-591ee",
-  storageBucket: "olympiad-app-2024-591ee.firebasestorage.app",
-  messagingSenderId: "421657499179",
-  appId: "1:421657499179:web:95a510e9d9fc146c6dfc6e"
+      const firebaseConfig = {
+        apiKey: "YOUR_API_KEY_HERE", 
+        authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_PROJECT_ID.appspot.com",
+        messagingSenderId: "SENDER_ID",
+        appId: "APP_ID"
       };
-      // Ініціалізація
+      // Ініціалізація: важливо, щоб ці змінні були доступні для script.js
       const app = firebase.initializeApp(firebaseConfig);
-      const auth = app.auth();
-      const db = app.firestore();
+      const auth = app.auth(); 
+      const db = app.firestore(); 
     </script>
 
     <script src="script.js"></script>
