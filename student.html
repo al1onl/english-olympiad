@@ -91,6 +91,16 @@
       margin-bottom: 15px;
       font-size: 0.9rem;
     }
+
+    .fullscreen-warning {
+      background: var(--danger);
+      color: white;
+      padding: 10px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      text-align: center;
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -110,6 +120,11 @@
         </div>
       </div>
 
+      <!-- Попередження про повноекранний режим -->
+      <div id="fullscreenWarning" class="fullscreen-warning">
+        Увага! Ви вийшли з повноекранного режиму. Після 7 виходів тест буде автоматично завершено!
+      </div>
+
       <!-- Вступний екран -->
       <section id="intro">
         <div class="info-box">
@@ -117,13 +132,14 @@
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
             <div>
               <h4 style="color: var(--accent); margin-bottom: 10px;">📋 Основна інформація</h4>
-              <p><strong>⏱️ Час:</strong> 60 хвилин</p>
+              <p><strong>⏱️ Час:</strong> 60 хвилин (3 завдання по 20 хв)</p>
               <p><strong>📝 Завдання:</strong> 3 розділи</p>
               <p><strong>🎯 Максимальний бал:</strong> 34</p>
             </div>
             <div>
               <h4 style="color: var(--accent); margin-bottom: 10px;">⚠️ Правила</h4>
               <p>• Не виходити з повноекранного режиму</p>
+              <p>• Максимум 7 виходів, інакше тест завершиться</p>
               <p>• Не оновлювати сторінку</p>
               <p>• Працювати самостійно</p>
             </div>
@@ -147,7 +163,7 @@
           <div style="font-weight: bold; font-size: 1.2rem;">Олімпіадні завдання</div>
           <div style="display: flex; align-items: center; gap: 15px;">
             <button id="prevBtn" class="btn-secondary" style="display: none;">← Назад</button>
-            <div class="timer" id="timer">60:00</div>
+            <div class="timer" id="timer">20:00</div>
           </div>
         </div>
 
@@ -158,7 +174,7 @@
           </div>
           
           <div class="task-content">
-            <p style="margin-bottom: 20px; font-weight: bold;">Read the extended academic extract and choose the correct option for each numbered gap (12 gaps).</p>
+            <p style="margin-bottom: 20px; font-weight: bold;">Read the extended academic extract and choose the correct option for each numbered gap (12 gaps). Each gap may require subtle lexical choice.</p>
 
             <div style="line-height: 1.6;">
               <p style="margin-bottom: 15px;">
@@ -169,43 +185,28 @@
                   <option value="fragmentation">fragmentation</option>
                   <option value="isolation">isolation</option>
                 </select> 
-                of cross-disciplinary methods.
-              </p>
-
-              <p style="margin-bottom: 15px;">
-                Historically, approaches that privileged narrow disciplinary perspectives resulted in policies that were 
+                of cross-disciplinary methods. Historically, approaches that privileged narrow disciplinary perspectives resulted in policies that were 
                 <select id="t1s2">
                   <option value="">—</option>
                   <option value="resilient">resilient</option>
                   <option value="short-sighted">short-sighted</option>
                   <option value="comprehensive">comprehensive</option>
                 </select> 
-                and lacked long-term viability.
-              </p>
-
-              <!-- Інші 10 питань аналогічно -->
-              <p style="margin-bottom: 15px;">
-                The complexity arises from the uneven availability of reliable data, which in many contexts is 
+                and lacked long-term viability. The complexity arises not only from the multiplicity of variables but also from the uneven availability of reliable data, which in many contexts is 
                 <select id="t1s3">
                   <option value="">—</option>
                   <option value="abundant">abundant</option>
                   <option value="sporadic">sporadic</option>
                   <option value="redundant">redundant</option>
-                </select>.
-              </p>
-
-              <p style="margin-bottom: 15px;">
+                </select>. 
                 Consequently, models must be designed with an awareness of their inherent 
                 <select id="t1s4">
                   <option value="">—</option>
                   <option value="limitations">limitations</option>
                   <option value="perfections">perfections</option>
                   <option value="magnitudes">magnitudes</option>
-                </select>.
-              </p>
-
-              <p style="margin-bottom: 15px;">
-                Stakeholders should participate to ensure that outputs are not 
+                </select>, 
+                and stakeholders should participate to ensure that outputs are not 
                 <select id="t1s5">
                   <option value="">—</option>
                   <option value="detached">detached</option>
@@ -214,33 +215,89 @@
                 </select> 
                 from lived experience.
               </p>
+
+              <p style="margin-bottom: 15px;">
+                Several authors have argued that the standard metrics for resilience are often 
+                <select id="t1s6">
+                  <option value="">—</option>
+                  <option value="overly">overly</option>
+                  <option value="rigorously">rigorously</option>
+                  <option value="carefully">carefully</option>
+                </select> 
+                simplified, thereby obscuring context-specific vulnerabilities. To mitigate this, it is advisable to incorporate qualitative assessments that capture 
+                <select id="t1s7">
+                  <option value="">—</option>
+                  <option value="nuance">nuance</option>
+                  <option value="uniformity">uniformity</option>
+                  <option value="redundancy">redundancy</option>
+                </select> 
+                and local perceptions. Moreover, when presenting findings to policymakers, researchers need to 
+                <select id="t1s8">
+                  <option value="">—</option>
+                  <option value="obfuscate">obfuscate</option>
+                  <option value="clarify">clarify</option>
+                  <option value="complicate">complicate</option>
+                </select> 
+                the implications and offer practicable recommendations rather than abstract generalities.
+              </p>
+
+              <p style="margin-bottom: 15px;">
+                A further complication is the tendency to conflate correlation with causation, especially in datasets where temporal sequences are 
+                <select id="t1s9">
+                  <option value="">—</option>
+                  <option value="ambiguous">ambiguous</option>
+                  <option value="obvious">obvious</option>
+                  <option value="immutable">immutable</option>
+                </select>. 
+                Robust inference thus demands careful longitudinal analysis and sensitivity testing to avoid 
+                <select id="t1s10">
+                  <option value="">—</option>
+                  <option value="spurious">spurious</option>
+                  <option value="conclusive">conclusive</option>
+                  <option value="definitive">definitive</option>
+                </select> 
+                conclusions. Finally, the ethical dimension requires that any interventions respect community autonomy and do not exacerbate pre-existing 
+                <select id="t1s11">
+                  <option value="">—</option>
+                  <option value="inequalities">inequalities</option>
+                  <option value="advantages">advantages</option>
+                  <option value="privileges">privileges</option>
+                </select>. 
+                In summary, the framing of urban resilience must remain both critically reflexive and 
+                <select id="t1s12">
+                  <option value="">—</option>
+                  <option value="adaptive">adaptive</option>
+                  <option value="static">static</option>
+                  <option value="naive">naive</option>
+                </select>.
+              </p>
             </div>
           </div>
 
           <div class="navigation">
             <div></div>
-            <button id="nextBtn1" class="btn-primary">Далі →</button>
+            <button id="nextBtn1" class="btn-primary">Перейти до наступного завдання →</button>
           </div>
         </div>
 
         <!-- Завдання 2 -->
         <div id="task2" class="task-container">
           <div class="hint">
-            <strong>Завдання 2</strong> — Long Reading & Analysis
+            <strong>Завдання 2</strong> — Long Reading & Analysis (12 items)
           </div>
           
           <div class="task-content">
-            <p style="font-weight: bold; margin-bottom: 15px;">Passage:</p>
+            <p style="font-weight: bold; margin-bottom: 15px;">Passage (extended):</p>
             
             <div style="background: var(--primary-dark); padding: 15px; border-radius: 8px; margin-bottom: 20px; line-height: 1.6;">
-              <p>Over the last half-century, urbanization has proceeded at an unprecedented rate, compelling scholars to reassess traditional paradigms of growth and governance. Initially, urban theory emphasized industrial expansion and spatial planning as the dominant variables; however, contemporary perspectives integrate social capital, environmental integrity and digital infrastructure into cohesive frameworks.</p>
+              <p>Over the last half-century, urbanization has proceeded at an unprecedented rate, compelling scholars to reassess traditional paradigms of growth and governance. Initially, urban theory emphasized industrial expansion and spatial planning as the dominant variables; however, contemporary perspectives integrate social capital, environmental integrity and digital infrastructure into cohesive frameworks. Notably, the spatial distribution of services and economic opportunity often mirrors historical inequalities, producing path-dependent outcomes. Policymakers must therefore navigate the tension between top-down planning and grassroots mobilization, leveraging participatory mechanisms without sacrificing strategic coherence. Moreover, the climatic imperative adds a new layer of complexity: mitigation policies must be equitable, financially viable and technically feasible. As cities adapt, adaptive governance — characterized by iterative policymaking, transparent data practices and inclusive stakeholder engagement — becomes central. Yet, the translation of evidence into policy frequently founders on institutional inertia, budgetary constraints and competing political priorities. Ultimately, resilient urban futures require a synthesis of robust data, normative commitments to justice, and pragmatic implementation pathways.</p>
             </div>
 
             <div style="margin-top: 20px;">
-              <p style="margin-bottom: 10px;"><strong>1. Define path-dependent outcomes:</strong></p>
+              <p style="margin-bottom: 10px;"><strong>1. (short) Define in one sentence what is meant by <em>path-dependent outcomes</em> in the passage.</strong></p>
               <input type="text" id="r2q1" placeholder="Введіть відповідь..." style="width: 100%; margin-bottom: 20px;">
               
-              <p style="margin-bottom: 10px;"><strong>2. Which is NOT part of contemporary frameworks?</strong></p>
+              <p style="margin-bottom: 10px;"><strong>2. (MC) Which of the following is NOT listed as part of contemporary frameworks?</strong></p>
               <select id="r2q2" style="width: 100%; margin-bottom: 20px;">
                 <option value="">—</option>
                 <option value="A">social capital</option>
@@ -248,13 +305,66 @@
                 <option value="C">agrarian reform</option>
               </select>
 
-              <!-- Інші 10 питань аналогічно -->
+              <p style="margin-bottom: 10px;"><strong>3. (short) Give two barriers mentioned that impede translation of evidence into policy.</strong></p>
+              <input type="text" id="r2q3" placeholder="Введіть дві перешкоди..." style="width: 100%; margin-bottom: 20px;">
+              
+              <p style="margin-bottom: 10px;"><strong>4. (MC) Adaptive governance includes:</strong></p>
+              <select id="r2q4" style="width: 100%; margin-bottom: 20px;">
+                <option value="">—</option>
+                <option value="A">iterative policymaking</option>
+                <option value="B">opaque data practices</option>
+                <option value="C">exclusionary stakeholder engagement</option>
+              </select>
+
+              <p style="margin-bottom: 10px;"><strong>5. (short) What does the passage suggest about climate mitigation policies?</strong></p>
+              <input type="text" id="r2q5" placeholder="Введіть відповідь..." style="width: 100%; margin-bottom: 20px;">
+              
+              <p style="margin-bottom: 10px;"><strong>6. (MC) The passage implies that policymaking must balance:</strong></p>
+              <select id="r2q6" style="width: 100%; margin-bottom: 20px;">
+                <option value="">—</option>
+                <option value="A">top-down planning and grassroots mobilization</option>
+                <option value="B">only top-down directives</option>
+                <option value="C">only grassroots mobilization</option>
+              </select>
+
+              <p style="margin-bottom: 10px;"><strong>7. (short) Provide one example of a normative commitment mentioned.</strong></p>
+              <input type="text" id="r2q7" placeholder="Введіть приклад..." style="width: 100%; margin-bottom: 20px;">
+              
+              <p style="margin-bottom: 10px;"><strong>8. (MC) What becomes central for resilient urban futures?</strong></p>
+              <select id="r2q8" style="width: 100%; margin-bottom: 20px;">
+                <option value="">—</option>
+                <option value="A">adaptive governance</option>
+                <option value="B">institutional inertia</option>
+                <option value="C">budgetary constraints</option>
+              </select>
+
+              <p style="margin-bottom: 10px;"><strong>9. (short) Explain briefly why inclusive stakeholder engagement is important according to the text.</strong></p>
+              <input type="text" id="r2q9" placeholder="Введіть пояснення..." style="width: 100%; margin-bottom: 20px;">
+              
+              <p style="margin-bottom: 10px;"><strong>10. (MC) Which is listed as characteristic of adaptive governance?</strong></p>
+              <select id="r2q10" style="width: 100%; margin-bottom: 20px;">
+                <option value="">—</option>
+                <option value="A">transparent data practices</option>
+                <option value="B">political opacity</option>
+                <option value="C">reliance on randomness</option>
+              </select>
+
+              <p style="margin-bottom: 10px;"><strong>11. (short) Summarize in one phrase what is required for resilient urban futures.</strong></p>
+              <input type="text" id="r2q11" placeholder="Введіть фразу..." style="width: 100%; margin-bottom: 20px;">
+              
+              <p style="margin-bottom: 10px;"><strong>12. (MC) Which of these is presented as a challenge to implementing policies?</strong></p>
+              <select id="r2q12" style="width: 100%; margin-bottom: 20px;">
+                <option value="">—</option>
+                <option value="A">budgetary constraints</option>
+                <option value="B">robust data</option>
+                <option value="C">normative commitments</option>
+              </select>
             </div>
           </div>
 
           <div class="navigation">
-            <button id="prevBtn2" class="btn-secondary">← Назад</button>
-            <button id="nextBtn2" class="btn-primary">Далі →</button>
+            <button id="prevBtn2" class="btn-secondary">← Попереднє завдання</button>
+            <button id="nextBtn2" class="btn-primary">Перейти до наступного завдання →</button>
           </div>
         </div>
 
@@ -265,7 +375,7 @@
           </div>
           
           <div class="task-content">
-            <p style="margin-bottom: 20px; font-weight: bold;">Перепишіть речення, використовуючи слово в дужках:</p>
+            <p style="margin-bottom: 20px; font-weight: bold;">Перепишіть речення, використовуючи слово в дужках — зберегти значення.</p>
 
             <div>
               <p style="margin-bottom: 10px;"><strong>1. It was unnecessary to wake him. (NEED)</strong></p>
@@ -274,13 +384,35 @@
               <p style="margin-bottom: 10px;"><strong>2. She completed the task despite the difficulties. (MANAGED)</strong></p>
               <input type="text" id="t3q2" placeholder="Your sentence..." style="width: 100%; margin-bottom: 20px;">
 
-              <!-- Інші 8 питань аналогічно -->
+              <p style="margin-bottom: 10px;"><strong>3. They started the project two years ago. (BEEN)</strong></p>
+              <input type="text" id="t3q3" placeholder="Your sentence..." style="width: 100%; margin-bottom: 20px;">
+              
+              <p style="margin-bottom: 10px;"><strong>4. He didn't need to bring any tools. (WAS)</strong></p>
+              <input type="text" id="t3q4" placeholder="Your sentence..." style="width: 100%; margin-bottom: 20px;">
+
+              <p style="margin-bottom: 10px;"><strong>5. It's illegal to drive without a license. (PERMITTED)</strong></p>
+              <input type="text" id="t3q5" placeholder="Your sentence..." style="width: 100%; margin-bottom: 20px;">
+              
+              <p style="margin-bottom: 10px;"><strong>6. They regret not applying earlier. (WISH)</strong></p>
+              <input type="text" id="t3q6" placeholder="Your sentence..." style="width: 100%; margin-bottom: 20px;">
+
+              <p style="margin-bottom: 10px;"><strong>7. I prefer tea to coffee. (RATHER)</strong></p>
+              <input type="text" id="t3q7" placeholder="Your sentence..." style="width: 100%; margin-bottom: 20px;">
+              
+              <p style="margin-bottom: 10px;"><strong>8. She hasn't seen him for months. (LAST)</strong></p>
+              <input type="text" id="t3q8" placeholder="Your sentence..." style="width: 100%; margin-bottom: 20px;">
+
+              <p style="margin-bottom: 10px;"><strong>9. It's impossible to finish on time without help. (ABLE)</strong></p>
+              <input type="text" id="t3q9" placeholder="Your sentence..." style="width: 100%; margin-bottom: 20px;">
+              
+              <p style="margin-bottom: 10px;"><strong>10. The teacher insisted on early submission. (DEMAND)</strong></p>
+              <input type="text" id="t3q10" placeholder="Your sentence..." style="width: 100%; margin-bottom: 20px;">
             </div>
           </div>
 
           <div class="navigation">
-            <button id="prevBtn3" class="btn-secondary">← Назад</button>
-            <button id="finishBtn" class="btn-primary" style="background: var(--danger);">Завершити</button>
+            <button id="prevBtn3" class="btn-secondary">← Попереднє завдання</button>
+            <button id="finishBtn" class="btn-primary" style="background: var(--danger);">Завершити олімпіаду</button>
           </div>
         </div>
 
@@ -295,6 +427,12 @@
             <!-- Буде заповнено JavaScript -->
           </div>
 
+          <div style="background: var(--primary-dark); padding: 15px; border-radius: 8px; margin-top: 20px;">
+            <h4 style="margin-bottom: 10px;">📞 Контакти для результатів:</h4>
+            <p>Telegram: <strong>@nacodexx</strong></p>
+            <p>Discord: <strong>in.kyiv</strong></p>
+          </div>
+
           <div style="text-align: center; margin-top: 25px;">
             <button id="backToHomeBtn" class="btn-secondary">← На головну</button>
           </div>
@@ -304,209 +442,5 @@
   </div>
 
   <script src="script.js"></script>
-  <script>
-    // Специфічний код для student.html
-    let timerInterval;
-    let timeRemaining = 60 * 60; // 60 хвилин
-
-    document.addEventListener('DOMContentLoaded', function() {
-      // Перевірка авторизації
-      const currentUser = JSON.parse(localStorage.getItem('current_user'));
-      if (!currentUser) {
-        window.location.href = 'index.html';
-        return;
-      }
-
-      // Оновлення інформації про учня
-      updateStudentInfo(currentUser);
-      
-      // Налаштування подій
-      setupEventListeners();
-    });
-
-    function updateStudentInfo(user) {
-      document.getElementById('studentWelcome').textContent = `Ласкаво просимо, ${user.name}!`;
-      
-      const studentInfo = document.getElementById('studentInfo');
-      if (studentInfo) {
-        studentInfo.innerHTML = `
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-            <div><strong>👤 Учень:</strong> ${user.name}</div>
-            <div><strong>🏫 Клас:</strong> ${user.class}</div>
-            <div><strong>🔢 Номер:</strong> <span style="color: var(--accent); font-weight: bold;">${user.studentNumber}</span></div>
-            <div><strong>📊 Статус:</strong> <span style="color: var(--success);">Готовий</span></div>
-          </div>
-        `;
-      }
-    }
-
-    function setupEventListeners() {
-      // Кнопка початку
-      document.getElementById('startBtn').addEventListener('click', startOlympiad);
-      
-      // Кнопка виходу
-      document.getElementById('logoutBtn').addEventListener('click', function() {
-        if (confirm('Вийти з системи?')) {
-          localStorage.removeItem('current_user');
-          window.location.href = 'index.html';
-        }
-      });
-
-      // Навігація
-      document.getElementById('nextBtn1').addEventListener('click', () => showTask(2));
-      document.getElementById('prevBtn2').addEventListener('click', () => showTask(1));
-      document.getElementById('nextBtn2').addEventListener('click', () => showTask(3));
-      document.getElementById('prevBtn3').addEventListener('click', () => showTask(2));
-      document.getElementById('finishBtn').addEventListener('click', finishOlympiad);
-      document.getElementById('backToHomeBtn').addEventListener('click', () => {
-        window.location.href = 'index.html';
-      });
-
-      // Глобальна кнопка "Назад"
-      document.getElementById('prevBtn').addEventListener('click', goToPreviousTask);
-    }
-
-    function startOlympiad() {
-      document.getElementById('intro').style.display = 'none';
-      document.getElementById('tasks').style.display = 'block';
-      showTask(1);
-      startTimer();
-      
-      // Спроба повноекранного режиму
-      if (document.documentElement.requestFullscreen) {
-        document.documentElement.requestFullscreen().catch(console.log);
-      }
-    }
-
-    function showTask(taskNumber) {
-      // Приховати всі завдання
-      document.querySelectorAll('.task-container').forEach(task => {
-        task.classList.remove('active');
-      });
-      
-      // Показати обране завдання
-      const task = document.getElementById(`task${taskNumber}`);
-      if (task) {
-        task.classList.add('active');
-      }
-      
-      // Оновити навігацію
-      updateNavigation(taskNumber);
-    }
-
-    function goToPreviousTask() {
-      const currentTask = getCurrentTask();
-      if (currentTask > 1) {
-        showTask(currentTask - 1);
-      }
-    }
-
-    function getCurrentTask() {
-      const tasks = document.querySelectorAll('.task-container');
-      for (let i = 0; i < tasks.length; i++) {
-        if (tasks[i].classList.contains('active')) {
-          return i + 1;
-        }
-      }
-      return 1;
-    }
-
-    function updateNavigation(currentTask) {
-      const prevBtn = document.getElementById('prevBtn');
-      if (prevBtn) {
-        prevBtn.style.display = currentTask > 1 ? 'inline-block' : 'none';
-      }
-    }
-
-    function startTimer() {
-      timerInterval = setInterval(() => {
-        if (timeRemaining > 0) {
-          timeRemaining--;
-          updateTimerDisplay();
-        } else {
-          finishOlympiad();
-        }
-      }, 1000);
-    }
-
-    function updateTimerDisplay() {
-      const timer = document.getElementById('timer');
-      if (timer) {
-        const minutes = Math.floor(timeRemaining / 60);
-        const seconds = timeRemaining % 60;
-        timer.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-      }
-    }
-
-    function finishOlympiad() {
-      clearInterval(timerInterval);
-      
-      // Вийти з повноекранного режиму
-      if (document.fullscreenElement) {
-        document.exitFullscreen();
-      }
-      
-      showResults();
-    }
-
-    function showResults() {
-      document.querySelectorAll('.task-container').forEach(task => {
-        task.style.display = 'none';
-      });
-      
-      const resultsScreen = document.getElementById('resultsScreen');
-      if (resultsScreen) {
-        resultsScreen.style.display = 'block';
-        displayResults();
-      }
-    }
-
-    function displayResults() {
-      const resultsContent = document.getElementById('resultsContent');
-      const currentUser = JSON.parse(localStorage.getItem('current_user'));
-      
-      if (resultsContent && currentUser) {
-        const score = calculateScore();
-        
-        resultsContent.innerHTML = `
-          <div style="text-align: center; margin-bottom: 20px;">
-            <div style="font-size: 2rem; color: var(--accent); margin-bottom: 10px;">${score}/34</div>
-            <div style="color: var(--text-secondary);">Набрано балів</div>
-          </div>
-          
-          <div style="background: var(--primary-dark); padding: 15px; border-radius: 8px; margin-top: 20px;">
-            <h4 style="margin-bottom: 10px;">📞 Контакти для результатів:</h4>
-            <p>Telegram: <strong>@nacodexx</strong></p>
-            <p>Discord: <strong>in.kyiv</strong></p>
-            <p style="margin-top: 10px;">Ваш номер: <strong>${currentUser.studentNumber}</strong></p>
-          </div>
-        `;
-      }
-    }
-
-    function calculateScore() {
-      let score = 0;
-      
-      // Завдання 1
-      for (let i = 1; i <= 5; i++) {
-        const select = document.getElementById(`t1s${i}`);
-        if (select && select.value) score += 1;
-      }
-      
-      // Завдання 2
-      for (let i = 1; i <= 2; i++) {
-        const element = document.getElementById(`r2q${i}`);
-        if (element && element.value) score += 1;
-      }
-      
-      // Завдання 3
-      for (let i = 1; i <= 2; i++) {
-        const input = document.getElementById(`t3q${i}`);
-        if (input && input.value.trim().length > 3) score += 1;
-      }
-      
-      return score;
-    }
-  </script>
 </body>
 </html>
