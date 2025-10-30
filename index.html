@@ -6,6 +6,7 @@
     <title>Олімпіада з англійської мови</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#424242">
 </head>
 <body>
     <div class="container">
@@ -31,7 +32,7 @@
         </div>
 
         <!-- Форма входу для учня -->
-        <div id="studentLogin" class="login-form">
+        <div id="studentLogin" class="login-form" style="display: none;">
             <h2>Вхід для учня</h2>
             <div class="form-group">
                 <label>Логін:</label>
@@ -47,7 +48,7 @@
         </div>
 
         <!-- Форма входу для адміна -->
-        <div id="adminLogin" class="login-form">
+        <div id="adminLogin" class="login-form" style="display: none;">
             <h2>Вхід для адміністратора</h2>
             <div class="form-group">
                 <label>Логін адміна:</label>
@@ -67,6 +68,87 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        // Проста ініціалізація без помилок
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Сторінка завантажена');
+            
+            // Обробники для карток вибору режиму
+            document.querySelectorAll('.mode-card[data-mode]').forEach(card => {
+                card.addEventListener('click', function() {
+                    const mode = this.getAttribute('data-mode');
+                    showLoginForm(mode);
+                });
+            });
+
+            // Обробники для форми учня
+            document.getElementById('studentLoginBtn').addEventListener('click', handleStudentLogin);
+            document.getElementById('backFromStudentBtn').addEventListener('click', showMainMenu);
+
+            // Обробники для форми адміна
+            document.getElementById('adminLoginBtn').addEventListener('click', handleAdminLogin);
+            document.getElementById('backFromAdminBtn').addEventListener('click', showMainMenu);
+        });
+
+        function showMainMenu() {
+            document.getElementById('modeSelector').style.display = 'grid';
+            document.getElementById('studentLogin').style.display = 'none';
+            document.getElementById('adminLogin').style.display = 'none';
+        }
+
+        function showLoginForm(mode) {
+            document.getElementById('modeSelector').style.display = 'none';
+            
+            if (mode === 'student') {
+                document.getElementById('studentLogin').style.display = 'block';
+                document.getElementById('adminLogin').style.display = 'none';
+            } else {
+                document.getElementById('adminLogin').style.display = 'block';
+                document.getElementById('studentLogin').style.display = 'none';
+            }
+        }
+
+        function handleStudentLogin() {
+            const login = document.getElementById('studentLoginInput').value.trim();
+            const password = document.getElementById('studentPasswordInput').value.trim();
+            
+            if (!login || !password) {
+                showError('studentError', 'Будь ласка, заповніть всі поля');
+                return;
+            }
+            
+            // Перевірка з локальним сховищем
+            const users = JSON.parse(localStorage.getItem('olympiad_users')) || [];
+            const user = users.find(u => u.login === login && u.password === password);
+            
+            if (user) {
+                localStorage.setItem('current_user', JSON.stringify(user));
+                window.location.href = 'student.html';
+            } else {
+                showError('studentError', 'Невірний логін або пароль');
+            }
+        }
+
+        function handleAdminLogin() {
+            const login = document.getElementById('adminLoginInput').value.trim();
+            const password = document.getElementById('adminPasswordInput').value.trim();
+            const codeWord = document.getElementById('adminCodeWord').value.trim();
+            
+            if (login === 'admin' && password === 'admin123' && codeWord === 'olympiad2024') {
+                localStorage.setItem('admin_authenticated', 'true');
+                window.location.href = 'admin.html';
+            } else {
+                showError('adminError', 'Невірні облікові дані адміністратора');
+            }
+        }
+
+        function showError(elementId, message) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.textContent = message;
+                element.style.display = 'block';
+            }
+        }
+    </script>
 </body>
 </html>
