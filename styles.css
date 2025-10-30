@@ -1,20 +1,20 @@
 /* 🎨 Глобальні CSS змінні (Theme) */
 :root {
-    --primary: #5B86E5; /* Синій */
+    --primary: #5B86E5; 
     --primary-dark: #3A69C4;
-    --secondary: #1E2E4E; /* Темно-синій для фону */
-    --accent: #5BE5C3; /* Бірюзовий */
+    --secondary: #1E2E4E; 
+    --accent: #5BE5C3; 
     --accent-dark: #3AC49C;
-    --background-start: #0f2027; /* Дуже темно-синій */
-    --background-end: #203a43; /* Середній синій */
+    --background-start: #0f2027; 
+    --background-end: #203a43; 
     --card-bg: rgba(255, 255, 255, 0.1);
     --text-primary: #f0f0f0;
     --text-secondary: #c0c0c0;
-    --danger: #e55b5b; /* Червоний */
+    --danger: #e55b5b; 
     --danger-dark: #c43a3a;
-    --success: #5be584; /* Зелений */
+    --success: #5be584; 
     --success-dark: #3ac465;
-    --warning: #e5b35b; /* Жовтий */
+    --warning: #e5b35b; 
     --warning-dark: #c4963a;
     --border-radius: 15px;
     --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
@@ -34,30 +34,38 @@ body {
     color: var(--text-primary);
     min-height: 100vh;
     display: flex;
-    align-items: center;
+    align-items: flex-start; /* Змінено на flex-start для кращого відображення великих сторінок */
     justify-content: center;
+    padding-top: 50px;
 }
 
-/* Анімація появи сторінки */
-body.fade-in {
-    opacity: 1;
-    transition: opacity 0.8s ease-in;
-}
-body {
-    opacity: 0;
-}
+body.fade-in { opacity: 1; transition: opacity 0.8s ease-in; }
+body { opacity: 0; }
 
-/* 🖼️ Контейнери та Glass-Morphism */
 .container {
     width: 100%;
     max-width: 1200px;
     padding: 20px;
 }
 
+/* --- SPA View Management --- */
+.view {
+    min-height: 80vh;
+    animation: fadeIn 0.5s ease-in-out;
+}
+.hidden { display: none !important; }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 🖼️ Glass-Morphism та Картки */
 .main-card {
     padding: 40px;
     border-radius: var(--border-radius);
     text-align: center;
+    margin-bottom: 30px;
 }
 
 .glass-card {
@@ -68,427 +76,118 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
-/* 🏠 Головна сторінка та вибір режиму */
-.header h1 {
-    font-size: 2.5rem;
-    margin-bottom: 10px;
-}
+/* --- Main View --- */
+.header h1 { font-size: 2.5rem; margin-bottom: 10px; }
+.header p { color: var(--text-secondary); margin-bottom: 30px; }
+.header .logo { font-size: 4rem; display: block; margin-bottom: 20px; color: var(--accent); }
 
-.header p {
-    color: var(--text-secondary);
-    margin-bottom: 30px;
-}
+.mode-selection { display: flex; justify-content: center; gap: 30px; margin-top: 30px; }
+.mode-card { width: 300px; padding: 30px; text-align: center; cursor: default; }
+.mode-card:hover { transform: scale(1.02); }
+.mode-card .icon { font-size: 3rem; display: block; margin-bottom: 15px; }
+.mode-card h2 { margin-bottom: 10px; color: var(--accent); }
 
-.mode-selection {
-    display: flex;
-    justify-content: center;
-    gap: 30px;
-    margin-top: 30px;
-}
-
-.mode-card {
-    width: 300px;
-    padding: 30px;
-    text-align: center;
-    cursor: default; /* Прибираємо курсор pointer з картки, залишаємо на кнопці */
-}
-
-.mode-card button:hover {
-    transform: translateY(-2px);
-}
-
-.mode-card .icon {
-    font-size: 3rem;
-    display: block;
-    margin-bottom: 15px;
-}
-
-.mode-card h2 {
-    margin-bottom: 10px;
-    color: var(--accent);
-}
-
-/* 🔑 Форми входу */
-.login-card {
-    max-width: 450px;
-    margin: 50px auto;
-}
-
-.form-group {
-    text-align: left;
-    margin-bottom: 20px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 600;
-    color: var(--text-secondary);
-}
+/* --- Forms --- */
+.login-card { max-width: 450px; margin: 50px auto; }
+.form-group { text-align: left; margin-bottom: 20px; }
+.form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-secondary); }
 
 .form-group input, .answer-select {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 8px;
-    background: rgba(0, 0, 0, 0.2);
-    color: var(--text-primary);
-    font-size: 1rem;
-    outline: none;
-    resize: none;
+    width: 100%; padding: 12px; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 8px;
+    background: rgba(0, 0, 0, 0.2); color: var(--text-primary); font-size: 1rem; outline: none;
 }
+.form-group input:focus, .answer-select:focus { border-color: var(--accent); box-shadow: 0 0 8px rgba(91, 229, 195, 0.5); }
 
-.form-group input:focus, .answer-select:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 8px rgba(91, 229, 195, 0.5);
-}
+.login-actions { display: flex; gap: 15px; margin-top: 30px; justify-content: center; }
 
-.login-actions {
-    display: flex;
-    gap: 15px;
-    margin-top: 30px;
-    justify-content: center;
-}
+/* --- Buttons --- */
+button { cursor: pointer; padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; position: relative; overflow: hidden; z-index: 1; }
+.btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; }
+.btn-secondary { background: rgba(255, 255, 255, 0.1); color: var(--text-primary); border: 1px solid rgba(255, 255, 255, 0.3); }
+.btn-danger { background: linear-gradient(135deg, var(--danger), var(--danger-dark)); color: white; }
+.btn-small { padding: 5px 10px; font-size: 0.8rem; }
+.btn-primary:hover { box-shadow: 0 0 15px rgba(91, 134, 229, 0.5); }
+.ripple { position: absolute; border-radius: 50%; transform: scale(0); animation: ripple-animation 0.6s linear; background-color: rgba(255, 255, 255, 0.7); }
+@keyframes ripple-animation { to { transform: scale(4); opacity: 0; } }
 
-/* 🔘 Кнопки */
-button {
-    cursor: pointer;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    position: relative;
-    overflow: hidden;
-    z-index: 1;
-}
+/* --- App Header & Timer --- */
+.app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding: 20px 30px; }
+.app-header h1 { font-size: 2rem; }
 
-.btn-primary {
-    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-    color: white;
-}
-
-.btn-secondary {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--text-primary);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.btn-danger {
-    background: linear-gradient(135deg, var(--danger), var(--danger-dark));
-    color: white;
-}
-
-.btn-primary:hover {
-    box-shadow: 0 0 15px rgba(91, 134, 229, 0.5);
-}
-
-.btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.2);
-}
-
-/* 🌊 Ефект Ripple */
-.ripple {
-    position: absolute;
-    border-radius: 50%;
-    transform: scale(0);
-    animation: ripple-animation 0.6s linear;
-    background-color: rgba(255, 255, 255, 0.7);
-}
-
-@keyframes ripple-animation {
-    to {
-        transform: scale(4);
-        opacity: 0;
-    }
-}
-
-/* 🚨 Повідомлення про помилки та успіх */
-.error-message {
-    background: var(--danger-dark);
-    color: white;
-    padding: 10px;
-    border-radius: 8px;
-    margin-top: 15px;
-    display: none;
-    font-weight: 500;
-}
-
-/* 💻 Студентська сторінка (student.html) */
-.student-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-    padding: 20px 30px;
-}
-
-.student-header h1 {
-    font-size: 2rem;
-}
-
-.student-info-section {
-    padding: 30px 0;
-    margin-bottom: 40px;
-}
-
-/* Секція завдань */
-.tasks-section {
-    text-align: left;
-}
-
-.task-navigation {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 25px;
-    padding: 15px;
-    /* Перетворюємо на сітку, щоб правильно розподілити кнопки */
-    display: grid;
-    grid-template-columns: 1fr 200px 1fr;
-}
-
-#timer {
-    font-size: 1.8rem;
-    font-weight: 700;
-    padding: 10px 20px;
-    border-radius: 8px;
-    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+.timer { 
+    font-size: 1.8rem; font-weight: 700; padding: 10px 20px; border-radius: 8px; 
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark)); 
     transition: all 0.5s;
 }
+.timer.warning { background: linear-gradient(135deg, var(--warning), var(--warning-dark)); }
+.timer.critical { background: linear-gradient(135deg, var(--danger), var(--danger-dark)); animation: pulse-animation 1s infinite; }
+@keyframes pulse-animation { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
-#timer.warning {
-    background: linear-gradient(135deg, var(--warning), var(--warning-dark));
+/* --- Task Section --- */
+.tasks-section { text-align: left; }
+.task-navigation { 
+    display: flex; justify-content: space-between; align-items: center; 
+    margin-bottom: 25px; padding: 15px; 
 }
+.task-navigation button { min-width: 150px; }
 
-#timer.critical {
-    background: linear-gradient(135deg, var(--danger), var(--danger-dark));
+.task-title { font-size: 1.5rem; margin-bottom: 25px; border-bottom: 2px solid var(--accent); padding-bottom: 10px; }
+.question-block { 
+    margin-bottom: 30px; padding: 15px; border-left: 5px solid var(--accent); 
+    background: rgba(255, 255, 255, 0.05); border-radius: 0 var(--border-radius) var(--border-radius) 0;
 }
+.question-text { font-size: 1.1rem; margin-bottom: 10px; font-weight: 500; }
+.answer-input, .answer-select { 
+    width: 100%; padding: 10px; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 6px; 
+    background: rgba(0, 0, 0, 0.3); color: var(--text-primary); font-size: 1rem; outline: none;
+}
+.task-controls { margin-top: 40px; text-align: center; }
 
-.pulse {
-    animation: pulse-animation 1s infinite;
-}
+/* --- Results --- */
+.results-section { padding: 40px; text-align: center; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+.stat-card { padding: 20px; }
+.stat-number { font-size: 2.5rem; font-weight: 700; margin-bottom: 5px; color: var(--accent); }
+.stat-label { color: var(--text-secondary); font-size: 0.9rem; }
 
-@keyframes pulse-animation {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-}
+/* --- Admin Panel --- */
+.tabs { display: flex; justify-content: center; margin-bottom: 30px; background: rgba(0, 0, 0, 0.2); border-radius: 10px; padding: 5px; }
+.tab { flex-grow: 1; padding: 10px 20px; border-radius: 8px; background: transparent; color: var(--text-secondary); font-weight: 600; cursor: pointer; }
+.tab.active { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; }
 
-.task-title {
-    font-size: 1.5rem;
-    margin-bottom: 25px;
-    border-bottom: 2px solid var(--accent);
-    padding-bottom: 10px;
-}
-
-.question-block {
-    margin-bottom: 30px;
-    padding: 15px;
-    border-left: 5px solid var(--accent);
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 0 var(--border-radius) var(--border-radius) 0;
-}
-
-.question-text {
-    font-size: 1.1rem;
-    margin-bottom: 10px;
-    font-weight: 500;
-}
-
-.answer-input, .answer-select {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 6px;
-    background: rgba(0, 0, 0, 0.3);
-    color: var(--text-primary);
-    font-size: 1rem;
-    outline: none;
-}
-
-/* Навігація внизу завдання */
-.task-controls {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 40px;
-    padding: 0 20px;
-}
-
-/* Секція результатів */
-.results-section {
-    padding: 40px;
-    text-align: center;
-    animation: fadeIn 1s ease-in-out;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-}
-
-.stat-card {
-    padding: 20px;
-}
-
-.stat-number {
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-bottom: 5px;
-    color: var(--accent);
-}
-
-.stat-label {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-}
-
-/* ⚙️ Адмін панель (admin.html) */
-.admin-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-    padding: 20px 30px;
-}
-
-.tabs {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 30px;
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 10px;
-    padding: 5px;
-}
-
-.tab {
-    flex-grow: 1;
-    padding: 10px 20px;
-    border-radius: 8px;
-    background: transparent;
-    color: var(--text-secondary);
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.tab.active {
-    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-    color: white;
-}
-
-.panel {
-    display: none;
-    text-align: left;
-    padding: 10px;
-}
-
-.panel.active {
-    display: block;
-}
-
-.search-box {
-    margin-bottom: 20px;
-}
+.panel { padding: 10px; }
+.admin-table { width: 100%; border-collapse: collapse; margin-top: 20px; text-align: left; }
+.admin-table th, .admin-table td { padding: 12px 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+.admin-table th { background: rgba(0, 0, 0, 0.3); color: var(--accent); font-weight: 600; }
+.admin-table tr:hover td { background: rgba(255, 255, 255, 0.05); }
 
 .user-list {
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
+    grid-template-columns: 2fr 1fr 1fr 1.5fr 1fr 0.5fr;
     gap: 10px;
     font-size: 0.9rem;
     margin-top: 10px;
 }
 
-.user-item {
-    display: contents;
-}
+.user-item { display: contents; }
+.user-item > div { padding: 10px 15px; background: rgba(255, 255, 255, 0.05); border-radius: 6px; display: flex; align-items: center; word-break: break-all; }
+.user-item.header > div { background: var(--secondary); font-weight: 700; color: var(--accent); }
+.student-number-badge, .status-badge { padding: 3px 8px; border-radius: 5px; font-weight: bold; font-size: 0.8rem; text-align: center; }
+.status-badge.success { background: var(--success-dark); }
+.status-badge.warning { background: var(--warning-dark); color: var(--background-start); }
+.status-badge.danger { background: var(--danger-dark); }
+.score-badge { background: var(--primary); padding: 3px 8px; border-radius: 5px; }
 
-.user-item > div {
-    padding: 10px 15px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    word-break: break-all;
+/* --- Notifications (Для Utils.showNotification) --- */
+.notification {
+    position: fixed; top: 20px; right: 20px; 
+    background: rgba(15, 32, 39, 0.95);
+    color: white; padding: 16px 20px; border-radius: 15px; 
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    z-index: 10000; transform: translateX(400px); 
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s;
+    max-width: 400px; backdrop-filter: blur(10px); 
+    border: 1px solid rgba(255,255,255,0.2);
+    font-size: 1rem; opacity: 0;
 }
-
-.user-item.header > div {
-    background: var(--secondary);
-    font-weight: 700;
-    color: var(--accent);
-}
-
-.student-number-badge {
-    background: var(--primary);
-    padding: 3px 8px;
-    border-radius: 5px;
-    font-weight: bold;
-}
-
-.status-badge {
-    padding: 3px 8px;
-    border-radius: 5px;
-    font-weight: bold;
-    font-size: 0.8rem;
-}
-
-.status-badge.active {
-    background: var(--success-dark);
-}
-
-.status-badge.inactive {
-    background: var(--danger-dark);
-}
-
-
-/* 📱 Адаптивність */
-@media (max-width: 900px) {
-    .mode-selection {
-        flex-direction: column;
-        align-items: center;
-    }
-    .mode-card {
-        width: 100%;
-        max-width: 400px;
-    }
-    .main-card {
-        padding: 30px 20px;
-    }
-    .user-list {
-        grid-template-columns: repeat(4, 1fr);
-    }
-    .user-item.header > div:nth-child(5), /* Пароль */
-    .user-item > div:nth-child(5) {
-        display: none;
-    }
-    .user-item.header > div:nth-child(7), /* Дії */
-    .user-item > div:nth-child(7) {
-        grid-column: 1 / -1; /* Займає всю ширину */
-        justify-content: center;
-    }
-    .task-navigation {
-        grid-template-columns: 1fr 1fr 1fr;
-    }
-    .task-navigation > div:nth-child(2) {
-        grid-column: 1 / span 3;
-        order: -1;
-        margin-bottom: 15px;
-    }
-    .task-navigation > div:last-child {
-        text-align: right;
-    }
-    
-    .student-header, .admin-header {
-        flex-direction: column;
-        text-align: center;
-        padding: 20px;
-    }
-    .student-header button, .admin-header button {
-        margin-top: 15px;
-    }
-}
+.notification.show { transform: translateX(0); opacity: 1; }
