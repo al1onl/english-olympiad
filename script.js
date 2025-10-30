@@ -2,7 +2,9 @@
 const CONFIG = {
     ADMIN_LOGIN: "admin",
     ADMIN_PASSWORD: "admin123", 
-    ADMIN_CODE_WORD: "olympiad2024"
+    ADMIN_CODE_WORD: "olympiad2024",
+    TASK_TIME: 20 * 60, // 20 хвилин у секундах
+    MAX_FULLSCREEN_EXITS: 7
 };
 
 // Утиліти
@@ -46,11 +48,141 @@ class Utils {
         
         return number;
     }
+
+    static formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+}
+
+// Клас для управління олімпіадою
+class OlympiadManager {
+    constructor() {
+        this.currentTask = 1;
+        this.totalTasks = 3;
+        this.timeRemaining = CONFIG.TASK_TIME;
+        this.timerInterval = null;
+        this.isFinished = false;
+        this.fullscreenExitCount = 0;
+    }
+
+    startTimer() {
+        this.stopTimer();
+        this.timerInterval = setInterval(() => {
+            if (this.timeRemaining > 0) {
+                this.timeRemaining--;
+                this.updateTimerDisplay();
+            } else {
+                this.nextTask();
+            }
+        }, 1000);
+    }
+
+    stopTimer() {
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
+        }
+    }
+
+    updateTimerDisplay() {
+        const timerElement = document.getElementById('timer');
+        if (timerElement) {
+            timerElement.textContent = Utils.formatTime(this.timeRemaining);
+            
+            if (this.timeRemaining < 300) {
+                timerElement.style.background = 'linear-gradient(135deg, #ff416c, #ff4b2b)';
+            }
+        }
+    }
+
+    nextTask() {
+        if (this.currentTask < this.totalTasks) {
+            this.currentTask++;
+            this.timeRemaining = CONFIG.TASK_TIME;
+            this.showTask(this.currentTask);
+            this.startTimer();
+        } else {
+            this.finishOlympiad();
+        }
+    }
+
+    showTask(taskNumber) {
+        // Приховати всі завдання
+        for (let i = 1; i <= this.totalTasks; i++) {
+            const taskElement = document.getElementById(`task${i}`);
+            if (taskElement) {
+                taskElement.style.display = 'none';
+            }
+        }
+        
+        // Показати поточне завдання
+        const currentTaskElement = document.getElementById(`task${taskNumber}`);
+        if (currentTaskElement) {
+            currentTaskElement.style.display = 'block';
+        }
+        
+        // Оновити навігацію
+        this.updateNavigation();
+    }
+
+    updateNavigation() {
+        const prevBtn = document.getElementById('prevBtn');
+        if (prevBtn) {
+            prevBtn.style.display = this.currentTask > 1 ? 'block' : 'none';
+        }
+    }
+
+    handleFullscreenExit() {
+        this.fullscreenExitCount++;
+        this.stopTimer();
+        
+        if (this.fullscreenExitCount >= CONFIG.MAX_FULLSCREEN_EXITS) {
+            this.forceFinish();
+        } else {
+            this.showFullscreenWarning();
+        }
+    }
+
+    showFullscreenWarning() {
+        alert(`Увага! Ви вийшли з повноекранного режиму ${this.fullscreenExitCount} разів. Після ${CONFIG.MAX_FULLSCREEN_EXITS} виходів тест буде автоматично завершено!`);
+    }
+
+    forceFinish() {
+        this.isFinished = true;
+        this.stopTimer();
+        alert(`Тест примусово завершено! Ви вийшли з повноекранного режиму ${this.fullscreenExitCount} разів.`);
+        this.finishOlympiad();
+    }
+
+    finishOlympiad() {
+        this.isFinished = true;
+        this.stopTimer();
+        
+        if (document.fullscreenElement) {
+            document.exitFullscreen();
+        }
+        
+        // Показати результати
+        this.showResults();
+    }
+
+    showResults() {
+        const resultsScreen = document.getElementById('resultsScreen');
+        const tasksContainer = document.getElementById('tasks');
+        
+        if (resultsScreen && tasksContainer) {
+            tasksContainer.style.display = 'none';
+            resultsScreen.style.display = 'block';
+        }
+    }
 }
 
 // Головний клас додатку
 class EnglishOlympiadApp {
     constructor() {
+        this.olympiadManager = null;
         this.init();
     }
 
@@ -131,10 +263,8 @@ class EnglishOlympiadApp {
         const user = users.find(u => u.login === login && u.password === password);
         
         if (user) {
-            // Генеруємо номер учня при першому вході
             if (!user.studentNumber) {
                 user.studentNumber = Utils.generateStudentNumber();
-                // Оновлюємо користувача в базі
                 const updatedUsers = users.map(u => u.id === user.id ? user : u);
                 localStorage.setItem('olympiad_users', JSON.stringify(updatedUsers));
             }
@@ -356,12 +486,11 @@ class EnglishOlympiadApp {
             return;
         }
 
-        // Оновлюємо інтерфейс учня
         this.updateStudentInterface(currentUser);
+        this.setupStudentEventListeners();
     }
 
     updateStudentInterface(user) {
-        // Оновлюємо інформацію про учня на сторінці
         const studentInfo = document.getElementById('studentInfo');
         if (studentInfo) {
             studentInfo.innerHTML = `
@@ -372,6 +501,55 @@ class EnglishOlympiadApp {
                     <div><strong>📊 Статус:</strong> <span style="color: var(--success);">Готовий до олімпіади</span></div>
                 </div>
             `;
+        }
+    }
+
+    setupStudentEventListeners() {
+        document.getElementById('startBtn').addEventListener('click', () => this.startOlympiad());
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            if (confirm('Вийти з системи?')) {
+                localStorage.removeItem('current_user');
+                window.location.href = 'index.html';
+            }
+        });
+
+        // Навігація між завданнями
+        document.getElementById('nextBtn1').addEventListener('click', () => this.olympiadManager.nextTask());
+        document.getElementById('nextBtn2').addEventListener('click', () => this.olympiadManager.nextTask());
+        document.getElementById('prevBtn2').addEventListener('click', () => this.olympiadManager.showTask(1));
+        document.getElementById('prevBtn3').addEventListener('click', () => this.olympiadManager.showTask(2));
+        document.getElementById('finishBtn').addEventListener('click', () => this.olympiadManager.finishOlympiad());
+        document.getElementById('backToHomeBtn').addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+
+        // Глобальна кнопка "Назад"
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            if (this.olympiadManager.currentTask > 1) {
+                this.olympiadManager.showTask(this.olympiadManager.currentTask - 1);
+            }
+        });
+
+        // Відстеження повноекранного режиму
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement && this.olympiadManager && !this.olympiadManager.isFinished) {
+                this.olympiadManager.handleFullscreenExit();
+            }
+        });
+    }
+
+    startOlympiad() {
+        document.getElementById('intro').style.display = 'none';
+        document.getElementById('tasks').style.display = 'block';
+        
+        // Ініціалізація менеджера олімпіади
+        this.olympiadManager = new OlympiadManager();
+        this.olympiadManager.showTask(1);
+        this.olympiadManager.startTimer();
+        
+        // Запуск повноекранного режиму
+        if (document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen().catch(console.log);
         }
     }
 }
