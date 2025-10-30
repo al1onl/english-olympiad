@@ -50,7 +50,7 @@
             <div id="usersPanel" class="panel">
                 <h2>Список користувачів</h2>
                 <div class="search-box">
-                    <input type="text" id="userSearch" placeholder="Пошук за іменем або логіном...">
+                    <input type="text" id="userSearch" placeholder="Пошук за іменем, логіном або номером...">
                 </div>
                 <div class="user-list" id="usersListContainer">
                     <!-- Список буде заповнений через JavaScript -->
@@ -63,6 +63,10 @@
                     <div class="stat-card">
                         <div class="stat-number" id="totalUsers">0</div>
                         <div class="stat-label">Всього користувачів</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="activeUsers">0</div>
+                        <div class="stat-label">Активовано номерів</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-number" id="class9Users">0</div>
@@ -146,7 +150,9 @@
                 group: group,
                 login: login,
                 password: password,
-                created: new Date().toLocaleString('uk-UA')
+                studentNumber: null, // Номер буде присвоєний при першому вході
+                created: new Date().toLocaleString('uk-UA'),
+                status: 'НЕАКТИВОВАНО'
             };
             
             const users = JSON.parse(localStorage.getItem('olympiad_users')) || [];
@@ -185,13 +191,14 @@
                 <p><strong>Клас:</strong> ${user.class}</p>
                 <p><strong>Логін:</strong> ${user.login}</p>
                 <p><strong>Пароль:</strong> ${user.password}</p>
+                <p><strong>Номер учня:</strong> <span style="color: var(--danger);">НЕАКТИВОВАНО</span></p>
                 <p><strong>Дата створення:</strong> ${user.created}</p>
             `;
             
             credentialsBox.style.display = 'block';
             
             document.getElementById('copyCredentialsBtn').onclick = function() {
-                const text = `Ім'я: ${user.name}\nКлас: ${user.class}\nЛогін: ${user.login}\nПароль: ${user.password}`;
+                const text = `Ім'я: ${user.name}\nКлас: ${user.class}\nЛогін: ${user.login}\nПароль: ${user.password}\nНомер учня: НЕАКТИВОВАНО (буде присвоєний при першому вході)`;
                 navigator.clipboard.writeText(text);
                 alert('Дані скопійовано!');
             };
@@ -210,18 +217,20 @@
                 <div class="user-item header">
                     <div>Ім'я</div>
                     <div>Клас</div>
+                    <div>Номер учня</div>
                     <div>Логін</div>
                     <div>Пароль</div>
-                    <div>Дата створення</div>
+                    <div>Статус</div>
                     <div>Дії</div>
                 </div>
                 ${users.map(user => `
                     <div class="user-item">
                         <div>${user.name}</div>
                         <div>${user.class} клас</div>
+                        <div>${user.studentNumber ? `<span style="color: var(--success); font-weight: bold;">${user.studentNumber}</span>` : '<span style="color: var(--danger);">НЕАКТИВОВАНО</span>'}</div>
                         <div>${user.login}</div>
                         <div>${user.password}</div>
-                        <div>${user.created}</div>
+                        <div>${user.studentNumber ? '<span style="color: var(--success);">АКТИВНИЙ</span>' : '<span style="color: var(--danger);">НЕАКТИВНИЙ</span>'}</div>
                         <div>
                             <button class="btn-danger" onclick="deleteUser(${user.id})">Видалити</button>
                         </div>
@@ -234,7 +243,8 @@
             const users = JSON.parse(localStorage.getItem('olympiad_users')) || [];
             const filtered = users.filter(user => 
                 user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                user.login.toLowerCase().includes(searchTerm.toLowerCase())
+                user.login.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (user.studentNumber && user.studentNumber.toString().includes(searchTerm))
             );
             
             const container = document.getElementById('usersListContainer');
@@ -245,18 +255,20 @@
                     <div class="user-item header">
                         <div>Ім'я</div>
                         <div>Клас</div>
+                        <div>Номер учня</div>
                         <div>Логін</div>
                         <div>Пароль</div>
-                        <div>Дата створення</div>
+                        <div>Статус</div>
                         <div>Дії</div>
                     </div>
                     ${filtered.map(user => `
                         <div class="user-item">
                             <div>${user.name}</div>
                             <div>${user.class} клас</div>
+                            <div>${user.studentNumber ? `<span style="color: var(--success); font-weight: bold;">${user.studentNumber}</span>` : '<span style="color: var(--danger);">НЕАКТИВОВАНО</span>'}</div>
                             <div>${user.login}</div>
                             <div>${user.password}</div>
-                            <div>${user.created}</div>
+                            <div>${user.studentNumber ? '<span style="color: var(--success);">АКТИВНИЙ</span>' : '<span style="color: var(--danger);">НЕАКТИВНИЙ</span>'}</div>
                             <div>
                                 <button class="btn-danger" onclick="deleteUser(${user.id})">Видалити</button>
                             </div>
@@ -278,7 +290,10 @@
 
         function updateStats() {
             const users = JSON.parse(localStorage.getItem('olympiad_users')) || [];
+            const activeUsers = users.filter(u => u.studentNumber !== null);
+            
             document.getElementById('totalUsers').textContent = users.length;
+            document.getElementById('activeUsers').textContent = activeUsers.length;
             document.getElementById('class9Users').textContent = users.filter(u => u.class == 9).length;
             document.getElementById('class10Users').textContent = users.filter(u => u.class == 10).length;
             document.getElementById('class11Users').textContent = users.filter(u => u.class == 11).length;
