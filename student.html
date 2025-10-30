@@ -646,120 +646,131 @@
     }
 
     // evaluate and finish
-    function finishTest(){
-      if(finished) return;
-      finished = true;
-      pauseTimer();
-      
-      // Close fullscreen modal if open
-      fullscreenModal.style.display = 'none';
-      
-      // lock inputs except view button and navigation
-      Array.from(document.querySelectorAll('input,select,textarea,button')).forEach(el=>{ 
-        if(el.id !== 'viewAnswersBtn' && !el.classList.contains('view-nav-btn')) 
-          el.disabled = true; 
-      });
+function finishTest(){
+  if(finished) return;
+  finished = true;
+  pauseTimer();
+  
+  // ВИПРАВЛЕННЯ: Вимикаємо відстеження повноекранного режиму після завершення тесту
+  document.removeEventListener('fullscreenchange', handleFullscreenExit);
+  document.removeEventListener('visibilitychange', handleVisibilityChange);
+  
+  // ВИПРАВЛЕННЯ: Автоматично виходимо з повноекранного режиму
+  if (document.fullscreenElement) {
+    document.exitFullscreen().catch(e => {
+      console.log('Помилка виходу з повноекранного режиму:', e);
+    });
+  }
+  
+  // Close fullscreen modal if open
+  fullscreenModal.style.display = 'none';
+  
+  // lock inputs except view button and navigation
+  Array.from(document.querySelectorAll('input,select,textarea,button')).forEach(el=>{ 
+    if(el.id !== 'viewAnswersBtn' && !el.classList.contains('view-nav-btn')) 
+      el.disabled = true; 
+  });
 
-      // scoring
-      let rawScore = 0;
-      
-      // task1 (12 gaps)
-      for(let i=1;i<=12;i++){
-        const id = 't1s'+i; 
-        const el = document.getElementById(id); 
-        if(el) {
-          const val = el.value; 
-          if(val && val === correctTask1[id]) rawScore++; 
-        }
-      }
-      
-      // task2 MCs
-      Object.keys(correctTask2MC).forEach(id=>{ 
-        const el = document.getElementById(id);
-        if(el) {
-          const v = el.value; 
-          if(v && v === correctTask2MC[id]) rawScore++; 
-        }
-      });
-      
-      // task2 shorts: r2q1,r2q3,r2q5,r2q7,r2q9,r2q11 (6 items) - use keyword checks
-      if(checkShort('r2q1',['path','dependent','histor'])) rawScore++;
-      if(checkShort('r2q3',['inertia','budget','constraint','budgetary','politic'])) rawScore++;
-      if(checkShort('r2q5',['equitable','viable','feasible'])) rawScore++;
-      if(checkShort('r2q7',['justice'])) rawScore++;
-      if(checkShort('r2q9',['includ','particip','stakehold','engag'])) rawScore++;
-      if(checkShort('r2q11',['synthesis','data','justice','pragmatic'])) rawScore++;
-      
-      // task3: mark non-empty as provisional correct
-      for(let i=1;i<=10;i++){ 
-        const el = document.getElementById('t3q'+i);
-        if(el) {
-          const v = el.value.trim(); 
-          if(v.length>3) rawScore++; 
-        }
-      }
-      
-      if(rawScore > RAW_MAX) rawScore = RAW_MAX;
-      const final12 = Math.round(rawScore / RAW_MAX * 12);
-
-      if(document.getElementById('scoreText')) {
-        document.getElementById('scoreText').innerHTML = `Сирі бали: <strong>${rawScore}</strong> з ${RAW_MAX}. Оцінка за 12-бальною шкалою: <strong>${final12}/12</strong>`;
-      }
-
-      const totalRemain = remaining[1] + remaining[2] + remaining[3]; 
-      const used = 3*INITIAL - totalRemain; 
-      const mins = Math.floor(totalRemain/60); 
-      const secs = totalRemain%60;
-      
-      if(document.getElementById('timeSummary')) {
-        document.getElementById('timeSummary').innerHTML = `Залишок часу по завданнях: <strong>${mins} хв ${secs} с</strong>. Загальний використаний час: ${Math.floor(used/60)} хв ${used%60} с.`;
-      }
-
-      // Fullscreen summary with special messages
-      if(document.getElementById('fullscreenSummary')) {
-        let fullscreenText = `Кількість виходів з повноекранного режиму: ${fullscreenExitCount}`;
-        
-        if (fullscreenExitCount >= 3 && fullscreenExitCount <= 9) {
-          fullscreenText += `<br><span style="color:var(--danger);font-weight:700;">
-            ${fullscreenExitCount} разів виходив, шо списав? Ну тоді 1 бал.<br>
-            Гаразд, просто напишеш цей тест у очному форматі :)
-          </span>`;
-        } else if (fullscreenExitCount >= 10) {
-          fullscreenText += `<br><span style="color:var(--danger);font-weight:700;">
-            ТЕСТ ПРИМУСОВО ЗАВЕРШЕНО!<br>
-            ${fullscreenExitCount} разів виходив, шо списав? Ну тоді 1 бал.<br>
-            Гаразд, просто напишеш цей тест у очному форматі :)
-          </span>`;
-        }
-        
-        document.getElementById('fullscreenSummary').innerHTML = fullscreenText;
-      }
-
-      // prepare answers list (summary)
-      const list = document.getElementById('answersList');
-      if(list) {
-        list.innerHTML='';
-        list.innerHTML = '<div style="font-weight:700;margin-bottom:8px">Короткий звіт по відповідям:</div>';
-        // show counts
-        list.innerHTML += `<div>Сирі бали: <strong>${rawScore}</strong> → <strong>${final12}/12</strong></div>`;
-      }
-
-      // contacts
-      if(contactBlock) {
-        contactBlock.innerHTML = `Telegram: <code>@nacodexx</code><br>Discord: <code>in.kyiv</code><br>Номер учня: <strong>${studentNumEl.value}</strong>`;
-      }
-
-      // reveal result and show view button
-      if(resultPanel) {
-        resultPanel.style.display='block';
-      }
-      if(viewAnswersBtn) {
-        viewAnswersBtn.disabled = false;
-      }
-
-      // freeze timers display (do not change further)
-      pauseTimer();
+  // scoring
+  let rawScore = 0;
+  
+  // task1 (12 gaps)
+  for(let i=1;i<=12;i++){
+    const id = 't1s'+i; 
+    const el = document.getElementById(id); 
+    if(el) {
+      const val = el.value; 
+      if(val && val === correctTask1[id]) rawScore++; 
     }
+  }
+  
+  // task2 MCs
+  Object.keys(correctTask2MC).forEach(id=>{ 
+    const el = document.getElementById(id);
+    if(el) {
+      const v = el.value; 
+      if(v && v === correctTask2MC[id]) rawScore++; 
+    }
+  });
+  
+  // task2 shorts: r2q1,r2q3,r2q5,r2q7,r2q9,r2q11 (6 items) - use keyword checks
+  if(checkShort('r2q1',['path','dependent','histor'])) rawScore++;
+  if(checkShort('r2q3',['inertia','budget','constraint','budgetary','politic'])) rawScore++;
+  if(checkShort('r2q5',['equitable','viable','feasible'])) rawScore++;
+  if(checkShort('r2q7',['justice'])) rawScore++;
+  if(checkShort('r2q9',['includ','particip','stakehold','engag'])) rawScore++;
+  if(checkShort('r2q11',['synthesis','data','justice','pragmatic'])) rawScore++;
+  
+  // task3: mark non-empty as provisional correct
+  for(let i=1;i<=10;i++){ 
+    const el = document.getElementById('t3q'+i);
+    if(el) {
+      const v = el.value.trim(); 
+      if(v.length>3) rawScore++; 
+    }
+  }
+  
+  if(rawScore > RAW_MAX) rawScore = RAW_MAX;
+  const final12 = Math.round(rawScore / RAW_MAX * 12);
+
+  if(document.getElementById('scoreText')) {
+    document.getElementById('scoreText').innerHTML = `Сирі бали: <strong>${rawScore}</strong> з ${RAW_MAX}. Оцінка за 12-бальною шкалою: <strong>${final12}/12</strong>`;
+  }
+
+  const totalRemain = remaining[1] + remaining[2] + remaining[3]; 
+  const used = 3*INITIAL - totalRemain; 
+  const mins = Math.floor(totalRemain/60); 
+  const secs = totalRemain%60;
+  
+  if(document.getElementById('timeSummary')) {
+    document.getElementById('timeSummary').innerHTML = `Залишок часу по завданнях: <strong>${mins} хв ${secs} с</strong>. Загальний використаний час: ${Math.floor(used/60)} хв ${used%60} с.`;
+  }
+
+  // Fullscreen summary with special messages
+  if(document.getElementById('fullscreenSummary')) {
+    let fullscreenText = `Кількість виходів з повноекранного режиму: ${fullscreenExitCount}`;
+    
+    if (fullscreenExitCount >= 3 && fullscreenExitCount <= 9) {
+      fullscreenText += `<br><span style="color:var(--danger);font-weight:700;">
+        ${fullscreenExitCount} разів виходив, шо списав? Ну тоді 1 бал.<br>
+        Гаразд, просто напишеш цей тест у очному форматі :)
+      </span>`;
+    } else if (fullscreenExitCount >= 10) {
+      fullscreenText += `<br><span style="color:var(--danger);font-weight:700;">
+        ТЕСТ ПРИМУСОВО ЗАВЕРШЕНО!<br>
+        ${fullscreenExitCount} разів виходив, шо списав? Ну тоді 1 бал.<br>
+        Гаразд, просто напишеш цей тест у очному форматі :)
+      </span>`;
+    }
+    
+    document.getElementById('fullscreenSummary').innerHTML = fullscreenText;
+  }
+
+  // prepare answers list (summary)
+  const list = document.getElementById('answersList');
+  if(list) {
+    list.innerHTML='';
+    list.innerHTML = '<div style="font-weight:700;margin-bottom:8px">Короткий звіт по відповідям:</div>';
+    // show counts
+    list.innerHTML += `<div>Сирі бали: <strong>${rawScore}</strong> → <strong>${final12}/12</strong></div>`;
+  }
+
+  // contacts
+  if(contactBlock) {
+    contactBlock.innerHTML = `Telegram: <code>@nacodexx</code><br>Discord: <code>in.kyiv</code><br>Номер учня: <strong>${studentNumEl.value}</strong>`;
+  }
+
+  // reveal result and show view button
+  if(resultPanel) {
+    resultPanel.style.display='block';
+  }
+  if(viewAnswersBtn) {
+    viewAnswersBtn.disabled = false;
+  }
+
+  // freeze timers display (do not change further)
+  pauseTimer();
+}
 
     // view answers: highlight correct/incorrect and allow navigation (read-only)
     function applyHighlights(){
