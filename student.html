@@ -3,195 +3,287 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="theme-color" content="#424242">
+  <meta name="theme-color" content="#6366f1">
   <meta name="description" content="Олімпіада з англійської мови для 10 класу">
   <title>Олімпіада з Англійської мови — 10 клас</title>
   <link rel="stylesheet" href="styles.css">
   <style>
-    .student-info {
-      background: var(--primary-light);
-      border-radius: 12px;
-      padding: 20px;
-      margin: 20px 0;
-      border: 1px solid var(--border);
+    /* Спеціальні стилі для сторінки учня */
+    .student-profile {
+      padding: 30px;
+      margin: 25px 0;
+      animation: slideUp 0.8s ease-out;
     }
 
-    .info-box {
-      background: var(--primary-light);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 25px;
-      margin: 20px 0;
+    .info-section {
+      padding: 30px;
+      margin: 25px 0;
+      animation: slideUp 1s ease-out;
     }
 
-    .task-container {
+    .task-section {
       display: none;
     }
 
-    .task-container.active {
+    .task-section.active {
       display: block;
+      animation: slideUp 0.6s ease-out;
     }
 
-    .task-header {
+    .task-navigation {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 15px;
-      border-bottom: 1px solid var(--border);
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--glass-border);
     }
 
     .task-content {
-      background: var(--primary-light);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 25px;
-      margin-bottom: 20px;
+      padding: 35px;
+      margin-bottom: 30px;
+      min-height: 500px;
     }
 
-    .navigation {
+    .task-controls {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: 25px;
+      margin-top: 35px;
+      padding-top: 25px;
+      border-top: 1px solid var(--glass-border);
     }
 
-    .timer {
-      background: var(--accent);
+    .timer-display {
+      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
       color: white;
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-weight: bold;
+      padding: 15px 25px;
+      border-radius: var(--border-radius);
+      font-weight: 800;
+      font-size: 1.3rem;
+      box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+      transition: var(--transition);
+    }
+
+    .question-block {
+      margin-bottom: 30px;
+      padding: 25px;
+      border-radius: var(--border-radius);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      transition: var(--transition);
+    }
+
+    .question-block:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .question-text {
       font-size: 1.1rem;
-    }
-
-    .results-container {
-      display: none;
-      background: var(--primary-light);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 30px;
-      margin-top: 20px;
-    }
-
-    select, input {
-      background: var(--primary-dark);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 8px 12px;
-      color: var(--text-primary);
-      margin: 5px 0;
-    }
-
-    .hint {
-      background: var(--warning);
-      color: var(--text-primary);
-      padding: 10px;
-      border-radius: 6px;
-      margin-bottom: 15px;
-      font-size: 0.9rem;
-    }
-
-    .fullscreen-warning {
-      background: linear-gradient(135deg, var(--danger), var(--danger-dark));
-      color: white;
-      padding: 15px;
-      border-radius: 8px;
-      margin: 15px 0;
-      text-align: center;
       font-weight: 600;
+      margin-bottom: 15px;
+      color: var(--text-primary);
+      line-height: 1.5;
+    }
+
+    .answer-input, .answer-select {
+      width: 100%;
+      padding: 14px 18px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--border-radius);
+      color: var(--text-primary);
+      font-size: 1rem;
+      transition: var(--transition);
+      backdrop-filter: blur(10px);
+    }
+
+    .answer-input:focus, .answer-select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .hint-box {
+      background: linear-gradient(135deg, var(--warning), var(--warning-dark));
+      color: white;
+      padding: 20px;
+      border-radius: var(--border-radius);
+      margin-bottom: 25px;
+      font-weight: 600;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .results-section {
       display: none;
-      animation: pulse 2s infinite;
+      padding: 40px;
+      animation: slideUp 1s ease-out;
     }
 
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.8; }
-    }
-
-    .contact-info {
-      background: var(--primary-dark);
-      padding: 20px;
-      border-radius: 12px;
-      margin: 20px 0;
-      border: 1px solid var(--border);
-    }
-
-    .stat-card {
-      background: var(--primary-light);
-      padding: 20px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
+    .contact-box {
+      padding: 30px;
+      margin: 30px 0;
       text-align: center;
+    }
+
+    /* Анімації для завдань */
+    @keyframes taskTransition {
+      from {
+        opacity: 0;
+        transform: translateX(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .task-transition {
+      animation: taskTransition 0.5s ease-out;
+    }
+
+    /* Стилі для перегляду відповідей */
+    .view-mode .answer-input, 
+    .view-mode .answer-select {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: var(--glass-border);
+      color: var(--text-secondary);
+      cursor: not-allowed;
+    }
+
+    .correct-answer {
+      background: rgba(16, 185, 129, 0.1) !important;
+      border-color: var(--success) !important;
+    }
+
+    .incorrect-answer {
+      background: rgba(239, 68, 68, 0.1) !important;
+      border-color: var(--danger) !important;
+    }
+
+    /* Адаптивність */
+    @media (max-width: 768px) {
+      .task-navigation {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+      }
+
+      .task-controls {
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .task-content {
+        padding: 20px;
+      }
+
+      .question-block {
+        padding: 20px;
+      }
+
+      .timer-display {
+        font-size: 1.1rem;
+        padding: 12px 20px;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="main-card">
-      <!-- Заголовок -->
-      <div class="header-section">
-        <div class="logo">🏆</div>
-        <h1>Олімпіада з Англійської мови</h1>
-        <p class="subtitle" id="studentWelcome">Ласкаво просимо!</p>
-      </div>
-
-      <!-- Інформація про учня -->
-      <div class="student-info">
-        <div id="studentInfo">
-          <!-- Буде заповнено JavaScript -->
-        </div>
-      </div>
-
+    <div class="main-card glass-card">
       <!-- Попередження про повноекранний режим -->
-      <div id="fullscreenWarning" class="fullscreen-warning">
-        Увага! Ви вийшли з повноекранного режиму. Після 7 виходів тест буде автоматично завершено!
+      <div id="fullscreenWarning" class="fullscreen-warning" style="display: none;">
+        ⚠️ Увага! Ви вийшли з повноекранного режиму. Після 7 виходів тест буде автоматично завершено!
       </div>
 
       <!-- Вступний екран -->
       <section id="intro">
-        <div class="info-box">
-          <h3 style="margin-bottom: 20px; text-align: center;">🎯 Інструкції до олімпіади</h3>
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+        <!-- Заголовок -->
+        <div class="header-section">
+          <div class="logo floating">🏆</div>
+          <h1>Олімпіада з Англійської мови</h1>
+          <p class="subtitle" id="studentWelcome">Ласкаво просимо до олімпіади!</p>
+        </div>
+
+        <!-- Профіль учня -->
+        <div id="studentInfo" class="student-profile glass-card">
+          <!-- Буде заповнено JavaScript -->
+        </div>
+
+        <!-- Інформаційні секції -->
+        <div class="info-section glass-card">
+          <h3 style="text-align: center; margin-bottom: 25px; color: var(--accent);">🎯 Інструкції до олімпіади</h3>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px;">
             <div>
-              <h4 style="color: var(--accent); margin-bottom: 10px;">📋 Основна інформація</h4>
-              <p><strong>⏱️ Час:</strong> 60 хвилин (3 завдання по 20 хв)</p>
-              <p><strong>📝 Завдання:</strong> 3 розділи</p>
-              <p><strong>🎯 Максимальний бал:</strong> 34</p>
+              <h4 style="color: var(--accent); margin-bottom: 15px;">📋 Основна інформація</h4>
+              <div style="display: grid; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <span style="font-size: 1.2rem;">⏱️</span>
+                  <span><strong>Час:</strong> 60 хвилин (3×20 хв)</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <span style="font-size: 1.2rem;">📝</span>
+                  <span><strong>Завдання:</strong> 3 розділи</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <span style="font-size: 1.2rem;">🎯</span>
+                  <span><strong>Максимальний бал:</strong> 34</span>
+                </div>
+              </div>
             </div>
             <div>
-              <h4 style="color: var(--accent); margin-bottom: 10px;">⚠️ Правила</h4>
-              <p>• Не виходити з повноекранного режиму</p>
-              <p>• Максимум 7 виходів, інакше тест завершиться</p>
-              <p>• Не оновлювати сторінку</p>
-              <p>• Працювати самостійно</p>
+              <h4 style="color: var(--accent); margin-bottom: 15px;">⚠️ Правила</h4>
+              <div style="display: grid; gap: 8px;">
+                <div style="display: flex; align-items: start; gap: 10px;">
+                  <span>•</span>
+                  <span>Не виходити з повноекранного режиму</span>
+                </div>
+                <div style="display: flex; align-items: start; gap: 10px;">
+                  <span>•</span>
+                  <span>Максимум 7 виходів, інакше тест завершиться</span>
+                </div>
+                <div style="display: flex; align-items: start; gap: 10px;">
+                  <span>•</span>
+                  <span>Не оновлювати сторінку під час тесту</span>
+                </div>
+                <div style="display: flex; align-items: start; gap: 10px;">
+                  <span>•</span>
+                  <span>Працювати самостійно та чесно</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="contact-info">
-          <h4 style="color: var(--accent); margin-bottom: 15px;">📞 Контакти для отримання результатів:</h4>
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-            <div>
-              <p><strong>Telegram:</strong></p>
-              <code style="background: var(--primary-light); padding: 8px 12px; border-radius: 6px; display: inline-block;">@nacodexx</code>
+        <!-- Контактна інформація -->
+        <div class="contact-box glass-card">
+          <h3 style="color: var(--accent); margin-bottom: 20px;">📞 Контакти для результатів</h3>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px;">
+            <div style="text-align: center;">
+              <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 8px;">Telegram</div>
+              <code style="background: rgba(255, 255, 255, 0.1); padding: 10px 15px; border-radius: 8px; font-size: 1rem; display: inline-block;">@nacodexx</code>
             </div>
-            <div>
-              <p><strong>Discord:</strong></p>
-              <code style="background: var(--primary-light); padding: 8px 12px; border-radius: 6px; display: inline-block;">in.kyiv</code>
+            <div style="text-align: center;">
+              <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 8px;">Discord</div>
+              <code style="background: rgba(255, 255, 255, 0.1); padding: 10px 15px; border-radius: 8px; font-size: 1rem; display: inline-block;">in.kyiv</code>
             </div>
           </div>
-          <p style="margin-top: 15px; color: var(--text-secondary); font-size: 0.9rem;">
+          <p style="color: var(--text-secondary); font-size: 0.95rem;">
             Після завершення олімпіади надішліть скріншот результатів або вкажіть ваш номер учня.
           </p>
         </div>
 
-        <div style="text-align: center; margin-top: 30px;">
-          <button id="startBtn" class="btn-primary" style="padding: 15px 30px; font-size: 1.1em; margin-right: 15px;">
+        <!-- Кнопки управління -->
+        <div style="text-align: center; margin-top: 35px;">
+          <button id="startBtn" class="btn-primary" style="padding: 18px 35px; font-size: 1.2rem; margin-right: 15px;">
             🚀 Розпочати олімпіаду
           </button>
-          <button id="logoutBtn" class="btn-secondary" style="padding: 15px 25px;">
-            ← Вийти
+          <button id="logoutBtn" class="btn-secondary" style="padding: 18px 30px; font-size: 1.1rem;">
+            ← Вийти з системи
           </button>
         </div>
       </section>
@@ -199,267 +291,417 @@
       <!-- Основний контент олімпіади -->
       <div id="tasks" style="display: none;">
         <!-- Навігація та таймер -->
-        <div class="task-header">
-          <div style="display: flex; align-items: center; gap: 15px;">
-            <div style="font-weight: bold; font-size: 1.2rem;">Олімпіадні завдання</div>
+        <div class="task-navigation">
+          <div>
+            <h2 style="color: var(--text-primary); margin: 0;">Олімпіадні завдання</h2>
+            <p style="color: var(--text-secondary); margin: 5px 0 0 0; font-size: 0.95rem;">
+              Уважно прочитайте кожне завдання перед відповіддю
+            </p>
           </div>
           <div style="display: flex; align-items: center; gap: 15px;">
-            <button id="prevBtn" class="btn-secondary" style="display: none;">← Попереднє</button>
-            <div class="timer" id="timer">20:00</div>
+            <button id="prevBtn" class="btn-secondary" style="display: none; padding: 12px 20px;">
+              ← Попереднє
+            </button>
+            <div class="timer-display" id="timer">20:00</div>
           </div>
         </div>
 
         <!-- Завдання 1 -->
-        <div id="task1" class="task-container">
-          <div class="hint">
+        <div id="task1" class="task-section">
+          <div class="hint-box">
             <strong>Завдання 1</strong> — Advanced Use of English (Gapped Text — 12 gaps)
+            <div style="font-size: 0.9rem; margin-top: 8px; opacity: 0.9;">
+              Вставте правильні слова у пропуски. Кожен пропуск — випадаючий список.
+            </div>
           </div>
           
-          <div class="task-content">
-            <p style="margin-bottom: 20px; font-weight: bold;">Read the extended academic extract and choose the correct option for each numbered gap (12 gaps). Each gap may require subtle lexical choice.</p>
+          <div class="task-content glass-card">
+            <p style="margin-bottom: 25px; font-weight: 600; color: var(--text-primary); line-height: 1.6;">
+              Read the extended academic extract and choose the correct option for each numbered gap (12 gaps). 
+              Each gap may require subtle lexical choice.
+            </p>
 
-            <div style="line-height: 1.6;">
-              <p style="margin-bottom: 15px;">
-                Contemporary urban studies increasingly emphasize the need for 
-                <select id="t1s1">
-                  <option value="">—</option>
-                  <option value="synthesis">synthesis</option>
-                  <option value="fragmentation">fragmentation</option>
-                  <option value="isolation">isolation</option>
-                </select> 
-                of cross-disciplinary methods. Historically, approaches that privileged narrow disciplinary perspectives resulted in policies that were 
-                <select id="t1s2">
-                  <option value="">—</option>
-                  <option value="resilient">resilient</option>
-                  <option value="short-sighted">short-sighted</option>
-                  <option value="comprehensive">comprehensive</option>
-                </select> 
-                and lacked long-term viability. The complexity arises not only from the multiplicity of variables but also from the uneven availability of reliable data, which in many contexts is 
-                <select id="t1s3">
-                  <option value="">—</option>
-                  <option value="abundant">abundant</option>
-                  <option value="sporadic">sporadic</option>
-                  <option value="redundant">redundant</option>
-                </select>. 
-                Consequently, models must be designed with an awareness of their inherent 
-                <select id="t1s4">
-                  <option value="">—</option>
-                  <option value="limitations">limitations</option>
-                  <option value="perfections">perfections</option>
-                  <option value="magnitudes">magnitudes</option>
-                </select>, 
-                and stakeholders should participate to ensure that outputs are not 
-                <select id="t1s5">
-                  <option value="">—</option>
-                  <option value="detached">detached</option>
-                  <option value="aligned">aligned</option>
-                  <option value="abstracted">abstracted</option>
-                </select> 
-                from lived experience.
-              </p>
+            <div style="line-height: 1.7; font-size: 1.05rem;">
+              <!-- Перший абзац -->
+              <div class="question-block">
+                <p class="question-text">
+                  Contemporary urban studies increasingly emphasize the need for 
+                  <select id="t1s1" class="answer-select">
+                    <option value="">— Оберіть варіант —</option>
+                    <option value="synthesis">synthesis</option>
+                    <option value="fragmentation">fragmentation</option>
+                    <option value="isolation">isolation</option>
+                  </select> 
+                  of cross-disciplinary methods. Historically, approaches that privileged narrow disciplinary 
+                  perspectives resulted in policies that were 
+                  <select id="t1s2" class="answer-select">
+                    <option value="">— Оберіть варіант —</option>
+                    <option value="resilient">resilient</option>
+                    <option value="short-sighted">short-sighted</option>
+                    <option value="comprehensive">comprehensive</option>
+                  </select> 
+                  and lacked long-term viability.
+                </p>
+              </div>
 
-              <p style="margin-bottom: 15px;">
-                Several authors have argued that the standard metrics for resilience are often 
-                <select id="t1s6">
-                  <option value="">—</option>
-                  <option value="overly">overly</option>
-                  <option value="rigorously">rigorously</option>
-                  <option value="carefully">carefully</option>
-                </select> 
-                simplified, thereby obscuring context-specific vulnerabilities. To mitigate this, it is advisable to incorporate qualitative assessments that capture 
-                <select id="t1s7">
-                  <option value="">—</option>
-                  <option value="nuance">nuance</option>
-                  <option value="uniformity">uniformity</option>
-                  <option value="redundancy">redundancy</option>
-                </select> 
-                and local perceptions. Moreover, when presenting findings to policymakers, researchers need to 
-                <select id="t1s8">
-                  <option value="">—</option>
-                  <option value="obfuscate">obfuscate</option>
-                  <option value="clarify">clarify</option>
-                  <option value="complicate">complicate</option>
-                </select> 
-                the implications and offer practicable recommendations rather than abstract generalities.
-              </p>
+              <!-- Другий абзац -->
+              <div class="question-block">
+                <p class="question-text">
+                  The complexity arises not only from the multiplicity of variables but also from the uneven 
+                  availability of reliable data, which in many contexts is 
+                  <select id="t1s3" class="answer-select">
+                    <option value="">— Оберіть варіант —</option>
+                    <option value="abundant">abundant</option>
+                    <option value="sporadic">sporadic</option>
+                    <option value="redundant">redundant</option>
+                  </select>. 
+                  Consequently, models must be designed with an awareness of their inherent 
+                  <select id="t1s4" class="answer-select">
+                    <option value="">— Оберіть варіант —</option>
+                    <option value="limitations">limitations</option>
+                    <option value="perfections">perfections</option>
+                    <option value="magnitudes">magnitudes</option>
+                  </select>, 
+                  and stakeholders should participate to ensure that outputs are not 
+                  <select id="t1s5" class="answer-select">
+                    <option value="">— Оберіть варіант —</option>
+                    <option value="detached">detached</option>
+                    <option value="aligned">aligned</option>
+                    <option value="abstracted">abstracted</option>
+                  </select> 
+                  from lived experience.
+                </p>
+              </div>
 
-              <p style="margin-bottom: 15px;">
-                A further complication is the tendency to conflate correlation with causation, especially in datasets where temporal sequences are 
-                <select id="t1s9">
-                  <option value="">—</option>
-                  <option value="ambiguous">ambiguous</option>
-                  <option value="obvious">obvious</option>
-                  <option value="immutable">immutable</option>
-                </select>. 
-                Robust inference thus demands careful longitudinal analysis and sensitivity testing to avoid 
-                <select id="t1s10">
-                  <option value="">—</option>
-                  <option value="spurious">spurious</option>
-                  <option value="conclusive">conclusive</option>
-                  <option value="definitive">definitive</option>
-                </select> 
-                conclusions. Finally, the ethical dimension requires that any interventions respect community autonomy and do not exacerbate pre-existing 
-                <select id="t1s11">
-                  <option value="">—</option>
-                  <option value="inequalities">inequalities</option>
-                  <option value="advantages">advantages</option>
-                  <option value="privileges">privileges</option>
-                </select>. 
-                In summary, the framing of urban resilience must remain both critically reflexive and 
-                <select id="t1s12">
-                  <option value="">—</option>
-                  <option value="adaptive">adaptive</option>
-                  <option value="static">static</option>
-                  <option value="naive">naive</option>
-                </select>.
-              </p>
+              <!-- Третій абзац -->
+              <div class="question-block">
+                <p class="question-text">
+                  Several authors have argued that the standard metrics for resilience are often 
+                  <select id="t1s6" class="answer-select">
+                    <option value="">— Оберіть варіант —</option>
+                    <option value="overly">overly</option>
+                    <option value="rigorously">rigorously</option>
+                    <option value="carefully">carefully</option>
+                  </select> 
+                  simplified, thereby obscuring context-specific vulnerabilities. To mitigate this, 
+                  it is advisable to incorporate qualitative assessments that capture 
+                  <select id="t1s7" class="answer-select">
+                    <option value="">— Оберіть варіант —</option>
+                    <option value="nuance">nuance</option>
+                    <option value="uniformity">uniformity</option>
+                    <option value="redundancy">redundancy</option>
+                  </select> 
+                  and local perceptions.
+                </p>
+              </div>
+
+              <!-- Четвертий абзац -->
+              <div class="question-block">
+                <p class="question-text">
+                  Moreover, when presenting findings to policymakers, researchers need to 
+                  <select id="t1s8" class="answer-select">
+                    <option value="">— Оберіть варіант —</option>
+                    <option value="obfuscate">obfuscate</option>
+                    <option value="clarify">clarify</option>
+                    <option value="complicate">complicate</option>
+                  </select> 
+                  the implications and offer practicable recommendations rather than abstract generalities.
+                </p>
+              </div>
+
+              <!-- П'ятий абзац -->
+              <div class="question-block">
+                <p class="question-text">
+                  A further complication is the tendency to conflate correlation with causation, especially 
+                  in datasets where temporal sequences are 
+                  <select id="t1s9" class="answer-select">
+                    <option value="">— Оберіть варіант —</option>
+                    <option value="ambiguous">ambiguous</option>
+                    <option value="obvious">obvious</option>
+                    <option value="immutable">immutable</option>
+                  </select>. 
+                  Robust inference thus demands careful longitudinal analysis and sensitivity testing to avoid 
+                  <select id="t1s10" class="answer-select">
+                    <option value="">— Оберіть варіант —</option>
+                    <option value="spurious">spurious</option>
+                    <option value="conclusive">conclusive</option>
+                    <option value="definitive">definitive</option>
+                  </select> 
+                  conclusions.
+                </p>
+              </div>
+
+              <!-- Шостий абзац -->
+              <div class="question-block">
+                <p class="question-text">
+                  Finally, the ethical dimension requires that any interventions respect community autonomy 
+                  and do not exacerbate pre-existing 
+                  <select id="t1s11" class="answer-select">
+                    <option value="">— Оберіть варіант —</option>
+                    <option value="inequalities">inequalities</option>
+                    <option value="advantages">advantages</option>
+                    <option value="privileges">privileges</option>
+                  </select>. 
+                  In summary, the framing of urban resilience must remain both critically reflexive and 
+                  <select id="t1s12" class="answer-select">
+                    <option value="">— Оберіть варіант —</option>
+                    <option value="adaptive">adaptive</option>
+                    <option value="static">static</option>
+                    <option value="naive">naive</option>
+                  </select>.
+                </p>
+              </div>
             </div>
           </div>
 
-          <div class="navigation">
+          <div class="task-controls">
             <div></div>
-            <button id="nextBtn1" class="btn-primary">Перейти до наступного завдання →</button>
+            <button id="nextBtn1" class="btn-primary" style="padding: 15px 30px; font-size: 1.1rem;">
+              Перейти до завдання 2 →
+            </button>
           </div>
         </div>
 
         <!-- Завдання 2 -->
-        <div id="task2" class="task-container">
-          <div class="hint">
+        <div id="task2" class="task-section">
+          <div class="hint-box">
             <strong>Завдання 2</strong> — Long Reading & Analysis (12 items)
+            <div style="font-size: 0.9rem; margin-top: 8px; opacity: 0.9;">
+              Прочитайте текст уважно. Після тексту — 12 завдань: поєднання multiple choice і коротких відповідей.
+            </div>
           </div>
           
-          <div class="task-content">
-            <p style="font-weight: bold; margin-bottom: 15px;">Passage (extended):</p>
+          <div class="task-content glass-card">
+            <p style="font-weight: 600; margin-bottom: 20px; color: var(--text-primary);">Passage (extended):</p>
             
-            <div style="background: var(--primary-dark); padding: 15px; border-radius: 8px; margin-bottom: 20px; line-height: 1.6;">
-              <p>Over the last half-century, urbanization has proceeded at an unprecedented rate, compelling scholars to reassess traditional paradigms of growth and governance. Initially, urban theory emphasized industrial expansion and spatial planning as the dominant variables; however, contemporary perspectives integrate social capital, environmental integrity and digital infrastructure into cohesive frameworks. Notably, the spatial distribution of services and economic opportunity often mirrors historical inequalities, producing path-dependent outcomes. Policymakers must therefore navigate the tension between top-down planning and grassroots mobilization, leveraging participatory mechanisms without sacrificing strategic coherence. Moreover, the climatic imperative adds a new layer of complexity: mitigation policies must be equitable, financially viable and technically feasible. As cities adapt, adaptive governance — characterized by iterative policymaking, transparent data practices and inclusive stakeholder engagement — becomes central. Yet, the translation of evidence into policy frequently founders on institutional inertia, budgetary constraints and competing political priorities. Ultimately, resilient urban futures require a synthesis of robust data, normative commitments to justice, and pragmatic implementation pathways.</p>
+            <div style="background: rgba(255, 255, 255, 0.05); padding: 25px; border-radius: var(--border-radius); margin-bottom: 30px; line-height: 1.7; border: 1px solid var(--glass-border);">
+              <p style="margin-bottom: 15px;">
+                Over the last half-century, urbanization has proceeded at an unprecedented rate, compelling scholars 
+                to reassess traditional paradigms of growth and governance. Initially, urban theory emphasized industrial 
+                expansion and spatial planning as the dominant variables; however, contemporary perspectives integrate 
+                social capital, environmental integrity and digital infrastructure into cohesive frameworks.
+              </p>
+              <p style="margin-bottom: 15px;">
+                Notably, the spatial distribution of services and economic opportunity often mirrors historical inequalities, 
+                producing path-dependent outcomes. Policymakers must therefore navigate the tension between top-down planning 
+                and grassroots mobilization, leveraging participatory mechanisms without sacrificing strategic coherence.
+              </p>
+              <p style="margin-bottom: 15px;">
+                Moreover, the climatic imperative adds a new layer of complexity: mitigation policies must be equitable, 
+                financially viable and technically feasible. As cities adapt, adaptive governance — characterized by iterative 
+                policymaking, transparent data practices and inclusive stakeholder engagement — becomes central.
+              </p>
+              <p>
+                Yet, the translation of evidence into policy frequently founders on institutional inertia, budgetary constraints 
+                and competing political priorities. Ultimately, resilient urban futures require a synthesis of robust data, 
+                normative commitments to justice, and pragmatic implementation pathways.
+              </p>
             </div>
 
-            <div style="margin-top: 20px;">
-              <p style="margin-bottom: 10px;"><strong>1. (short) Define in one sentence what is meant by <em>path-dependent outcomes</em> in the passage.</strong></p>
-              <input type="text" id="r2q1" placeholder="Введіть відповідь..." style="width: 100%; margin-bottom: 20px;">
-              
-              <p style="margin-bottom: 10px;"><strong>2. (MC) Which of the following is NOT listed as part of contemporary frameworks?</strong></p>
-              <select id="r2q2" style="width: 100%; margin-bottom: 20px;">
-                <option value="">—</option>
-                <option value="A">social capital</option>
-                <option value="B">digital infrastructure</option>
-                <option value="C">agrarian reform</option>
-              </select>
+            <div style="margin-top: 30px;">
+              <!-- Питання 1 -->
+              <div class="question-block">
+                <p class="question-text">1. (short) Define in one sentence what is meant by <em>path-dependent outcomes</em> in the passage.</p>
+                <input type="text" id="r2q1" class="answer-input" placeholder="Введіть ваше визначення...">
+              </div>
 
-              <p style="margin-bottom: 10px;"><strong>3. (short) Give two barriers mentioned that impede translation of evidence into policy.</strong></p>
-              <input type="text" id="r2q3" placeholder="Введіть дві перешкоди..." style="width: 100%; margin-bottom: 20px;">
-              
-              <p style="margin-bottom: 10px;"><strong>4. (MC) Adaptive governance includes:</strong></p>
-              <select id="r2q4" style="width: 100%; margin-bottom: 20px;">
-                <option value="">—</option>
-                <option value="A">iterative policymaking</option>
-                <option value="B">opaque data practices</option>
-                <option value="C">exclusionary stakeholder engagement</option>
-              </select>
+              <!-- Питання 2 -->
+              <div class="question-block">
+                <p class="question-text">2. (MC) Which of the following is NOT listed as part of contemporary frameworks?</p>
+                <select id="r2q2" class="answer-select">
+                  <option value="">— Оберіть варіант —</option>
+                  <option value="A">social capital</option>
+                  <option value="B">digital infrastructure</option>
+                  <option value="C">agrarian reform</option>
+                </select>
+              </div>
 
-              <p style="margin-bottom: 10px;"><strong>5. (short) What does the passage suggest about climate mitigation policies?</strong></p>
-              <input type="text" id="r2q5" placeholder="Введіть відповідь..." style="width: 100%; margin-bottom: 20px;">
-              
-              <p style="margin-bottom: 10px;"><strong>6. (MC) The passage implies that policymaking must balance:</strong></p>
-              <select id="r2q6" style="width: 100%; margin-bottom: 20px;">
-                <option value="">—</option>
-                <option value="A">top-down planning and grassroots mobilization</option>
-                <option value="B">only top-down directives</option>
-                <option value="C">only grassroots mobilization</option>
-              </select>
+              <!-- Питання 3 -->
+              <div class="question-block">
+                <p class="question-text">3. (short) Give two barriers mentioned that impede translation of evidence into policy.</p>
+                <input type="text" id="r2q3" class="answer-input" placeholder="Введіть дві перешкоди...">
+              </div>
 
-              <p style="margin-bottom: 10px;"><strong>7. (short) Provide one example of a normative commitment mentioned.</strong></p>
-              <input type="text" id="r2q7" placeholder="Введіть приклад..." style="width: 100%; margin-bottom: 20px;">
-              
-              <p style="margin-bottom: 10px;"><strong>8. (MC) What becomes central for resilient urban futures?</strong></p>
-              <select id="r2q8" style="width: 100%; margin-bottom: 20px;">
-                <option value="">—</option>
-                <option value="A">adaptive governance</option>
-                <option value="B">institutional inertia</option>
-                <option value="C">budgetary constraints</option>
-              </select>
+              <!-- Питання 4 -->
+              <div class="question-block">
+                <p class="question-text">4. (MC) Adaptive governance includes:</p>
+                <select id="r2q4" class="answer-select">
+                  <option value="">— Оберіть варіант —</option>
+                  <option value="A">iterative policymaking</option>
+                  <option value="B">opaque data practices</option>
+                  <option value="C">exclusionary stakeholder engagement</option>
+                </select>
+              </div>
 
-              <p style="margin-bottom: 10px;"><strong>9. (short) Explain briefly why inclusive stakeholder engagement is important according to the text.</strong></p>
-              <input type="text" id="r2q9" placeholder="Введіть пояснення..." style="width: 100%; margin-bottom: 20px;">
-              
-              <p style="margin-bottom: 10px;"><strong>10. (MC) Which is listed as characteristic of adaptive governance?</strong></p>
-              <select id="r2q10" style="width: 100%; margin-bottom: 20px;">
-                <option value="">—</option>
-                <option value="A">transparent data practices</option>
-                <option value="B">political opacity</option>
-                <option value="C">reliance on randomness</option>
-              </select>
+              <!-- Питання 5 -->
+              <div class="question-block">
+                <p class="question-text">5. (short) What does the passage suggest about climate mitigation policies?</p>
+                <input type="text" id="r2q5" class="answer-input" placeholder="Введіть відповідь...">
+              </div>
 
-              <p style="margin-bottom: 10px;"><strong>11. (short) Summarize in one phrase what is required for resilient urban futures.</strong></p>
-              <input type="text" id="r2q11" placeholder="Введіть фразу..." style="width: 100%; margin-bottom: 20px;">
-              
-              <p style="margin-bottom: 10px;"><strong>12. (MC) Which of these is presented as a challenge to implementing policies?</strong></p>
-              <select id="r2q12" style="width: 100%; margin-bottom: 20px;">
-                <option value="">—</option>
-                <option value="A">budgetary constraints</option>
-                <option value="B">robust data</option>
-                <option value="C">normative commitments</option>
-              </select>
+              <!-- Питання 6 -->
+              <div class="question-block">
+                <p class="question-text">6. (MC) The passage implies that policymaking must balance:</p>
+                <select id="r2q6" class="answer-select">
+                  <option value="">— Оберіть варіант —</option>
+                  <option value="A">top-down planning and grassroots mobilization</option>
+                  <option value="B">only top-down directives</option>
+                  <option value="C">only grassroots mobilization</option>
+                </select>
+              </div>
+
+              <!-- Питання 7 -->
+              <div class="question-block">
+                <p class="question-text">7. (short) Provide one example of a normative commitment mentioned.</p>
+                <input type="text" id="r2q7" class="answer-input" placeholder="Введіть приклад...">
+              </div>
+
+              <!-- Питання 8 -->
+              <div class="question-block">
+                <p class="question-text">8. (MC) What becomes central for resilient urban futures?</p>
+                <select id="r2q8" class="answer-select">
+                  <option value="">— Оберіть варіант —</option>
+                  <option value="A">adaptive governance</option>
+                  <option value="B">institutional inertia</option>
+                  <option value="C">budgetary constraints</option>
+                </select>
+              </div>
+
+              <!-- Питання 9 -->
+              <div class="question-block">
+                <p class="question-text">9. (short) Explain briefly why inclusive stakeholder engagement is important according to the text.</p>
+                <input type="text" id="r2q9" class="answer-input" placeholder="Введіть пояснення...">
+              </div>
+
+              <!-- Питання 10 -->
+              <div class="question-block">
+                <p class="question-text">10. (MC) Which is listed as characteristic of adaptive governance?</p>
+                <select id="r2q10" class="answer-select">
+                  <option value="">— Оберіть варіант —</option>
+                  <option value="A">transparent data practices</option>
+                  <option value="B">political opacity</option>
+                  <option value="C">reliance on randomness</option>
+                </select>
+              </div>
+
+              <!-- Питання 11 -->
+              <div class="question-block">
+                <p class="question-text">11. (short) Summarize in one phrase what is required for resilient urban futures.</p>
+                <input type="text" id="r2q11" class="answer-input" placeholder="Введіть фразу...">
+              </div>
+
+              <!-- Питання 12 -->
+              <div class="question-block">
+                <p class="question-text">12. (MC) Which of these is presented as a challenge to implementing policies?</p>
+                <select id="r2q12" class="answer-select">
+                  <option value="">— Оберіть варіант —</option>
+                  <option value="A">budgetary constraints</option>
+                  <option value="B">robust data</option>
+                  <option value="C">normative commitments</option>
+                </select>
+              </div>
             </div>
           </div>
 
-          <div class="navigation">
-            <button id="prevBtn2" class="btn-secondary">← Попереднє завдання</button>
-            <button id="nextBtn2" class="btn-primary">Перейти до наступного завдання →</button>
+          <div class="task-controls">
+            <button id="prevBtn2" class="btn-secondary" style="padding: 15px 25px;">
+              ← Завдання 1
+            </button>
+            <button id="nextBtn2" class="btn-primary" style="padding: 15px 30px;">
+              Перейти до завдання 3 →
+            </button>
           </div>
         </div>
 
         <!-- Завдання 3 -->
-        <div id="task3" class="task-container">
-          <div class="hint">
+        <div id="task3" class="task-section">
+          <div class="hint-box">
             <strong>Завдання 3</strong> — Transformations (10 items)
+            <div style="font-size: 0.9rem; margin-top: 8px; opacity: 0.9;">
+              Перепишіть речення, використовуючи слово в дужках — збережіть значення.
+            </div>
           </div>
           
-          <div class="task-content">
-            <p style="margin-bottom: 20px; font-weight: bold;">Перепишіть речення, використовуючи слово в дужках — зберегти значення.</p>
+          <div class="task-content glass-card">
+            <p style="margin-bottom: 25px; font-weight: 600; color: var(--text-primary);">
+              Перепишіть речення, використовуючи слово в дужках — збережіть значення.
+            </p>
 
             <div>
-              <p style="margin-bottom: 10px;"><strong>1. It was unnecessary to wake him. (NEED)</strong></p>
-              <input type="text" id="t3q1" placeholder="Your sentence..." style="width: 100%; margin-bottom: 20px;">
-              
-              <p style="margin-bottom: 10px;"><strong>2. She completed the task despite the difficulties. (MANAGED)</strong></p>
-              <input type="text" id="t3q2" placeholder="Your sentence..." style="width: 100%; margin-bottom: 20px;">
+              <!-- Питання 1 -->
+              <div class="question-block">
+                <p class="question-text">1. It was unnecessary to wake him. (NEED)</p>
+                <input type="text" id="t3q1" class="answer-input" placeholder="Напишіть перефразоване речення...">
+              </div>
 
-              <p style="margin-bottom: 10px;"><strong>3. They started the project two years ago. (BEEN)</strong></p>
-              <input type="text" id="t3q3" placeholder="Your sentence..." style="width: 100%; margin-bottom: 20px;">
-              
-              <p style="margin-bottom: 10px;"><strong>4. He didn't need to bring any tools. (WAS)</strong></p>
-              <input type="text" id="t3q4" placeholder="Your sentence..." style="width: 100%; margin-bottom: 20px;">
+              <!-- Питання 2 -->
+              <div class="question-block">
+                <p class="question-text">2. She completed the task despite the difficulties. (MANAGED)</p>
+                <input type="text" id="t3q2" class="answer-input" placeholder="Напишіть перефразоване речення...">
+              </div>
 
-              <p style="margin-bottom: 10px;"><strong>5. It's illegal to drive without a license. (PERMITTED)</strong></p>
-              <input type="text" id="t3q5" placeholder="Your sentence..." style="width: 100%; margin-bottom: 20px;">
-              
-              <p style="margin-bottom: 10px;"><strong>6. They regret not applying earlier. (WISH)</strong></p>
-              <input type="text" id="t3q6" placeholder="Your sentence..." style="width: 100%; margin-bottom: 20px;">
+              <!-- Питання 3 -->
+              <div class="question-block">
+                <p class="question-text">3. They started the project two years ago. (BEEN)</p>
+                <input type="text" id="t3q3" class="answer-input" placeholder="Напишіть перефразоване речення...">
+              </div>
 
-              <p style="margin-bottom: 10px;"><strong>7. I prefer tea to coffee. (RATHER)</strong></p>
-              <input type="text" id="t3q7" placeholder="Your sentence..." style="width: 100%; margin-bottom: 20px;">
-              
-              <p style="margin-bottom: 10px;"><strong>8. She hasn't seen him for months. (LAST)</strong></p>
-              <input type="text" id="t3q8" placeholder="Your sentence..." style="width: 100%; margin-bottom: 20px;">
+              <!-- Питання 4 -->
+              <div class="question-block">
+                <p class="question-text">4. He didn't need to bring any tools. (WAS)</p>
+                <input type="text" id="t3q4" class="answer-input" placeholder="Напишіть перефразоване речення...">
+              </div>
 
-              <p style="margin-bottom: 10px;"><strong>9. It's impossible to finish on time without help. (ABLE)</strong></p>
-              <input type="text" id="t3q9" placeholder="Your sentence..." style="width: 100%; margin-bottom: 20px;">
-              
-              <p style="margin-bottom: 10px;"><strong>10. The teacher insisted on early submission. (DEMAND)</strong></p>
-              <input type="text" id="t3q10" placeholder="Your sentence..." style="width: 100%; margin-bottom: 20px;">
+              <!-- Питання 5 -->
+              <div class="question-block">
+                <p class="question-text">5. It's illegal to drive without a license. (PERMITTED)</p>
+                <input type="text" id="t3q5" class="answer-input" placeholder="Напишіть перефразоване речення...">
+              </div>
+
+              <!-- Питання 6 -->
+              <div class="question-block">
+                <p class="question-text">6. They regret not applying earlier. (WISH)</p>
+                <input type="text" id="t3q6" class="answer-input" placeholder="Напишіть перефразоване речення...">
+              </div>
+
+              <!-- Питання 7 -->
+              <div class="question-block">
+                <p class="question-text">7. I prefer tea to coffee. (RATHER)</p>
+                <input type="text" id="t3q7" class="answer-input" placeholder="Напишіть перефразоване речення...">
+              </div>
+
+              <!-- Питання 8 -->
+              <div class="question-block">
+                <p class="question-text">8. She hasn't seen him for months. (LAST)</p>
+                <input type="text" id="t3q8" class="answer-input" placeholder="Напишіть перефразоване речення...">
+              </div>
+
+              <!-- Питання 9 -->
+              <div class="question-block">
+                <p class="question-text">9. It's impossible to finish on time without help. (ABLE)</p>
+                <input type="text" id="t3q9" class="answer-input" placeholder="Напишіть перефразоване речення...">
+              </div>
+
+              <!-- Питання 10 -->
+              <div class="question-block">
+                <p class="question-text">10. The teacher insisted on early submission. (DEMAND)</p>
+                <input type="text" id="t3q10" class="answer-input" placeholder="Напишіть перефразоване речення...">
+              </div>
             </div>
           </div>
 
-          <div class="navigation">
-            <button id="prevBtn3" class="btn-secondary">← Попереднє завдання</button>
-            <button id="finishBtn" class="btn-primary" style="background: var(--danger);">Завершити олімпіаду</button>
+          <div class="task-controls">
+            <button id="prevBtn3" class="btn-secondary" style="padding: 15px 25px;">
+              ← Завдання 2
+            </button>
+            <button id="finishBtn" class="btn-primary" style="padding: 15px 30px; background: linear-gradient(135deg, var(--danger), var(--danger-dark));">
+              Завершити олімпіаду
+            </button>
           </div>
         </div>
 
-        <!-- Результати -->
-        <div id="resultsScreen" class="results-container">
+        <!-- Секція результатів -->
+        <div id="resultsScreen" class="results-section">
           <!-- Буде заповнено JavaScript -->
         </div>
       </div>
