@@ -3,65 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Адмін панель - Олімпіада з англійської</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        .header { background: #424242; color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab { padding: 10px 20px; background: #ddd; border: none; border-radius: 5px; cursor: pointer; }
-        .tab.active { background: #6aa84f; color: white; }
-        .panel { display: none; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .panel.active { display: block; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input, select, button { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
-        button { background: #6aa84f; color: white; border: none; cursor: pointer; font-weight: bold; }
-        button:hover { background: #5a9740; }
-        .user-list { margin-top: 20px; }
-        .user-card { background: #f9f9f9; padding: 15px; margin-bottom: 10px; border-radius: 5px; border-left: 4px solid #6aa84f; }
-        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        .stat-card { background: white; padding: 15px; border-radius: 8px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .export-btn { background: #2196F3; margin-top: 10px; }
-        .danger-btn { background: #f44336; }
-    </style>
+    <title>Адмін панель - Олімпіада</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>Адмін панель - Олімпіада з англійської мови</h1>
-            <p>Управління користувачами та моніторинг прогресу</p>
-        </div>
+        <div class="admin-panel">
+            <div class="admin-header">
+                <h1>⚙️ Адмін панель</h1>
+                <button class="btn-secondary" id="adminLogoutBtn">← Вийти</button>
+            </div>
 
-        <div class="tabs">
-            <button class="tab active" onclick="showPanel('create')">Створити користувача</button>
-            <button class="tab" onclick="showPanel('users')">Список користувачів</button>
-            <button class="tab" onclick="showPanel('stats')">Статистика</button>
-            <button class="tab" onclick="showPanel('settings')">Налаштування</button>
-        </div>
+            <div class="tabs">
+                <button class="tab active" data-tab="create">Створити користувача</button>
+                <button class="tab" data-tab="users">Список користувачів</button>
+                <button class="tab" data-tab="stats">Статистика</button>
+            </div>
 
-        <!-- Панель створення користувача -->
-        <div id="create" class="panel active">
-            <h2>Створити нового користувача</h2>
-            <div class="form-group">
-                <label>Ім'я учня:</label>
-                <input type="text" id="studentName" placeholder="Введіть ім'я учня">
+            <!-- Панель створення користувача -->
+            <div id="createPanel" class="panel active">
+                <h2>Створити нового користувача</h2>
+                <div class="form-group">
+                    <label>Ім'я учня:</label>
+                    <input type="text" id="newUserName" placeholder="Введіть ім'я учня">
+                </div>
+                <div class="form-group">
+                    <label>Клас:</label>
+                    <select id="newUserClass">
+                        <option value="9">9 клас</option>
+                        <option value="10" selected>10 клас</option>
+                        <option value="11">11 клас</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Група (опціонально):</label>
+                    <input type="text" id="newUserGroup" placeholder="Назва групи або класу">
+                </div>
+                <button id="createUserBtn" class="btn-primary">Створити користувача</button>
+                
+                <div id="createdCredentials" class="credentials-box">
+                    <h3>✅ Користувача створено!</h3>
+                    <div id="credentialsInfo"></div>
+                    <button id="copyCredentialsBtn" class="btn-secondary">Копіювати дані</button>
+                </div>
             </div>
-            <div class="form-group">
-                <label>Клас:</label>
-                <select id="studentClass">
-                    <option value="10">10 клас</option>
-                    <option value="11">11 клас</option>
-                    <option value="9">9 клас</option>
-                </select>
+
+            <!-- Панель списку користувачів -->
+            <div id="usersPanel" class="panel">
+                <h2>Список користувачів</h2>
+                <div class="search-box">
+                    <input type="text" id="userSearch" placeholder="Пошук за іменем або логіном...">
+                </div>
+                <div class="user-list" id="usersListContainer">
+                    <!-- Список буде заповнений через JavaScript -->
+                </div>
             </div>
-            <div class="form-group">
-                <label>Група (опціонально):</label>
-                <input type="text" id="studentGroup" placeholder="Назва групи або класу">
+
+            <!-- Панель статистики -->
+            <div id="statsPanel" class="panel">
+                <h2>Статистика системи</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalUsers">0</div>
+                        <div class="stat-label">Всього користувачів</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="class9Users">0</div>
+                        <div class="stat-label">9 клас</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="class10Users">0</div>
+                        <div class="stat-label">10 клас</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="class11Users">0</div>
+                        <div class="stat-label">11 клас</div>
+                    </div>
+                </div>
+                <div class="export-section">
+                    <button id="exportUsersBtn" class="btn-primary">Експортувати список користувачів</button>
+                </div>
             </div>
-            <button onclick="generateUser()">Згенерувати логін та пароль</button>
-            
-            <div id="generatedCredentials" style="display: none; margin-top: 20px; padding: 15px; background: #e8f5e8; border-radius: 5px;">
-                <h3>✅ Облікові дані створені!</h3>
-                <p><strong>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
