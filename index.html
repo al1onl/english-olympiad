@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Олімпіада з англійської мови</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
 </head>
 <body>
     <div class="container">
@@ -42,6 +43,7 @@
             </div>
             <button id="studentLoginBtn">Увійти до олімпіади</button>
             <button class="btn-secondary" id="backFromStudentBtn">← Назад</button>
+            <div id="studentError" class="error-message"></div>
         </div>
 
         <!-- Форма входу для адміна -->
@@ -61,16 +63,7 @@
             </div>
             <button id="adminLoginBtn">Увійти в адмін панель</button>
             <button class="btn-secondary" id="backFromAdminBtn">← Назад</button>
-        </div>
-
-        <!-- Адмін панель -->
-        <div id="adminPanel" class="admin-panel">
-            <!-- Адмін панель буде створюватися через JavaScript -->
-        </div>
-
-        <!-- Олімпіада -->
-        <div id="olympiadApp">
-            <!-- Олімпіада буде створюватися через JavaScript -->
+            <div id="adminError" class="error-message"></div>
         </div>
     </div>
 
