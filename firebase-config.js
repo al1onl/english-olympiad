@@ -1,4 +1,5 @@
 // firebase-config.js
+// Цей файл містить ваші облікові дані та ініціалізує Firebase
 
 const firebaseConfig = {
     apiKey: "AIzaSyAPnJFF03dqUF6hc9J4i5sL-K02LjavA5Q",
@@ -14,6 +15,6 @@ if (typeof firebase !== 'undefined' && !firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 
-// Експорт об'єктів для доступу в script.js
+// Глобальні об'єкти для доступу в script.js
 const auth = firebase.auth();
 const db = firebase.firestore();
