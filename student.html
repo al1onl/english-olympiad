@@ -93,13 +93,36 @@
     }
 
     .fullscreen-warning {
-      background: var(--danger);
+      background: linear-gradient(135deg, var(--danger), var(--danger-dark));
       color: white;
-      padding: 10px;
-      border-radius: 6px;
-      margin-bottom: 15px;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
       text-align: center;
+      font-weight: 600;
       display: none;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.8; }
+    }
+
+    .contact-info {
+      background: var(--primary-dark);
+      padding: 20px;
+      border-radius: 12px;
+      margin: 20px 0;
+      border: 1px solid var(--border);
+    }
+
+    .stat-card {
+      background: var(--primary-light);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      text-align: center;
     }
   </style>
 </head>
@@ -146,6 +169,23 @@
           </div>
         </div>
 
+        <div class="contact-info">
+          <h4 style="color: var(--accent); margin-bottom: 15px;">📞 Контакти для отримання результатів:</h4>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+            <div>
+              <p><strong>Telegram:</strong></p>
+              <code style="background: var(--primary-light); padding: 8px 12px; border-radius: 6px; display: inline-block;">@nacodexx</code>
+            </div>
+            <div>
+              <p><strong>Discord:</strong></p>
+              <code style="background: var(--primary-light); padding: 8px 12px; border-radius: 6px; display: inline-block;">in.kyiv</code>
+            </div>
+          </div>
+          <p style="margin-top: 15px; color: var(--text-secondary); font-size: 0.9rem;">
+            Після завершення олімпіади надішліть скріншот результатів або вкажіть ваш номер учня.
+          </p>
+        </div>
+
         <div style="text-align: center; margin-top: 30px;">
           <button id="startBtn" class="btn-primary" style="padding: 15px 30px; font-size: 1.1em; margin-right: 15px;">
             🚀 Розпочати олімпіаду
@@ -160,9 +200,11 @@
       <div id="tasks" style="display: none;">
         <!-- Навігація та таймер -->
         <div class="task-header">
-          <div style="font-weight: bold; font-size: 1.2rem;">Олімпіадні завдання</div>
           <div style="display: flex; align-items: center; gap: 15px;">
-            <button id="prevBtn" class="btn-secondary" style="display: none;">← Назад</button>
+            <div style="font-weight: bold; font-size: 1.2rem;">Олімпіадні завдання</div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 15px;">
+            <button id="prevBtn" class="btn-secondary" style="display: none;">← Попереднє</button>
             <div class="timer" id="timer">20:00</div>
           </div>
         </div>
@@ -418,24 +460,7 @@
 
         <!-- Результати -->
         <div id="resultsScreen" class="results-container">
-          <div style="text-align: center; margin-bottom: 25px;">
-            <h2 style="font-size: 1.8rem; margin-bottom: 10px;">🎉 Олімпіаду завершено!</h2>
-            <p>Ваші результати збережено в системі</p>
-          </div>
-
-          <div id="resultsContent">
-            <!-- Буде заповнено JavaScript -->
-          </div>
-
-          <div style="background: var(--primary-dark); padding: 15px; border-radius: 8px; margin-top: 20px;">
-            <h4 style="margin-bottom: 10px;">📞 Контакти для результатів:</h4>
-            <p>Telegram: <strong>@nacodexx</strong></p>
-            <p>Discord: <strong>in.kyiv</strong></p>
-          </div>
-
-          <div style="text-align: center; margin-top: 25px;">
-            <button id="backToHomeBtn" class="btn-secondary">← На головну</button>
-          </div>
+          <!-- Буде заповнено JavaScript -->
         </div>
       </div>
     </div>
