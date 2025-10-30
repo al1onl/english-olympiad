@@ -1,227 +1,55 @@
-<!DOCTYPE html>
-<html lang="uk">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Olympiad - Cloud Edition</title>
-    
-        <link rel="stylesheet" href="style.css">
-    
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<div id="studentLogin" class="app-container hidden">
+    <h2>Вхід для Учня</h2>
+    <p class="subtitle">Будь ласка, введіть свій логін та пароль, надані адміністратором.</p>
+    
+    <form id="studentLoginForm" style="max-width: 400px; margin: 0 auto;">
+        
+        <div id="studentError" class="forced-message hidden" style="margin-bottom: 20px;">
+            Невірний логін або пароль.
+        </div>
 
-        <style>
-        /* Це мінімальне визначення .hidden, яке повинно бути у style.css */
-        .hidden {
-            display: none !important; /* !important гарантує, що JS або інші стилі його не переб'ють */
-        }
-    </style>
-     
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-    
-    <script>
-const firebaseConfig = {
-    apiKey: "AIzaSyAPnJFF03dqUF6hc9J4i5sL-K02LjavA5Q",
-    authDomain: "olympiad-app-2024-591ee.firebaseapp.com",
-    projectId: "olympiad-app-2024-591ee", 
-    storageBucket: "olympiad-app-2024-591ee.firebasestorage.app",
-    messagingSenderId: "421657499179",
-    appId: "1:421657499179:web:95a510e9d9fc146c6dfc6e"
-};
-      // Ініціалізація Firebase та глобальні об'єкти
-      const app = firebase.initializeApp(firebaseConfig);
-      const auth = app.auth();
-      const db = app.firestore();
-    </script>
-</head>
-<body class="fade-in">
-    <div class="container">
-        <div class="app-container">
-            
-            <div id="mainView">
-                <h1>Англійська Олімпіада 2024</h1>
-                <p class="subtitle">Ласкаво просимо до системи тестування. Оберіть режим роботи.</p>
+        <div style="margin-bottom: 20px;">
+            <input type="text" id="studentLoginInput" placeholder="Логін (Email)" required style="margin-bottom: 15px;">
+        </div>
+        
+        <div style="margin-bottom: 30px;">
+            <input type="password" id="studentPasswordInput" placeholder="Пароль" required>
+        </div>
+        
+        <button type="submit" class="btn-primary" style="width: 100%; margin-bottom: 15px;">Увійти до системи</button>
+        
+        <button type="button" data-action="backToMain" class="btn-secondary" style="width: 100%;">
+            ← Назад до головної
+        </button>
+    </form>
+</div>
 
-                <div id="modeSelector" style="display: flex; gap: 30px; margin-bottom: 50px;">
-                    <button class="btn-primary" data-mode="student" style="flex-grow: 1;">
-                        Я - Учень
-                    </button>
-                    <button class="btn-secondary" data-mode="admin" style="flex-grow: 1;">
-                        Я - Адміністратор
-                    </button>
-                </div>
+<div id="adminLogin" class="app-container hidden">
+    <h2>Вхід для Адміністратора</h2>
+    <p class="subtitle">Для доступу введіть дані адміністратора та кодове слово.</p>
+    
+    <form id="adminLoginForm" style="max-width: 400px; margin: 0 auto;">
 
-                <div id="studentLogin" class="hidden">
-                    <h2>Вхід для учня</h2>
-                    <form id="studentLoginForm">
-                        <div style="margin-bottom: 20px;">
-                            <label for="studentLoginInput" style="display: block; margin-bottom: 8px;">Логін (Email):</label>
-                            <input type="text" id="studentLoginInput" placeholder="Ваш логін" required>
-                        </div>
-                        <div style="margin-bottom: 20px;">
-                            <label for="studentPasswordInput" style="display: block; margin-bottom: 8px;">Пароль:</label>
-                            <input type="password" id="studentPasswordInput" placeholder="Ваш пароль" required>
-                        </div>
-                        <p id="studentError" class="error-message hidden" style="color: var(--danger); margin-bottom: 15px;"></p>
-                        <button type="submit" class="btn-primary" style="width: 100%; margin-bottom: 15px;">Увійти</button>
-                        <button type="button" class="btn-secondary" data-action="backToMain" style="width: 100%;">← На головну</button>
-                    </form>
-                </div>
-                
-                <div id="adminLogin" class="hidden">
-                    <h2>Вхід для адміністратора</h2>
-                    <form id="adminLoginForm">
-                        <div style="margin-bottom: 20px;">
-                            <label for="adminLoginInput" style="display: block; margin-bottom: 8px;">Логін (Email):</label>
-                            <input type="text" id="adminLoginInput" placeholder="Логін адміна" value="admin@olympiad.com" required>
-                        </div>
-                        <div style="margin-bottom: 20px;">
-                            <label for="adminPasswordInput" style="display: block; margin-bottom: 8px;">Пароль:</label>
-                            <input type="password" id="adminPasswordInput" placeholder="Пароль адміна" value="admin123" required>
-                        </div>
-                        <div style="margin-bottom: 20px;">
-                            <label for="adminCodeWord" style="display: block; margin-bottom: 8px;">Кодове слово:</label>
-                            <input type="password" id="adminCodeWord" placeholder="Кодове слово (для безпеки)" required>
-                        </div>
-                        <p id="adminError" class="error-message hidden" style="color: var(--danger); margin-bottom: 15px;"></p>
-                        <button type="submit" class="btn-primary" style="width: 100%; margin-bottom: 15px;">Увійти до панелі</button>
-                        <button type="button" class="btn-secondary" data-action="backToMain" style="width: 100%;">← На головну</button>
-                    </form>
-                </div>
-            </div>
+        <div id="adminError" class="forced-message hidden" style="margin-bottom: 20px;">
+            Невірні дані адміністратора.
+        </div>
 
-            <div id="studentAppView" class="hidden">
-                <div class="header-section task-header">
-                    <h1 id="studentNameDisplay">Олімпіада</h1>
-                    <button id="studentLogoutBtn" class="btn-secondary" style="padding: 10px 20px;">Вихід</button>
-                </div>
+        <div style="margin-bottom: 15px;">
+            <input type="text" id="adminLoginInput" placeholder="Логін (Email)" required>
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <input type="password" id="adminPasswordInput" placeholder="Пароль" required>
+        </div>
+        
+        <div style="margin-bottom: 30px;">
+            <input type="password" id="adminCodeWord" placeholder="Кодове слово" required>
+        </div>
+        
+        <button type="submit" class="btn-primary" style="width: 100%; margin-bottom: 15px;">Увійти як Адмін</button>
 
-                <div id="studentIntro">
-                    <h2 id="introUserName" style="color: var(--accent-primary); margin-top: 30px;">Вітаємо!</h2>
-                    <p class="subtitle">Ви готові розпочати олімпіаду? На виконання всіх завдань дається 20 хвилин на кожне.</p>
-                    
-                    <div id="introUserInfo" style="margin-bottom: 40px; padding: 30px; background: var(--btn-dark); border-radius: var(--radius);">
-                        </div>
-                    
-                    <button id="startOlympiadBtn" class="btn-primary" style="width: 100%; padding: 20px; font-size: 1.2rem;">
-                        🔥 Розпочати Олімпіаду
-                    </button>
-                </div>
-
-                <div id="studentTasks" class="hidden">
-                    <div class="task-header">
-                        <div style="font-size: 1.1rem;">
-                            Завдання <span id="currentTaskNum" class="code-badge">1</span> / 3
-                        </div>
-                        <div id="timerDisplay" class="timer-display">20:00</div>
-                    </div>
-                    
-                    <div id="fullscreenWarning" class="forced-message hidden" style="margin-bottom: 30px;"></div>
-
-                    <div id="taskContentContainer">
-                        </div>
-
-                    <div class="task-navigation">
-                        <button id="prevTaskBtn" class="btn-secondary">← Попереднє завдання</button>
-                        <button id="nextTaskBtn" class="btn-primary">Наступне завдання →</button>
-                        <button id="finishOlympiadBtn" class="btn-primary hidden">Завершити олімпіаду</button>
-                    </div>
-                </div>
-                
-                <div id="studentResults" class="hidden">
-                    <div id="resultsContent">
-                        </div>
-                </div>
-            </div>
-
-            <div id="adminAppView" class="hidden">
-                <div class="header-section task-header">
-                    <h1>Адмін-панель</h1>
-                    <button id="adminLogoutBtn" class="btn-secondary" style="padding: 10px 20px;">Вихід</button>
-                </div>
-                
-                <div class="tabs">
-                    <div class="tab active" data-tab="stats">Статистика та Результати</div>
-                    <div class="tab" data-tab="users">Користувачі та Управління</div>
-                    <div class="tab" data-tab="create">Створити Учня</div>
-                </div>
-
-                <div id="statsPanel" class="panel">
-                    <h2>Загальна Статистика</h2>
-                    <div class="stats-grid" style="margin-bottom: 50px;">
-                        <div class="stat-card"><div id="totalUsers" class="stat-number">0</div><div class="stat-label">Всього учнів</div></div>
-                        <div class="stat-card"><div id="activeUsers" class="stat-number">0</div><div class="stat-label">Активних учнів</div></div>
-                        <div class="stat-card"><div id="completedUsers" class="stat-number">0</div><div class="stat-label">Завершили тест</div></div>
-                        <div class="stat-card"><div id="class10Users" class="stat-number">0</div><div class="stat-label">Учнів 10 класу</div></div>
-                    </div>
-
-                    <h2>Таблиця Результатів (Завершили)</h2>
-                    <div style="overflow-x: auto; margin-top: 20px;">
-                        <table class="results-table">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>ПІБ</th>
-                                    <th>Клас</th>
-                                    <th>Бали (сирі)</th>
-                                    <th>Бали (12-б)</th>
-                                    <th>Статус</th>
-                                </tr>
-                            </thead>
-                            <tbody id="resultsTableBody">
-                                </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div id="usersPanel" class="panel hidden">
-                    <h2>Пошук та Управління</h2>
-                    <div style="margin-bottom: 20px;">
-                        <input type="text" id="userSearch" placeholder="Шукати за ім'ям, логіном або номером..." style="width: 100%;">
-                    </div>
-                    
-                    <div id="usersListContainer">
-                        </div>
-                </div>
-
-                <div id="createPanel" class="panel hidden">
-                    <h2>Створення Нового Учня</h2>
-                    <form id="createUserForm">
-                        <div style="margin-bottom: 20px;">
-                            <label for="newUserName" style="display: block; margin-bottom: 8px;">ПІБ учня:</label>
-                            <input type="text" id="newUserName" placeholder="Іванов Іван Іванович" required>
-                        </div>
-                        <div style="margin-bottom: 20px;">
-                            <label for="newUserClass" style="display: block; margin-bottom: 8px;">Клас:</label>
-                            <select id="newUserClass" required>
-                                <option value="10">10 Клас</option>
-                                <option value="11">11 Клас</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn-primary" style="width: 100%; padding: 15px;">
-                            ➕ Створити Логін та Пароль
-                        </button>
-                    </form>
-                    
-                    <div id="createdCredentials" class="card-content hidden" style="margin-top: 30px; padding: 25px; border-left: 5px solid var(--accent-primary);">
-                        <h3>Дані для входу:</h3>
-                        <div id="credentialsInfo"></div>
-                        <button id="copyCredentialsBtn" class="btn-secondary" style="margin-top: 15px;">
-                            📋 Скопіювати дані
-                        </button>
-                    </div>
-                </div>
-            </div>
-            
-            <div id="appFooter" style="margin-top: 50px; text-align: center; color: var(--text-secondary); font-size: 0.9rem;">
-                <p>Olympiad System. Powered by Firebase Cloud.</p>
-            </div>
-        </div>
-    </div>
-    
-    <div id="notificationArea"></div>
-    
-    <script src="script.js"></script>
-</body>
-</html>
+        <button type="button" data-action="backToMain" class="btn-secondary" style="width: 100%;">
+            ← Назад до головної
+        </button>
+    </form>
+</div>
