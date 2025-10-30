@@ -1,73 +1,162 @@
 // 🎯 Глобальна конфігурація системи
 const CONFIG = {
+    // --- Аутентифікація Адміна ---
     ADMIN_LOGIN: "admin",
     ADMIN_PASSWORD: "admin123", 
     ADMIN_CODE_WORD: "olympiad2024",
-    TASK_TIME: 20 * 60, // 20 хвилин у секундах (загальний час 60 хвилин)
-    MAX_FULLSCREEN_EXITS: 7,
-    MAX_SCORE: 34, // 12 (T1) + 12 (T2) + 10 (T3) = 34
+
+    // --- Параметри Олімпіади ---
+    TASK_TIME: 20 * 60, // 20 хвилин у секундах на кожне завдання
+    MAX_FULLSCREEN_EXITS: 7, // Максимально дозволена кількість виходів з повноекранного режиму
+    MAX_SCORE: 34, // Максимально можлива кількість балів (12+12+10)
+
+    // --- Правильні Відповіді (Ключі для автоматичної перевірки) ---
+    // Всі відповіді у нижньому регістрі для нечутливості до регістру
     CORRECT_ANSWERS: {
+        // Завдання 1: Лексичні трансформації (12 балів)
         task1: {
             t1s1: 'synthesis', t1s2: 'short-sighted', t1s3: 'sporadic',
             t1s4: 'limitations', t1s5: 'detached', t1s6: 'overly',
             t1s7: 'nuance', t1s8: 'clarify', t1s9: 'ambiguous',
             t1s10: 'spurious', t1s11: 'inequalities', t1s12: 'adaptive'
         },
-        // Для task2 перевіряємо лише 6 питань з варіантами
+        // Завдання 2: Читання (6 балів за вибір)
         task2: {
             r2q2: 'C', r2q4: 'A', r2q6: 'A', r2q8: 'A', r2q10: 'A', r2q12: 'A'
         }
-    }
+        // Завдання 3: Перетворення ключових слів (10 балів) - не перевіряється автоматично.
+    },
+    
+    // --- Структура завдань (шаблон HTML) ---
+    TASKS_CONTENT: [
+        null, // Індекс 0 порожній для відповідності номеру завдання 1, 2, 3
+        { 
+            title: "Завдання 1. Lexical and Grammatical Transformations (12 балів)",
+            description: "Доповніть речення, змінивши слова у дужках на правильну форму.",
+            html: `
+                <div class="task-content">
+                    <div class="question-block"><p class="question-text">1. The article requires a careful ____________ of all the sources. (SYNTHESIZE)</p><input type="text" id="t1s1" class="answer-input" placeholder="Ваша відповідь"></div>
+                    <div class="question-block"><p class="question-text">2. Her constant focus on minor details made her look ____________. (SHORT-SIGHT)</p><input type="text" id="t1s2" class="answer-input" placeholder="Ваша відповідь"></div>
+                    <div class="question-block"><p class="question-text">3. The sightings of the rare bird were ____________ and difficult to confirm. (SPORADICALLY)</p><input type="text" id="t1s3" class="answer-input" placeholder="Ваша відповідь"></div>
+                    <div class="question-block"><p class="question-text">4. Every technological advance brings with it certain ____________. (LIMIT)</p><input type="text" id="t1s4" class="answer-input" placeholder="Ваша відповідь"></div>
+                    <div class="question-block"><p class="question-text">5. He maintained a professional, almost ____________ attitude during the meeting. (DETACH)</p><input type="text" id="t1s5" class="answer-input" placeholder="Ваша відповідь"></div>
+                    <div class="question-block"><p class="question-text">6. We found the speaker to be ____________ concerned with public image. (OVER)</p><input type="text" id="t1s6" class="answer-input" placeholder="Ваша відповідь"></div>
+                    <div class="question-block"><p class="question-text">7. She spoke about the subtle ____________ of the poem. (NUANCED)</p><input type="text" id="t1s7" class="answer-input" placeholder="Ваша відповідь"></div>
+                    <div class="question-block"><p class="question-text">8. Could you please ____________ your position on this matter? (CLARITY)</p><input type="text" id="t1s8" class="answer-input" placeholder="Ваша відповідь"></div>
+                    <div class="question-block"><p class="question-text">9. His language was often ____________, leaving room for misinterpretation. (AMBIGUITY)</p><input type="text" id="t1s9" class="answer-input" placeholder="Ваша відповідь"></div>
+                    <div class="question-block"><p class="question-text">10. They dismissed the findings as ____________ data from a biased source. (SPUR)</p><input type="text" id="t1s10" class="answer-input" placeholder="Ваша відповідь"></div>
+                    <div class="question-block"><p class="question-text">11. The report highlighted growing social and economic ____________. (EQUAL)</p><input type="text" id="t1s11" class="answer-input" placeholder="Ваша відповідь"></div>
+                    <div class="question-block"><p class="question-text">12. An ____________ strategy is essential in a changing market. (ADAPT)</p><input type="text" id="t1s12" class="answer-input" placeholder="Ваша відповідь"></div>
+                </div>
+            `
+        },
+        { 
+            title: "Завдання 2. Читання та розуміння тексту (12 балів)",
+            description: "Прочитайте текст і дайте відповіді на 12 питань (6 - вибір відповіді, 6 - коротка відповідь).",
+            html: `
+                <div class="text-for-reading glass-card">
+                    <h3 style="margin-bottom: 15px; color: var(--accent);">The Curious Case of Collective Intelligence</h3>
+                    <p>Collective intelligence, the ability of a group to make decisions or solve problems better than any single member, has long fascinated scientists. The classic example is the "wisdom of crowds," where the average guess of a large group is often startlingly close to the truth, even if individual guesses are wildly inaccurate. This phenomenon relies on three key elements: diversity of opinion, independence of members, and decentralization of knowledge. When these conditions are met, errors tend to cancel each other out.</p>
+                    <p>However, collective intelligence is not foolproof. When crowds lack independence—for instance, if members influence each other's opinions, leading to herd mentality—the wisdom quickly turns into foolishness. Furthermore, groups often fail when the problem is complex or requires deep, specialized knowledge, rather than a simple aggregation of common sense. The challenge is not merely to gather people, but to structure their interaction in a way that maximizes diversity while ensuring constructive synthesis of ideas.</p>
+                </div>
+
+                <div class="task-content">
+                    <div class="question-block"><p class="question-text">1. What is the classic example of collective intelligence mentioned in the text? (Коротка відповідь - 1 бал)</p><input type="text" id="r2q1" class="answer-input" placeholder="Ваша відповідь"></div>
+                    <div class="question-block"><p class="question-text">3. What is the primary risk if crowds lack independence? (Коротка відповідь - 1 бал)</p><input type="text" id="r2q3" class="answer-input" placeholder="Ваша відповідь"></div>
+                    <div class="question-block"><p class="question-text">5. What does the text suggest is the main challenge of collective intelligence? (Коротка відповідь - 1 бал)</p><input type="text" id="r2q5" class="answer-input" placeholder="Ваша відповідь"></div>
+                    <div class="question-block">
+                        <p class="question-text">2. What is the purpose of collective intelligence? (Вибір - 1 бал)</p>
+                        <select id="r2q2" class="answer-select"><option value="">Оберіть варіант</option><option value="A">To simplify complex problems for a single member.</option><option value="B">To ensure individual guesses are always accurate.</option><option value="C">To solve problems better than any single member.</option></select>
+                    </div>
+                    <div class="question-block">
+                        <p class="question-text">4. What is one of the key elements that collective intelligence relies on? (Вибір - 1 бал)</p>
+                        <select id="r2q4" class="answer-select"><option value="">Оберіть варіант</option><option value="A">Diversity of opinion.</option><option value="B">Centralization of knowledge.</option><option value="C">Unanimity of thought.</option></select>
+                    </div>
+                    <div class="question-block">
+                        <p class="question-text">6. What happens when members influence each other's opinions? (Вибір - 1 бал)</p>
+                        <select id="r2q6" class="answer-select"><option value="">Оберіть варіант</option><option value="A">The wisdom of crowds turns into foolishness.</option><option value="B">The collective knowledge is deepened.</option><option value="C">Independence of members is maximized.</option></select>
+                    </div>
+                    <div class="question-block"><p class="question-text">7. What is required for the "wisdom of crowds" to work? (Коротка відповідь - 1 бал)</p><input type="text" id="r2q7" class="answer-input" placeholder="Ваша відповідь"></div>
+                    <div class="question-block">
+                        <p class="question-text">8. The term 'decentralization' in the text refers to: (Вибір - 1 бал)</p>
+                        <select id="r2q8" class="answer-select"><option value="">Оберіть варіант</option><option value="A">Spreading knowledge among many members.</option><option value="B">Giving power to a single, central leader.</option><option value="C">The process of making errors cancel out.</option></select>
+                    </div>
+                    <div class="question-block"><p class="question-text">9. When do groups often fail? (Коротка відповідь - 1 бал)</p><input type="text" id="r2q9" class="answer-input" placeholder="Ваша відповідь"></div>
+                    <div class="question-block">
+                        <p class="question-text">10. The word 'foolproof' most closely means: (Вибір - 1 бал)</p>
+                        <select id="r2q10" class="answer-select"><option value="">Оберіть варіант</option><option value="A">Infallible.</option><option value="B">Complicated.</option><option value="C">Transparent.</option></select>
+                    </div>
+                    <div class="question-block"><p class="question-text">11. What is the process that allows errors to cancel out? (Коротка відповідь - 1 бал)</p><input type="text" id="r2q11" class="answer-input" placeholder="Ваша відповідь"></div>
+                    <div class="question-block">
+                        <p class="question-text">12. What kind of problem is *not* easily solved by simple crowd aggregation? (Вибір - 1 бал)</p>
+                        <select id="r2q12" class="answer-select"><option value="">Оберіть варіант</option><option value="A">One requiring deep, specialized knowledge.</option><option value="B">One requiring a simple common sense aggregation.</option><option value="C">One where opinions are diverse.</option></select>
+                    </div>
+                </div>
+            `
+        },
+        { 
+            title: "Завдання 3. Перетворення ключових слів (10 балів)",
+            description: "Перефразуйте речення так, щоб воно мало те саме значення, використовуючи надане слово у незмінній формі (максимум 5 слів, включаючи надане).",
+            html: `
+                <div class="task-content">
+                    <div class="question-block"><p class="question-text">1. The accident was caused by his failure to stop. (DID)</p><input type="text" id="t3q1" class="answer-input" placeholder="Напишіть перефразоване речення..."></div>
+                    <div class="question-block"><p class="question-text">2. We won't be able to finish on time. (POSSIBLE)</p><input type="text" id="t3q2" class="answer-input" placeholder="Напишіть перефразоване речення..."></div>
+                    <div class="question-block"><p class="question-text">3. It's difficult to see how we can proceed. (EASY)</p><input type="text" id="t3q3" class="answer-input" placeholder="Напишіть перефразоване речення..."></div>
+                    <div class="question-block"><p class="question-text">4. They only started to cooperate after the crisis. (UNTIL)</p><input type="text" id="t3q4" class="answer-input" placeholder="Напишіть перефразоване речення..."></div>
+                    <div class="question-block"><p class="question-text">5. She finally realized how serious the situation was. (CAME)</p><input type="text" id="t3q5" class="answer-input" placeholder="Напишіть перефразоване речення..."></div>
+                    <div class="question-block"><p class="question-text">6. He regrets not having said goodbye to her. (WISHES)</p><input type="text" id="t3q6" class="answer-input" placeholder="Напишіть перефразоване речення..."></div>
+                    <div class="question-block"><p class="question-text">7. They cancelled the match because of the bad weather. (CALLED)</p><input type="text" id="t3q7" class="answer-input" placeholder="Напишіть перефразоване речення..."></div>
+                    <div class="question-block"><p class="question-text">8. I found the meeting rather boring. (DID)</p><input type="text" id="t3q8" class="answer-input" placeholder="Напишіть перефразоване речення..."></div>
+                    <div class="question-block"><p class="question-text">9. It's impossible to finish on time without help. (ABLE)</p><input type="text" id="t3q9" class="answer-input" placeholder="Напишіть перефразоване речення..."></div>
+                    <div class="question-block"><p class="question-text">10. The teacher insisted on early submission. (DEMAND)</p><input type="text" id="t3q10" class="answer-input" placeholder="Напишіть перефразоване речення..."></div>
+                </div>
+            `
+        }
+    ]
 };
 
-// 🛠️ Утиліти для роботи з даними
+// 🛠️ Утиліти для роботи з DOM та даними
 class Utils {
+    static getEl(id) { return document.getElementById(id); }
+    static hide(element) { if(element) element.classList.add('hidden'); }
+    static show(element) { if(element) element.classList.remove('hidden'); }
+
     static showError(elementId, message) {
-        const element = document.getElementById(elementId);
+        const element = Utils.getEl(elementId);
         if (element) {
             element.textContent = message;
-            element.style.display = 'block';
-            setTimeout(() => { element.style.display = 'none'; }, 5000);
+            Utils.show(element);
+            setTimeout(() => { Utils.hide(element); }, 5000);
         }
     }
-
-    static showSuccess(message) { this.showNotification(message, 'success'); }
 
     static showNotification(message, type = 'info') {
         const notification = document.createElement('div');
         notification.className = `notification notification-${type}`;
-        // Використовуємо вбудовані стилі для відображення
-        notification.style.cssText = `
-            position: fixed; top: 20px; right: 20px; 
-            background: rgba(15, 32, 39, 0.9); /* Темний фон */
-            color: white; padding: 16px 20px; border-radius: 15px; 
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-            z-index: 10000; transform: translateX(400px); 
-            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            max-width: 400px; backdrop-filter: blur(10px); 
-            border: 1px solid rgba(255,255,255,0.2);
-            font-size: 1rem;
-        `;
         const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
         const icon = icons[type] || icons.info;
-        
         notification.innerHTML = `<div style="display: flex; align-items: center;"><span style="font-size: 1.2rem; margin-right: 10px;">${icon}</span><span>${message}</span></div>`;
-        
         document.body.appendChild(notification);
-        setTimeout(() => { notification.style.transform = 'translateX(0)'; }, 100);
+        setTimeout(() => { notification.classList.add('show'); }, 50);
         setTimeout(() => {
-            notification.style.transform = 'translateX(400px)';
+            notification.classList.remove('show');
             setTimeout(() => { if (notification.parentNode) { notification.parentNode.removeChild(notification); } }, 400);
         }, 5000);
     }
-
+    static showSuccess(message) { this.showNotification(message, 'success'); }
+    static showWarning(message) { this.showNotification(message, 'warning'); }
+    
     static generateLogin(name) {
+        // Логін: перші 10 символів від об'єднаних слів імені у нижньому регістрі
         const base = name.toLowerCase().split(' ').filter(n => n).join('');
         const users = DataStorage.getUsers();
-        let login = base;
+        let login = base.substring(0, 10);
         let counter = 1;
-        while (users.find(user => user.login === login)) { login = base + counter; counter++; }
-        return login.substring(0, 10);
+        while (users.find(user => user.login === login)) { 
+            login = base.substring(0, 10 - counter.toString().length) + counter; 
+            counter++; 
+        }
+        return login;
     }
 
     static generatePassword() {
@@ -78,21 +167,23 @@ class Utils {
     }
 
     static generateStudentNumber() {
+        // Генерація унікального 5-значного номера учня
         const users = DataStorage.getUsers();
         const usedNumbers = users.map(u => u.studentNumber).filter(n => n);
         let number;
-        do { number = Math.floor(Math.random() * 100000) + 10000; } while (usedNumbers.includes(number));
+        do { number = Math.floor(Math.random() * 90000) + 10000; } while (usedNumbers.includes(number));
         return number;
     }
 
     static formatTime(seconds) {
-        const mins = Math.floor(seconds / 60);
-        const secs = seconds % 60;
+        const totalSeconds = Math.max(0, seconds); // Запобігаємо від'ємним числам
+        const mins = Math.floor(totalSeconds / 60);
+        const secs = totalSeconds % 60;
         return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     }
 
     static calculate12PointScore(rawScore, maxScore) {
-        // Проста лінійна шкала до 12 балів
+        // Переведення сирого балу у 12-бальну систему
         const score = Math.round((rawScore / maxScore) * 12);
         return Math.min(Math.max(score, 0), 12);
     }
@@ -112,52 +203,39 @@ class Utils {
     }
 }
 
-// 💾 Централізоване сховище даних
+// 💾 Централізоване сховище даних (LocalStorage)
 class DataStorage {
     static getUsers() {
         try {
             const users = JSON.parse(localStorage.getItem('olympiad_users')) || [];
-            return users.map(user => ({
-                ...user,
-                // Забезпечуємо наявність студентського номера для активних
-                status: user.studentNumber ? 'ACTIVE' : 'INACTIVE'
-            }));
-        } catch (error) { return []; }
+            return users;
+        } catch (error) { 
+            console.error("Error retrieving users from localStorage:", error);
+            return []; 
+        }
     }
 
     static saveUsers(users) {
         try {
             localStorage.setItem('olympiad_users', JSON.stringify(users));
             return true;
-        } catch (error) { return false; }
+        } catch (error) { 
+            console.error("Error saving users to localStorage:", error);
+            return false; 
+        }
     }
 
     static getCurrentUser() {
-        try {
-            const user = JSON.parse(localStorage.getItem('current_user'));
-            if (user) {
-                 // Оновлюємо, якщо це перший вхід (не має studentNumber)
-                if (!user.studentNumber) {
-                    user.studentNumber = Utils.generateStudentNumber();
-                    this.updateUserInDatabase(user);
-                }
-                user.status = 'ACTIVE';
-                localStorage.setItem('current_user', JSON.stringify(user));
-            }
-            return user;
-        } catch (error) { return null; }
+        try { return JSON.parse(localStorage.getItem('current_user')); } catch (error) { return null; }
     }
 
     static setCurrentUser(user) {
-        try {
-            if (!user.studentNumber) {
-                user.studentNumber = Utils.generateStudentNumber();
-                user.status = 'ACTIVE';
-                this.updateUserInDatabase(user);
-            }
-            localStorage.setItem('current_user', JSON.stringify(user));
-            return true;
-        } catch (error) { return false; }
+        // Якщо номер учня ще не згенеровано, генеруємо його тут
+        if (!user.studentNumber) {
+            user.studentNumber = Utils.generateStudentNumber();
+            this.updateUserInDatabase(user);
+        }
+        localStorage.setItem('current_user', JSON.stringify(user));
     }
 
     static updateUserInDatabase(updatedUser) {
@@ -179,7 +257,10 @@ class DataStorage {
         try {
             localStorage.setItem('olympiad_progress', JSON.stringify(progress));
             return true;
-        } catch (error) { return false; }
+        } catch (error) { 
+            console.error("Error saving progress to localStorage:", error);
+            return false; 
+        }
     }
 
     static isAdminAuthenticated() { return localStorage.getItem('admin_authenticated') === 'true'; }
@@ -189,87 +270,209 @@ class DataStorage {
     }
 }
 
-// ⏱️ Менеджер олімпіади
-class OlympiadManager {
+// 🌐 Маршрутизатор (Router) для SPA
+class OlympiadRouter {
     constructor() {
+        this.views = {
+            main: Utils.getEl('mainView'),
+            studentApp: Utils.getEl('studentAppView'),
+            adminApp: Utils.getEl('adminAppView')
+        };
+        this.currentView = 'main';
+    }
+
+    renderView(viewName) {
+        if (!this.views[viewName]) {
+            console.error(`View ${viewName} not found.`);
+            return;
+        }
+        
+        // Сховати всі види
+        Object.values(this.views).forEach(v => Utils.hide(v));
+        
+        // Показати потрібний вид
+        Utils.show(this.views[viewName]);
+        this.currentView = viewName;
+    }
+}
+
+// ⏱️ Менеджер олімпіади (логіка, відокремлена від UI)
+class OlympiadManager {
+    constructor(router) {
+        this.router = router;
+        this.currentUser = DataStorage.getCurrentUser();
         this.currentTask = 1;
-        this.totalTasks = 3;
+        this.totalTasks = CONFIG.TASKS_CONTENT.length - 1;
         this.timeRemaining = CONFIG.TASK_TIME;
         this.timerInterval = null;
         this.isFinished = false;
+        this.viewMode = false; // Режим перегляду результатів
         this.fullscreenExitCount = 0;
         this.totalTimeSpent = 0;
-        this.viewMode = false;
         this.answers = {};
-    }
-
-    init() {
-        this.setupEventListeners();
-        this.startTimer();
-        this.showTask(1);
-    }
-
-    setupEventListeners() {
-        document.addEventListener('fullscreenchange', () => {
-            if (!document.fullscreenElement && !this.isFinished) { this.handleFullscreenExit(); }
-        });
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden && !this.isFinished) { this.handleVisibilityChange(); }
-        });
-        window.addEventListener('beforeunload', (e) => {
-            if (!this.isFinished) { e.preventDefault(); e.returnValue = 'Ви впевнені, що хочете покинути сторінку? Прогрес може бути втрачено.'; }
-        });
-    }
-
-    handleFullscreenExit() {
-        if (this.isFinished) return;
-        this.fullscreenExitCount++;
-        this.pauseTimer();
         
-        if (this.fullscreenExitCount >= CONFIG.MAX_FULLSCREEN_EXITS) {
-            this.forceFinish();
+        // Завантаження прогресу або створення нового
+        const progressData = DataStorage.getProgress()[this.currentUser.id] || {};
+        this.progress = progressData;
+        if (progressData.answers) {
+            this.answers = progressData.answers;
+            this.totalTimeSpent = progressData.timeSpent || 0;
+            this.fullscreenExitCount = progressData.fullscreenExits || 0;
+        }
+        
+        this.setupTaskEvents();
+    }
+    
+    // --- Setup & Start ---
+    startOlympiad() {
+        const progress = DataStorage.getProgress()[this.currentUser.id];
+        if (progress && progress.completed) {
+            this.answers = progress.answers;
+            this.displayResults();
+            return;
+        }
+
+        Utils.hide(Utils.getEl('studentIntro'));
+        Utils.show(Utils.getEl('studentTasks'));
+        
+        this.isFinished = false;
+        this.currentTask = 1;
+        this.timeRemaining = CONFIG.TASK_TIME;
+        this.totalTimeSpent = 0;
+        this.fullscreenExitCount = 0;
+        
+        this.showTask(1);
+        this.startTimer();
+        this.enterFullscreen();
+        Utils.showSuccess('Олімпіаду розпочато! Увійдіть у повноекранний режим.');
+    }
+    
+    setupTaskEvents() {
+        Utils.getEl('prevTaskBtn').addEventListener('click', () => this.previousTask());
+        Utils.getEl('nextTaskBtn').addEventListener('click', () => this.nextTask());
+        Utils.getEl('finishOlympiadBtn').addEventListener('click', () => this.finishOlympiad());
+    }
+
+    // --- Task Navigation & Saving ---
+    showTask(taskNumber) {
+        this.currentTask = taskNumber;
+        const container = Utils.getEl('taskContentContainer');
+        const task = CONFIG.TASKS_CONTENT[taskNumber];
+        
+        if (!task || !container) return;
+        
+        container.innerHTML = `
+            <h2 class="task-title">${task.title}</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 30px;">${task.description}</p>
+            ${task.html}
+        `;
+        
+        Utils.getEl('currentTaskNum').textContent = taskNumber;
+        
+        // Оновлення кнопок
+        const prevBtn = Utils.getEl('prevTaskBtn');
+        const nextBtn = Utils.getEl('nextTaskBtn');
+        const finishBtn = Utils.getEl('finishOlympiadBtn');
+        
+        prevBtn.disabled = (taskNumber === 1);
+        
+        if (taskNumber === this.totalTasks) {
+            Utils.hide(nextBtn);
+            Utils.show(finishBtn);
+            finishBtn.disabled = this.viewMode; // Блокуємо кнопку завершення в режимі перегляду
         } else {
-            this.showFullscreenWarning();
-            // Даємо 2 секунди, щоб повернутися в повноекранний режим
-            setTimeout(() => { this.enterFullscreen(); }, 2000);
+            Utils.show(nextBtn);
+            Utils.hide(finishBtn);
+            nextBtn.disabled = this.viewMode; // Блокуємо кнопку "Наступне" в режимі перегляду
+        }
+        
+        this.loadTaskAnswers(taskNumber);
+    }
+    
+    nextTask() {
+        if (this.viewMode) return;
+        
+        this.saveCurrentTaskAnswers();
+        
+        // Облік часу: додаємо витрачений час до загального часу
+        this.totalTimeSpent += (CONFIG.TASK_TIME - this.timeRemaining);
+        
+        if (this.currentTask < this.totalTasks) {
+            this.currentTask++;
+            this.timeRemaining = CONFIG.TASK_TIME; // Скидаємо таймер для нового завдання
+            this.showTask(this.currentTask);
+            this.startTimer();
+            Utils.showSuccess(`Перехід до завдання ${this.currentTask}`);
+        } else {
+            this.finishOlympiad();
         }
     }
 
-    showFullscreenWarning() {
-        const warning = document.getElementById('fullscreenWarning');
-        if (warning) {
-            warning.textContent = `Увага! Ви вийшли з повноекранного режиму ${this.fullscreenExitCount} разів. Після ${CONFIG.MAX_FULLSCREEN_EXITS} виходів тест буде автоматично завершено!`;
-            warning.style.display = 'block';
-            Utils.showNotification(`Вихід: ${this.fullscreenExitCount}/${CONFIG.MAX_FULLSCREEN_EXITS}. Тест призупинено.`, 'warning');
+    previousTask() {
+        if (this.currentTask > 1) {
+            // Зберігаємо відповіді, але не скидаємо таймер і не обліковуємо час (припускаємо, що учень повертається)
+            this.saveCurrentTaskAnswers();
+            this.currentTask--;
+            this.showTask(this.currentTask);
+            
+            // Якщо не в режимі перегляду, перезапускаємо таймер
+            if (!this.viewMode) this.startTimer(); 
         }
     }
-
-    forceFinish() {
-        this.isFinished = true;
-        this.stopTimer();
-        Utils.showNotification(`Тест примусово завершено! Перевищено ліміт виходів.`, 'error');
-        this.finishOlympiad(true);
+    
+    saveCurrentTaskAnswers() {
+        const answers = {};
+        const taskElement = Utils.getEl('taskContentContainer');
+        if (!taskElement) return;
+        
+        // Збір відповідей з усіх полів
+        taskElement.querySelectorAll('select, input, textarea').forEach(element => {
+            answers[element.id] = element.value.trim();
+        });
+        
+        this.answers[`task${this.currentTask}`] = answers;
     }
 
-    handleVisibilityChange() {
-        if (!this.isFinished) {
-            if (document.hidden) {
-                this.pauseTimer();
-                Utils.showNotification('Таймер призупинено. Поверніться на сторінку для продовження.', 'warning');
-            } else {
-                this.startTimer();
-                Utils.showSuccess('Продовжуємо олімпіаду.');
+    loadTaskAnswers(taskNumber) {
+        const savedAnswers = this.answers[`task${taskNumber}`] || {};
+        const taskElement = Utils.getEl('taskContentContainer');
+        
+        taskElement.querySelectorAll('select, input, textarea').forEach(element => {
+            if (savedAnswers[element.id]) element.value = savedAnswers[element.id];
+            
+            // Блокування в режимі перегляду
+            if (this.viewMode) { 
+                element.disabled = true; 
+                element.style.opacity = '0.7'; 
+                element.style.cursor = 'default';
+            } else { 
+                element.disabled = false; 
+                element.style.opacity = '1'; 
+                element.style.cursor = 'text';
             }
+        });
+
+        // Оновлення відображення таймера в режимі тесту
+        if (!this.viewMode) {
+             this.updateTimerDisplay();
+        } else {
+             // Сховати навігацію тесту та таймер в режимі перегляду
+             Utils.hide(Utils.getEl('timerDisplay'));
+             Utils.getEl('taskContentContainer').style.marginTop = '20px';
         }
     }
 
+    // --- Timer & Proctoring ---
     startTimer() {
+        if (this.isFinished || this.viewMode) return; // Не запускаємо таймер, якщо завершено або в режимі перегляду
+        
         this.stopTimer();
         this.timerInterval = setInterval(() => {
             if (this.timeRemaining > 0) {
                 this.timeRemaining--;
                 this.updateTimerDisplay();
             } else {
+                Utils.showWarning(`Час на завдання ${this.currentTask} вийшов.`);
                 this.nextTask();
             }
         }, 1000);
@@ -281,182 +484,147 @@ class OlympiadManager {
             this.timerInterval = null;
         }
     }
-
-    pauseTimer() { this.stopTimer(); }
-
+    
     updateTimerDisplay() {
-        const timerElement = document.getElementById('timer');
+        const timerElement = Utils.getEl('timerDisplay');
         if (timerElement) {
             timerElement.textContent = Utils.formatTime(this.timeRemaining);
             // Візуальні попередження
-            if (this.timeRemaining < 300 && this.timeRemaining >= 0) {
-                timerElement.classList.add('pulse', 'critical');
-            } else if (this.timeRemaining < 600) {
-                timerElement.classList.add('warning');
-            } else {
-                timerElement.classList.remove('pulse', 'critical', 'warning');
-            }
+            timerElement.classList.remove('critical', 'warning');
+            if (this.timeRemaining < 300) { timerElement.classList.add('critical'); } 
+            else if (this.timeRemaining < 600) { timerElement.classList.add('warning'); }
         }
     }
-
-    nextTask() {
-        this.saveCurrentTaskAnswers();
-        this.totalTimeSpent += (CONFIG.TASK_TIME - this.timeRemaining);
-        
-        if (this.currentTask < this.totalTasks) {
-            this.currentTask++;
-            this.timeRemaining = CONFIG.TASK_TIME; // Скидаємо таймер на повний час
-            this.showTask(this.currentTask);
-            this.startTimer();
-            Utils.showSuccess(`Перехід до завдання ${this.currentTask}`);
-        } else {
-            this.finishOlympiad();
-        }
-    }
-
-    showTask(taskNumber) {
-        if (this.isFinished && !this.viewMode) return;
-        
-        this.currentTask = taskNumber;
-        
-        document.querySelectorAll('.task-section').forEach(task => { 
-            task.style.display = 'none';
-            task.classList.remove('active');
-        });
-        const currentTaskElement = document.getElementById(`task${taskNumber}`);
-        if (currentTaskElement) {
-            currentTaskElement.style.display = 'block';
-            currentTaskElement.classList.add('active');
-        }
-        
-        this.updateNavigation(taskNumber);
-        this.loadTaskAnswers(taskNumber);
-    }
-
-    updateNavigation(taskNumber) {
-        const prevBtn = document.getElementById('prevBtn');
-        const nextBtn1 = document.getElementById('nextBtn1');
-        const nextBtn2 = document.getElementById('nextBtn2');
-        const finishBtn = document.getElementById('finishBtn');
-
-        // Глобальна кнопка "Назад" у верхньому блоці
-        if (prevBtn) {
-            prevBtn.style.display = taskNumber > 1 ? 'block' : 'none';
-        }
-
-        // Управління кнопками "Далі/Назад" у нижніх блоках
-        document.getElementById('task1Controls').style.display = taskNumber === 1 ? 'flex' : 'none';
-        document.getElementById('task2Controls').style.display = taskNumber === 2 ? 'flex' : 'none';
-        document.getElementById('task3Controls').style.display = taskNumber === 3 ? 'flex' : 'none';
-        
-        // Кнопка Завершити
-        if (finishBtn) {
-            finishBtn.textContent = this.viewMode ? 'Завершити перегляд' : 'Завершити олімпіаду';
-        }
-        
-        // У режимі перегляду блокуємо кнопку "Далі" і показуємо лише "Назад"
-        if (this.viewMode) {
-            document.querySelectorAll('.task-controls button').forEach(btn => {
-                if (btn.id.startsWith('nextBtn') || btn.id === 'finishBtn') {
-                    btn.style.display = 'none';
-                }
-            });
-            prevBtn.style.display = taskNumber > 1 ? 'block' : 'none';
-            this.addBackToResultsButton(); // Додаємо кнопку повернення
-        }
-    }
-
-    previousTask() {
-        if (this.currentTask > 1) {
-            this.saveCurrentTaskAnswers();
-            this.currentTask--;
-            this.showTask(this.currentTask);
-        }
-    }
-
-    saveCurrentTaskAnswers() {
-        this.answers[`task${this.currentTask}`] = this.getTaskAnswers(this.currentTask);
-    }
-
-    loadTaskAnswers(taskNumber) {
-        const savedAnswers = this.answers[`task${taskNumber}`] || {};
-        const taskElement = document.getElementById(`task${taskNumber}`);
-        if (!taskElement) return;
-
-        taskElement.querySelectorAll('select, input, textarea').forEach(element => {
-            const id = element.id;
-            if (savedAnswers[id]) element.value = savedAnswers[id];
-            
-            // Блокування в режимі перегляду
-            if (this.viewMode) {
-                element.disabled = true;
-                element.style.opacity = '0.7';
-                element.style.cursor = 'not-allowed';
-            } else {
-                element.disabled = false;
-                element.style.opacity = '1';
-                element.style.cursor = 'auto';
-            }
-        });
-    }
-
-    getTaskAnswers(taskNumber) {
-        const answers = {};
-        const taskElement = document.getElementById(`task${taskNumber}`);
-        if (!taskElement) return answers;
-        taskElement.querySelectorAll('select, input, textarea').forEach(element => {
-            answers[element.id] = element.value.trim();
-        });
-        return answers;
-    }
-
-
+    
     enterFullscreen() {
-        if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
-            document.documentElement.requestFullscreen().catch(error => {
-                Utils.showNotification('Неможливо увійти в повноекранний режим. Продовжуйте роботу.', 'warning');
-            });
+        // Додаємо слухачі для прокторингу
+        document.addEventListener('fullscreenchange', this.handleFullscreenChange.bind(this));
+        document.addEventListener('visibilitychange', this.handleVisibilityChange.bind(this));
+        
+        // Запит на повноекранний режим
+        if (document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen().catch(e => Utils.showWarning('Для початку олімпіади рекомендується увійти в повноекранний режим.'));
         }
     }
 
-    finishOlympiad(forced = false) {
-        if (this.isFinished && !this.viewMode) return;
-        
-        if (this.viewMode) {
-            this.viewMode = false;
-            this.showResults(); // Повернення до результатів
-            Utils.showSuccess('Перегляд завершено.');
-            return;
-        }
+    handleFullscreenChange() {
+        if (this.isFinished || this.viewMode) return;
 
+        if (!document.fullscreenElement) { 
+            this.handleFullscreenExit(); 
+        } else {
+            // Повернення до повноекрану
+            const warning = Utils.getEl('fullscreenWarning');
+            warning.textContent = '';
+            Utils.hide(warning);
+            this.startTimer();
+        }
+    }
+
+    handleVisibilityChange() {
+        if (this.isFinished || this.viewMode) return;
+        
+        if (document.hidden) {
+             this.stopTimer();
+             Utils.showWarning('Тест призупинено. Не перемикайте вкладки/додатки.');
+        } else {
+             this.startTimer();
+             Utils.showSuccess('Тест відновлено.');
+        }
+    }
+
+    handleFullscreenExit() {
+        this.fullscreenExitCount++;
+        this.stopTimer();
+        
+        const warning = Utils.getEl('fullscreenWarning');
+        Utils.show(warning);
+        warning.textContent = `Увага! Ви вийшли з повноекранного режиму ${this.fullscreenExitCount} разів. Тест призупинено.`;
+        
+        if (this.fullscreenExitCount >= CONFIG.MAX_FULLSCREEN_EXITS) {
+            this.forceFinish();
+        } else {
+            // Спроба повернути у повноекранний режим через 2 секунди
+            setTimeout(() => { 
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen().catch(() => {});
+                }
+            }, 2000);
+            
+            // Якщо не вдалося увійти, попереджаємо і чекаємо наступної дії користувача
+        }
+    }
+    
+    forceFinish() {
+        this.isFinished = true;
+        this.stopTimer();
+        Utils.getEl('fullscreenWarning').textContent = 'ТЕСТ ПРИМУСОВО ЗАВЕРШЕНО! Перевищено ліміт виходів.';
+        this.finishOlympiad(true);
+    }
+
+    // --- Results & Scoring ---
+    calculateScore() {
+        let score = 0;
+        const answers = this.answers;
+        
+        // Завдання 1 (12 балів - точна відповідність)
+        if (answers.task1) {
+            Object.keys(CONFIG.CORRECT_ANSWERS.task1).forEach(key => {
+                const userAnswer = answers.task1[key];
+                const correctAnswer = CONFIG.CORRECT_ANSWERS.task1[key];
+                if (userAnswer && userAnswer.toLowerCase() === correctAnswer.toLowerCase()) { score += 1; }
+            });
+        }
+        
+        // Завдання 2 (6 балів за вибір - точна відповідність)
+        if (answers.task2) {
+            Object.keys(CONFIG.CORRECT_ANSWERS.task2).forEach(id => {
+                const userAnswer = answers.task2[id];
+                const correctAnswer = CONFIG.CORRECT_ANSWERS.task2[id];
+                if (userAnswer && userAnswer.toUpperCase() === correctAnswer.toUpperCase()) { score += 1; }
+            });
+            // Завдання 2 (6 балів за коротку відповідь - перевірка лише на наявність тексту)
+            const shortAnswers = ['r2q1', 'r2q3', 'r2q5', 'r2q7', 'r2q9', 'r2q11'];
+            shortAnswers.forEach(id => {
+                if (answers.task2[id] && answers.task2[id].trim().length > 2) { score += 1; }
+            });
+        }
+        
+        // Завдання 3 (10 балів - перевірка лише на наявність тексту)
+        if (answers.task3) {
+            for (let i = 1; i <= 10; i++) {
+                const key = `t3q${i}`;
+                if (answers.task3[key] && answers.task3[key].trim().length > 10) { score += 1; }
+            }
+        }
+        
+        return Math.min(score, CONFIG.MAX_SCORE);
+    }
+    
+    finishOlympiad(forced = false) {
+        if (this.isFinished) return;
         this.isFinished = true;
         this.stopTimer();
         this.saveCurrentTaskAnswers();
         
-        if (document.fullscreenElement) { document.exitFullscreen().catch(console.log); }
+        // Вихід з повноекранного режиму при завершенні
+        if (document.fullscreenElement) { document.exitFullscreen().catch(() => {}); }
         
         this.saveResults(forced);
-        this.showResults();
-        
-        if (!forced) {
-            Utils.showSuccess('Олімпіаду завершено! Результати збережено. 🎉');
-        }
+        this.displayResults();
     }
 
     saveResults(forced = false) {
-        const currentUser = DataStorage.getCurrentUser();
-        if (!currentUser) return;
-
+        // Якщо це останнє завдання і час ще залишився, додаємо його до загального часу
+        if (!forced && this.currentTask === this.totalTasks && this.timeRemaining > 0) {
+            this.totalTimeSpent += (CONFIG.TASK_TIME - this.timeRemaining);
+        }
+        
         const progress = DataStorage.getProgress();
         const score = this.calculateScore();
         const score12 = Utils.calculate12PointScore(score, CONFIG.MAX_SCORE);
         
-        // Якщо не примусове завершення і це останнє завдання, додаємо час, що залишився
-        if (!forced) {
-            this.totalTimeSpent += (CONFIG.TASK_TIME - this.timeRemaining);
-        }
-
-        progress[currentUser.id] = {
+        progress[this.currentUser.id] = {
             completed: true,
             timestamp: new Date().toISOString(),
             timeSpent: this.totalTimeSpent,
@@ -467,113 +635,33 @@ class OlympiadManager {
             forced: forced
         };
         DataStorage.saveProgress(progress);
+        this.progress = progress[this.currentUser.id];
     }
-
-    calculateScore() {
-        let score = 0;
-        const answers = this.answers;
-
-        // Завдання 1: Lexical (12 балів) - Точна відповідність
-        if (answers.task1) {
-            Object.keys(CONFIG.CORRECT_ANSWERS.task1).forEach(key => {
-                const userAnswer = answers.task1[key];
-                const correctAnswer = CONFIG.CORRECT_ANSWERS.task1[key];
-                if (userAnswer && userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
-                    score += 1;
-                }
-            });
-        }
-        
-        // Завдання 2: Reading (12 балів)
-        if (answers.task2) {
-            // MC (6 питань) - Точна відповідність
-            Object.keys(CONFIG.CORRECT_ANSWERS.task2).forEach(id => {
-                const userAnswer = answers.task2[id];
-                const correctAnswer = CONFIG.CORRECT_ANSWERS.task2[id];
-                if (userAnswer && userAnswer.toUpperCase() === correctAnswer.toUpperCase()) {
-                    score += 1;
-                }
-            });
-            // Short Answers (6 питань) - Перевірка лише на наявність відповіді (мінімум 3 символи)
-            const shortAnswers = ['r2q1', 'r2q3', 'r2q5', 'r2q7', 'r2q9', 'r2q11'];
-            shortAnswers.forEach(id => {
-                if (answers.task2[id] && answers.task2[id].trim().length > 2) {
-                    score += 1;
-                }
-            });
-        }
-        
-        // Завдання 3: Key Word Transformation (10 балів) - Перевірка лише на наявність відповіді (мінімум 10 символів)
-        if (answers.task3) {
-            for (let i = 1; i <= 10; i++) {
-                const key = `t3q${i}`;
-                if (answers.task3[key] && answers.task3[key].trim().length > 10) {
-                    score += 1;
-                }
-            }
-        }
-        
-        return Math.min(score, CONFIG.MAX_SCORE);
-    }
-
-    showResults() {
-        const resultsScreen = document.getElementById('resultsScreen');
-        const tasksContainer = document.getElementById('tasks');
-        
-        if (resultsScreen && tasksContainer) {
-            tasksContainer.style.display = 'none';
-            document.getElementById('intro').style.display = 'none';
-            resultsScreen.style.display = 'block';
-            resultsScreen.classList.add('fade-in');
-            this.displayResults();
-        }
-    }
-
+    
     displayResults() {
-        const resultsContent = document.getElementById('resultsContent');
-        const currentUser = DataStorage.getCurrentUser();
-        const progress = DataStorage.getProgress();
-        const userProgress = progress[currentUser.id] || {score: 0, score12: 0, timeSpent: 0, fullscreenExits: 0, timestamp: new Date().toISOString(), forced: false};
+        Utils.hide(Utils.getEl('studentTasks'));
+        Utils.hide(Utils.getEl('studentIntro'));
+        Utils.show(Utils.getEl('studentResults'));
         
-        if (!resultsContent) return;
+        const userProgress = this.progress;
+        const resultsContent = Utils.getEl('resultsContent');
         
         const forcedMessage = userProgress.forced 
-            ? '<p style="color: var(--danger); font-weight: bold; margin-bottom: 10px;">🔴 Тест був примусово завершений через порушення правил (виходи з повноекрану).</p>' 
+            ? '<p style="color: var(--danger); font-weight: bold; margin-bottom: 10px;">🔴 Тест був примусово завершений через порушення правил (перевищено ліміт виходів з повноекрану).</p>' 
             : '';
 
         resultsContent.innerHTML = `
             <div class="header-section">
                 <div class="logo">🎉</div>
-                <h1>${userProgress.forced ? 'Примусове завершення!' : 'Олімпіаду завершено!'}</h1>
+                <h1>Олімпіаду завершено!</h1>
                 <p class="subtitle">Ваші результати збережено в системі</p>
             </div>
             ${forcedMessage}
             <div class="stats-grid" style="margin: 40px 0;">
-                <div class="stat-card glass-card">
-                    <div class="stat-number">${userProgress.score}/${CONFIG.MAX_SCORE}</div>
-                    <div class="stat-label">Сирі бали</div>
-                </div>
-                <div class="stat-card glass-card">
-                    <div class="stat-number">${userProgress.score12}/12</div>
-                    <div class="stat-label">12-бальна система</div>
-                </div>
-                <div class="stat-card glass-card">
-                    <div class="stat-number">${Utils.formatTime(userProgress.timeSpent)}</div>
-                    <div class="stat-label">Витрачено часу</div>
-                </div>
-                <div class="stat-card glass-card">
-                    <div class="stat-number">${userProgress.fullscreenExits}</div>
-                    <div class="stat-label">Виходи з повноекрану</div>
-                </div>
-            </div>
-            <div class="glass-card" style="padding: 30px; margin-bottom: 25px;">
-                <h3 style="color: var(--accent); margin-bottom: 20px; text-align: center;">📊 Детальна інформація</h3>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                    <div><strong>👤 Учень:</strong> ${currentUser.name}</div>
-                    <div><strong>🏫 Клас:</strong> ${currentUser.class}</div>
-                    <div><strong>🔢 Номер учня:</strong> <span style="font-weight: bold; color: var(--primary);">${currentUser.studentNumber}</span></div>
-                    <div><strong>📅 Дата завершення:</strong> ${new Date(userProgress.timestamp).toLocaleString('uk-UA')}</div>
-                </div>
+                <div class="stat-card glass-card"><div class="stat-number">${userProgress.score}/${CONFIG.MAX_SCORE}</div><div class="stat-label">Сирі бали</div></div>
+                <div class="stat-card glass-card"><div class="stat-number">${userProgress.score12}/12</div><div class="stat-label">12-бальна система</div></div>
+                <div class="stat-card glass-card"><div class="stat-number">${Utils.formatTime(userProgress.timeSpent)}</div><div class="stat-label">Витрачено часу</div></div>
+                <div class="stat-card glass-card"><div class="stat-number">${userProgress.fullscreenExits}</div><div class="stat-label">Виходи з повноекрану</div></div>
             </div>
             <div style="text-align: center; margin: 30px 0;">
                 <button id="viewAnswersBtn" class="btn-primary" style="padding: 15px 30px; font-size: 1.1rem;">
@@ -587,325 +675,310 @@ class OlympiadManager {
             </div>
         `;
 
-        document.getElementById('viewAnswersBtn').addEventListener('click', () => { this.enableViewMode(); });
-        document.getElementById('backToHomeBtn').addEventListener('click', () => { window.location.href = 'index.html'; });
-    }
-
-    enableViewMode() {
-        this.viewMode = true;
-        document.getElementById('tasks').style.display = 'block';
-        document.getElementById('resultsScreen').style.display = 'none';
-        
-        this.showTask(1);
-        this.addBackToResultsButton();
-        Utils.showNotification('Режим перегляду. Всі поля заблоковано.', 'info');
-    }
-
-    addBackToResultsButton() {
-        const taskNavigation = document.querySelector('.task-navigation');
-        let backBtn = document.getElementById('backToResultsBtn');
-        
-        if (taskNavigation && !backBtn) {
-            // Створюємо кнопку, якщо її немає
-            backBtn = document.createElement('button');
-            backBtn.id = 'backToResultsBtn';
-            backBtn.textContent = '← До результатів';
-            backBtn.className = 'btn-secondary';
-            backBtn.style.padding = '10px 15px';
-            
-            // Знаходимо контейнер для кнопок навігації в Task Navigation
-            const controlsContainer = taskNavigation.querySelector('div:last-child');
-            if (controlsContainer) {
-                 // Вставляємо кнопку перед іншими елементами
-                controlsContainer.prepend(backBtn);
-            }
-        }
-        
-        if (backBtn) {
-            // Призначаємо обробник, якщо він ще не призначений
-            backBtn.onclick = () => {
-                this.viewMode = false;
-                this.showResults();
-            };
-            backBtn.style.display = 'block';
-        }
+        Utils.getEl('viewAnswersBtn').addEventListener('click', () => { 
+            this.viewMode = true;
+            Utils.getEl('studentTasks').classList.add('view-mode'); // Додаємо клас для стилів перегляду
+            Utils.hide(Utils.getEl('studentResults'));
+            Utils.show(Utils.getEl('studentTasks'));
+            this.showTask(1);
+        });
+        Utils.getEl('backToHomeBtn').addEventListener('click', () => { 
+            DataStorage.clearCurrentUser();
+            Utils.getEl('studentTasks').classList.remove('view-mode');
+            this.router.renderView('main');
+        });
     }
 }
 
 // 🚀 Головний клас додатку
 class EnglishOlympiadApp {
     constructor() {
+        this.router = new OlympiadRouter();
         this.olympiadManager = null;
     }
 
     init() {
-        this.checkCurrentPage();
-        this.setupGlobalEventListeners();
-        console.log('🎯 English Olympiad App initialized');
+        this.setupEventListeners();
+        this.checkAuthStatus();
+        document.body.classList.add('fade-in');
     }
-
-    checkCurrentPage() {
-        const path = window.location.pathname;
-        if (path.includes('admin.html')) {
-            this.initAdminPage();
-        } else if (path.includes('student.html')) {
-            this.initStudentPage();
-        } else if (path.includes('index.html') || path === '/') {
-            this.initMainPage();
+    
+    checkAuthStatus() {
+        if (DataStorage.isAdminAuthenticated()) {
+            this.router.renderView('adminApp');
+            this.initAdminApp();
+        } else if (DataStorage.getCurrentUser()) {
+            this.router.renderView('studentApp');
+            this.initStudentApp();
+        } else {
+            this.router.renderView('main');
         }
     }
 
-    setupGlobalEventListeners() {
-        // Додаємо анімацію появи тіла
-        document.body.classList.add('fade-in');
-        this.addRippleEffects(document.body);
-    }
-
-    initMainPage() {
-        this.setupModeSelection();
-        this.setupLoginForms();
-    }
-
-    addRippleEffects(container) {
-        container.querySelectorAll('button, .mode-card').forEach(element => {
-            // Уникаємо подвійного додавання обробників
-            if (element.hasAttribute('data-ripple-setup')) return;
-            
-            element.addEventListener('click', (e) => {
+    setupEventListeners() {
+        // --- Main View & Login ---
+        Utils.getEl('mainView').addEventListener('click', (e) => {
+            const button = e.target.closest('button');
+            if (button) {
                 Utils.createRipple(e);
-            });
-            element.setAttribute('data-ripple-setup', 'true');
-        });
-    }
-
-    // 💡 ФІНАЛЬНИЙ ФІКС: Обробник кліку на кнопки всередині .mode-card
-    setupModeSelection() {
-        document.querySelectorAll('.mode-card button').forEach(button => {
-            // Використовуємо data-mode, прив'язаний до кнопки, щоб уникнути помилок
-            button.addEventListener('click', (e) => {
-                e.preventDefault(); // !!! Запобігаємо небажаній навігації (вирішує ERR_NAME_NOT_RESOLVED)
-                
-                const mode = button.getAttribute('data-mode');
-                if (mode) {
-                    this.showLoginForm(mode);
-                } else {
-                    console.error("Кнопка не має data-mode атрибуту.");
-                }
-            });
-        });
-    }
-
-    setupLoginForms() {
-        document.getElementById('studentLoginBtn').addEventListener('click', () => { this.handleStudentLogin(); });
-        document.getElementById('adminLoginBtn').addEventListener('click', () => { this.handleAdminLogin(); });
-        document.getElementById('backFromStudentBtn').addEventListener('click', () => { this.showMainMenu(); });
-        document.getElementById('backFromAdminBtn').addEventListener('click', () => { this.showMainMenu(); });
-        
-        // Enter key listeners
-        document.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                if (document.getElementById('studentLogin').style.display === 'block') {
-                    this.handleStudentLogin();
-                } else if (document.getElementById('adminLogin').style.display === 'block') {
-                    this.handleAdminLogin();
+                if (button.dataset.mode) {
+                    this.showLoginForm(button.dataset.mode);
+                } else if (button.dataset.action === 'backToMain') {
+                    this.showMainMenu();
                 }
             }
         });
-    }
-
-    showMainMenu() {
-        document.getElementById('modeSelector').style.display = 'flex'; // grid
-        document.getElementById('studentLogin').style.display = 'none';
-        document.getElementById('adminLogin').style.display = 'none';
-    }
-
-    showLoginForm(mode) {
-        const modeSelector = document.getElementById('modeSelector');
-        const studentLogin = document.getElementById('studentLogin');
-        const adminLogin = document.getElementById('adminLogin');
         
-        if (!modeSelector || !studentLogin || !adminLogin) {
-            console.error("Критична помилка DOM: Не знайдено елементи. Перевірте index.html!");
-            return;
-        }
-
-        modeSelector.style.display = 'none';
+        Utils.getEl('studentLoginForm').addEventListener('submit', (e) => { 
+            e.preventDefault(); 
+            this.handleStudentLogin(); 
+        });
+        
+        Utils.getEl('adminLoginForm').addEventListener('submit', (e) => { 
+            e.preventDefault(); 
+            this.handleAdminLogin(); 
+        });
+    }
+    
+    showLoginForm(mode) {
+        Utils.hide(Utils.getEl('modeSelector'));
+        Utils.hide(Utils.getEl('studentLogin'));
+        Utils.hide(Utils.getEl('adminLogin'));
         
         if (mode === 'student') {
-            studentLogin.style.display = 'block';
-            adminLogin.style.display = 'none';
-            document.getElementById('studentLoginInput').focus();
+            Utils.show(Utils.getEl('studentLogin'));
+            Utils.getEl('studentLoginInput').focus();
         } else {
-            adminLogin.style.display = 'block';
-            studentLogin.style.display = 'none';
-            document.getElementById('adminLoginInput').focus();
+            Utils.show(Utils.getEl('adminLogin'));
+            Utils.getEl('adminLoginInput').focus();
         }
     }
+    
+    showMainMenu() {
+        Utils.show(Utils.getEl('modeSelector'));
+        Utils.hide(Utils.getEl('studentLogin'));
+        Utils.hide(Utils.getEl('adminLogin'));
+    }
 
+    // --- Authentication Handlers ---
     handleStudentLogin() {
-        const login = document.getElementById('studentLoginInput').value.trim();
-        const password = document.getElementById('studentPasswordInput').value.trim();
+        const login = Utils.getEl('studentLoginInput').value.trim();
+        const password = Utils.getEl('studentPasswordInput').value.trim();
         
-        if (!login || !password) { Utils.showError('studentError', 'Будь ласка, заповніть всі обов\'язкові поля'); return; }
+        const user = DataStorage.getUsers().find(u => u.login === login && u.password === password);
         
-        const users = DataStorage.getUsers();
-        const user = users.find(u => u.login === login && u.password === password);
         if (user) {
             DataStorage.setCurrentUser(user);
-            Utils.showSuccess(`Ласкаво просимо, ${user.name}!`);
-            setTimeout(() => { window.location.href = 'student.html'; }, 800);
+            this.router.renderView('studentApp');
+            this.initStudentApp();
         } else {
-            Utils.showError('studentError', 'Невірний логін або пароль');
+            Utils.showError('studentError', 'Невірний логін або пароль.');
         }
     }
 
     handleAdminLogin() {
-        const login = document.getElementById('adminLoginInput').value.trim();
-        const password = document.getElementById('adminPasswordInput').value.trim();
-        const codeWord = document.getElementById('adminCodeWord').value.trim();
+        const login = Utils.getEl('adminLoginInput').value.trim();
+        const password = Utils.getEl('adminPasswordInput').value.trim();
+        const codeWord = Utils.getEl('adminCodeWord').value.trim();
         
-        if (login === CONFIG.ADMIN_LOGIN && 
-            password === CONFIG.ADMIN_PASSWORD && 
-            codeWord === CONFIG.ADMIN_CODE_WORD) {
-            
+        if (login === CONFIG.ADMIN_LOGIN && password === CONFIG.ADMIN_PASSWORD && codeWord === CONFIG.ADMIN_CODE_WORD) {
             DataStorage.setAdminAuthenticated(true);
-            Utils.showSuccess('Адмін панель завантажується...');
-            
-            setTimeout(() => { window.location.href = 'admin.html'; }, 800);
+            this.router.renderView('adminApp');
+            this.initAdminApp();
+            Utils.showSuccess('Вхід в адмін-панель успішний!');
         } else {
-            Utils.showError('adminError', 'Неавторизований доступ. Перевірте облікові дані.');
+            Utils.showError('adminError', 'Неавторизований доступ. Перевірте облікові дані та кодове слово.');
         }
     }
 
-    initAdminPage() {
-        if (!DataStorage.isAdminAuthenticated()) {
-            window.location.href = 'index.html';
-            return;
-        }
-        this.setupAdminPanel();
-    }
+    // --- Student App Initialization ---
+    initStudentApp() {
+        const currentUser = DataStorage.getCurrentUser();
+        Utils.getEl('studentNameDisplay').textContent = `Користувач: ${currentUser.name}`;
 
-    setupAdminPanel() {
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', (e) => { this.switchAdminTab(tab.getAttribute('data-tab')); });
-        });
-        document.getElementById('createUserBtn').addEventListener('click', () => { this.createUser(); });
-        document.getElementById('userSearch').addEventListener('input', (e) => { this.filterUsers(e.target.value); });
-        document.getElementById('adminLogoutBtn').addEventListener('click', () => {
-            DataStorage.setAdminAuthenticated(false);
-            window.location.href = 'index.html';
+        const progress = DataStorage.getProgress()[currentUser.id];
+        
+        // Відображення інформації про учня
+        const infoHtml = `
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; text-align: center;">
+                <div><span style="font-size: 2.5rem;">🏫</span><div style="font-weight: 700;">${currentUser.class} клас</div></div>
+                <div><span style="font-size: 2.5rem;">🔢</span><div style="font-weight: 700; color: var(--accent);">${currentUser.studentNumber || 'N/A'}</div></div>
+                <div><span style="font-size: 2.5rem;">📊</span><div style="font-weight: 700; color: ${progress && progress.completed ? 'var(--success)' : 'var(--warning)'};">${progress && progress.completed ? 'ЗАВЕРШЕНО' : 'ОЧІКУЄ'}</div></div>
+            </div>
+        `;
+        Utils.getEl('introUserInfo').innerHTML = infoHtml;
+        Utils.getEl('introUserName').textContent = currentUser.name.split(' ')[0] || 'Учень';
+        
+        Utils.getEl('studentLogoutBtn').addEventListener('click', () => {
+            DataStorage.clearCurrentUser();
+            this.router.renderView('main');
         });
         
-        this.updateUsersList();
+        Utils.getEl('startOlympiadBtn').addEventListener('click', () => {
+            this.olympiadManager = new OlympiadManager(this.router);
+            this.olympiadManager.startOlympiad();
+        });
+
+        // Показуємо інтро або результати, якщо вже завершено
+        if (progress && progress.completed) {
+            this.olympiadManager = new OlympiadManager(this.router); 
+            Utils.hide(Utils.getEl('studentIntro'));
+            this.olympiadManager.displayResults();
+        } else {
+            Utils.show(Utils.getEl('studentIntro'));
+            Utils.hide(Utils.getEl('studentTasks'));
+            Utils.hide(Utils.getEl('studentResults'));
+        }
+    }
+    
+    // --- Admin App Initialization ---
+    initAdminApp() {
         this.updateStats();
-        // Робимо глобальною функцію видалення для onclick
-        window.app.deleteUser = this.deleteUser.bind(this);
+        this.updateUsersList();
+        this.updateResultsTable();
+        
+        Utils.getEl('adminLogoutBtn').addEventListener('click', () => {
+            DataStorage.setAdminAuthenticated(false);
+            this.router.renderView('main');
+        });
+        
+        document.querySelectorAll('.tabs .tab').forEach(tab => {
+            tab.addEventListener('click', (e) => { this.switchAdminTab(e.target.dataset.tab); });
+        });
+        
+        Utils.getEl('createUserForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.createUser();
+        });
+        
+        Utils.getEl('userSearch').addEventListener('input', (e) => { this.filterUsers(e.target.value); });
     }
 
     switchAdminTab(tabName) {
         document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-        document.querySelectorAll('.panel').forEach(panel => panel.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach(panel => Utils.hide(panel));
         
-        const activeTab = document.querySelector(`.tab[data-tab="${tabName}"]`);
-        const activePanel = document.getElementById(`${tabName}Panel`);
-        
-        if (activeTab) activeTab.classList.add('active');
-        if (activePanel) activePanel.classList.add('active');
+        document.querySelector(`.tab[data-tab="${tabName}"]`).classList.add('active');
+        Utils.show(Utils.getEl(`${tabName}Panel`));
         
         if (tabName === 'users') this.updateUsersList();
-        if (tabName === 'stats') this.updateStats();
+        if (tabName === 'stats') {
+            this.updateStats();
+            this.updateResultsTable();
+        }
     }
 
     createUser() {
-        const name = document.getElementById('newUserName').value.trim();
-        const studentClass = document.getElementById('newUserClass').value;
-        const group = document.getElementById('newUserGroup').value.trim();
+        const name = Utils.getEl('newUserName').value.trim();
+        const studentClass = Utils.getEl('newUserClass').value;
         
-        if (!name || !studentClass) { Utils.showNotification('Будь ласка, введіть ім\'я та клас учня', 'warning'); return; }
-        
+        if (!name) {
+            Utils.showNotification('Будь ласка, введіть ПІБ учня.', 'error');
+            return;
+        }
+
         const login = Utils.generateLogin(name);
         const password = Utils.generatePassword();
         
-        const newUser = { id: Date.now(), name, class: studentClass, group: group || '', login, password, studentNumber: null, created: new Date().toLocaleString('uk-UA') };
+        // Використовуємо Date.now() як унікальний ID
+        const newUser = { id: Date.now(), name, class: studentClass, login, password, studentNumber: null };
         const users = DataStorage.getUsers();
         users.push(newUser);
         
         if (DataStorage.saveUsers(users)) {
             this.showCreatedCredentials(newUser);
-            document.getElementById('newUserName').value = '';
-            document.getElementById('newUserGroup').value = '';
+            Utils.getEl('createUserForm').reset();
             this.updateStats();
+            this.updateUsersList();
             Utils.showSuccess('Користувача створено успішно!');
-        } else {
-            Utils.showNotification('Помилка при створенні користувача', 'error');
         }
     }
-
+    
     showCreatedCredentials(user) {
-        const credentialsBox = document.getElementById('createdCredentials');
-        const credentialsInfo = document.getElementById('credentialsInfo');
-        if (!credentialsBox || !credentialsInfo) return;
+        const credentialsBox = Utils.getEl('createdCredentials');
+        const credentialsInfo = Utils.getEl('credentialsInfo');
             
         credentialsInfo.innerHTML = `
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                <div><strong>Ім'я:</strong> ${user.name}</div>
-                <div><strong>Клас:</strong> ${user.class}</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0;">
                 <div><strong>Логін:</strong> <code>${user.login}</code></div>
                 <div><strong>Пароль:</strong> <code>${user.password}</code></div>
             </div>
+            <p><strong>Ім'я:</strong> ${user.name} | <strong>Клас:</strong> ${user.class}</p>
         `;
-        credentialsBox.style.display = 'block';
+        Utils.show(credentialsBox);
         
-        const copyBtn = document.getElementById('copyCredentialsBtn');
-        if (copyBtn) {
-            copyBtn.onclick = () => {
-                const text = `Ім'я: ${user.name}\nКлас: ${user.class}\nЛогін: ${user.login}\nПароль: ${user.password}\n\nНомер учня буде присвоєний автоматично при першому вході.`;
-                navigator.clipboard.writeText(text);
-                Utils.showSuccess('Дані скопійовано в буфер обміну');
-            };
-        }
+        Utils.getEl('copyCredentialsBtn').onclick = () => {
+            // Копіювання у буфер обміну
+            navigator.clipboard.writeText(`Логін: ${user.login}, Пароль: ${user.password}`);
+            Utils.showSuccess('Дані скопійовано.');
+        };
     }
+    
+    updateStats() {
+        const users = DataStorage.getUsers();
+        const progress = DataStorage.getProgress();
+        const completedCount = Object.values(progress).filter(p => p.completed).length;
 
+        const stats = {
+            totalUsers: users.length,
+            // Активні - ті, хто отримав номер учня (тобто коли вони вперше увійшли)
+            activeUsers: users.filter(u => u.studentNumber !== null).length, 
+            completedUsers: completedCount,
+            class10Users: users.filter(u => u.class == 10).length // Приклад
+        };
+        Object.entries(stats).forEach(([id, value]) => {
+            const element = Utils.getEl(id);
+            if (element) { element.textContent = value; }
+        });
+    }
+    
     updateUsersList(users = DataStorage.getUsers()) {
-        const container = document.getElementById('usersListContainer');
+        const container = Utils.getEl('usersListContainer');
+        const progress = DataStorage.getProgress();
         if (!container) return;
         
         if (users.length === 0) {
-            container.innerHTML = `<div class="glass-card" style="text-align: center; padding: 50px; color: var(--text-secondary);"><div style="font-size: 4rem; margin-bottom: 20px;">📝</div><h3 style="margin-bottom: 15px; color: var(--text-primary);">Користувачів ще не створено</h3><p>Створіть першого користувача у вкладці "Створити користувача"</p></div>`;
-            return;
+             container.innerHTML = `<div class="glass-card" style="padding: 30px; text-align: center; color: var(--text-secondary);">Користувачів ще немає.</div>`;
+             return;
         }
-        
-        const header = `
-            <div class="user-item header">
-                <div>Ім'я</div>
-                <div>Клас</div>
-                <div>Номер учня</div>
-                <div>Логін</div>
-                <div>Пароль</div>
-                <div>Статус</div>
-                <div>Дії</div>
-            </div>
-        `;
+
+        const header = `<div class="user-item header"><div>Ім'я</div><div>Клас</div><div>Номер</div><div>Логін</div><div>Статус</div><div>Дії</div></div>`;
         
         const listItems = users.map(user => {
-            const progress = DataStorage.getProgress()[user.id];
-            const resultScore = progress ? ` (${progress.score12}/12)` : '';
+            const userProgress = progress[user.id];
+            
+            let status = 'НЕАКТИВНИЙ';
+            let statusClass = 'danger';
+            
+            if (user.studentNumber) {
+                 status = 'АКТИВНИЙ';
+                 statusClass = 'warning';
+            }
+            if (userProgress && userProgress.completed) {
+                status = 'ЗАВЕРШЕНО';
+                statusClass = 'success';
+            }
+
             return `
                 <div class="user-item glass-card">
                     <div>${user.name}</div>
                     <div>${user.class}</div>
-                    <div>${user.studentNumber ? `<span class="student-number-badge">${user.studentNumber}</span>` : '<span class="status-badge inactive">НЕАКТИВНО</span>'}</div>
+                    <div class="student-number-badge">${user.studentNumber || 'N/A'}</div>
                     <div><code>${user.login}</code></div>
-                    <div><code>${user.password}</code></div>
-                    <div>${user.studentNumber ? `<span class="status-badge active">АКТИВНИЙ${resultScore}</span>` : '<span class="status-badge inactive">НЕАКТИВНИЙ</span>'}</div>
-                    <div><button class="btn-danger" onclick="app.deleteUser(${user.id})">🗑️ Видалити</button></div>
+                    <div class="status-badge ${statusClass}">${status}</div>
+                    <div>
+                        <button class="btn-danger btn-small" onclick="app.deleteUser(${user.id})">🗑️</button>
+                    </div>
                 </div>
             `;
         }).join('');
         
         container.innerHTML = header + listItems;
+        // Робимо глобальною функцію видалення для onclick
+        window.app = window.app || {};
+        window.app.deleteUser = this.deleteUser.bind(this);
     }
-
+    
     filterUsers(searchTerm) {
         const users = DataStorage.getUsers();
         const term = searchTerm.toLowerCase();
@@ -918,109 +991,85 @@ class EnglishOlympiadApp {
     }
 
     deleteUser(userId) {
-        if (confirm('Ви впевнені, що хочете видалити цього користувача? Це призведе до видалення його результатів.')) {
-            const users = DataStorage.getUsers();
-            const updatedUsers = users.filter(user => user.id !== userId);
-            
-            const progress = DataStorage.getProgress();
-            delete progress[userId]; 
-
-            if (DataStorage.saveUsers(updatedUsers) && DataStorage.saveProgress(progress)) {
-                this.updateUsersList();
-                this.updateStats();
-                Utils.showSuccess('Користувача та його результати видалено');
-            } else {
-                Utils.showNotification('Помилка при видаленні користувача', 'error');
-            }
-        }
-    }
-
-    updateStats() {
-        const users = DataStorage.getUsers();
-        const stats = {
-            totalUsers: users.length,
-            activeUsers: users.filter(u => u.studentNumber !== null).length,
-            class9Users: users.filter(u => u.class == 9).length,
-            class10Users: users.filter(u => u.class == 10).length,
-            class11Users: users.filter(u => u.class == 11).length
-        };
-        Object.entries(stats).forEach(([id, value]) => {
-            const element = document.getElementById(id);
-            if (element) { element.textContent = value; }
-        });
-    }
-
-    initStudentPage() {
-        const currentUser = DataStorage.getCurrentUser();
-        if (!currentUser) { window.location.href = 'index.html'; return; }
-
-        this.updateStudentInterface(currentUser);
+        if (!confirm('Ви впевнені, що хочете видалити цього користувача? Це також видалить його результати.')) return;
         
-        // Перевірка, чи олімпіада вже завершена
+        const users = DataStorage.getUsers().filter(user => user.id !== userId);
         const progress = DataStorage.getProgress();
-        if (progress[currentUser.id] && progress[currentUser.id].completed) {
-            this.olympiadManager = new OlympiadManager();
-            this.olympiadManager.answers = progress[currentUser.id].answers || {};
-            document.getElementById('intro').style.display = 'none';
-            document.getElementById('tasks').style.display = 'none';
-            this.olympiadManager.showResults();
+        delete progress[userId]; 
+
+        if (DataStorage.saveUsers(users) && DataStorage.saveProgress(progress)) {
+            this.updateUsersList();
+            this.updateStats();
+            this.updateResultsTable();
+            Utils.showSuccess('Користувача та його результати видалено');
         } else {
-            this.setupStudentEventListeners();
+            Utils.showNotification('Помилка при видаленні', 'error');
         }
     }
-
-    updateStudentInterface(user) {
-        const studentInfo = document.getElementById('studentInfo');
-        if (studentInfo) {
-            studentInfo.innerHTML = `
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
-                    <div style="text-align: center;"><div style="font-size: 3rem; margin-bottom: 10px;">👤</div><div style="font-weight: 700; color: var(--text-primary);">${user.name}</div><div style="color: var(--text-secondary); font-size: 0.9rem;">Учень</div></div>
-                    <div style="text-align: center;"><div style="font-size: 3rem; margin-bottom: 10px;">🏫</div><div style="font-weight: 700; color: var(--text-primary);">${user.class}</div><div style="color: var(--text-secondary); font-size: 0.9rem;">Клас</div></div>
-                    <div style="text-align: center;"><div style="font-size: 3rem; margin-bottom: 10px;">🔢</div><div style="font-weight: 700; color: var(--accent);">${user.studentNumber}</div><div style="color: var(--text-secondary); font-size: 0.9rem;">Номер</div></div>
-                    <div style="text-align: center;"><div style="font-size: 3rem; margin-bottom: 10px;">📊</div><div style="font-weight: 700; color: var(--success);">Готовий</div><div style="color: var(--text-secondary); font-size: 0.9rem;">Статус</div></div>
-                </div>
-            `;
-        }
-    }
-
-    setupStudentEventListeners() {
+    
+    updateResultsTable() {
+        const allUsers = DataStorage.getUsers();
+        const progress = DataStorage.getProgress();
+        const completedUsers = allUsers.filter(u => progress[u.id] && progress[u.id].completed);
+        const tableContainer = Utils.getEl('resultsTableContainer');
         
-        document.getElementById('startBtn').addEventListener('click', () => { this.startOlympiad(); });
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            if (confirm('Вийти з системи?')) {
-                DataStorage.clearCurrentUser();
-                window.location.href = 'index.html';
-            }
+        if (completedUsers.length === 0) {
+            tableContainer.innerHTML = `<p style="text-align: center; color: var(--text-secondary); padding: 30px;">❌ Жоден учень ще не завершив олімпіаду.</p>`;
+            return;
+        }
+
+        // Сортування: 1. За 12-бальними балами (спадання), 2. За часом (зростання)
+        const sortedUsers = completedUsers.sort((a, b) => {
+            const scoreA = progress[a.id].score12;
+            const scoreB = progress[b.id].score12;
+            const timeA = progress[a.id].timeSpent;
+            const timeB = progress[b.id].timeSpent;
+            
+            if (scoreB !== scoreA) return scoreB - scoreA;
+            return timeA - timeB;
         });
-
-        // Навігація між завданнями (використовуємо .closest щоб знайти OlympiadManager)
-        const getManager = () => this.olympiadManager;
         
-        document.getElementById('nextBtn1').addEventListener('click', () => { if (getManager()) getManager().nextTask(); });
-        document.getElementById('nextBtn2').addEventListener('click', () => { if (getManager()) getManager().nextTask(); });
-        document.getElementById('prevBtn2').addEventListener('click', () => { if (getManager()) getManager().previousTask(); });
-        document.getElementById('prevBtn3').addEventListener('click', () => { if (getManager()) getManager().previousTask(); });
-        document.getElementById('finishBtn').addEventListener('click', () => { if (getManager()) getManager().finishOlympiad(); });
-        document.getElementById('prevBtn').addEventListener('click', () => { if (getManager()) getManager().previousTask(); });
-    }
-
-    startOlympiad() {
-        document.getElementById('intro').style.display = 'none';
-        document.getElementById('tasks').style.display = 'block';
+        // Генеруємо таблицю
+        let tableHTML = `
+            <table id="resultsTable" class="admin-table">
+            <thead>
+                <tr>
+                    <th>№</th><th>ПІБ</th><th>Клас</th><th>Сирі бали</th><th>12-бальна</th><th>Час</th><th>Статус</th>
+                </tr>
+            </thead>
+            <tbody>
+        `;
         
-        this.olympiadManager = new OlympiadManager();
-        this.olympiadManager.init();
-        this.olympiadManager.enterFullscreen();
+        sortedUsers.forEach((user, index) => {
+            const p = progress[user.id];
+            const statusBadge = p.forced 
+                ? '<span class="status-badge danger">ПРИМУС.</span>' 
+                : '<span class="status-badge success">ОК</span>';
+                
+            tableHTML += `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${user.name}</td>
+                    <td>${user.class}</td>
+                    <td>${p.score}/${CONFIG.MAX_SCORE}</td>
+                    <td><span class="score-badge">${p.score12}/12</span></td>
+                    <td>${Utils.formatTime(p.timeSpent)}</td>
+                    <td>${statusBadge}</td>
+                </tr>
+            `;
+        });
+        
+        tableHTML += `</tbody></table>`;
+        tableContainer.innerHTML = tableHTML;
     }
 }
 
-// 🚀 ІНІЦІАЛІЗАЦІЯ ДОДАТКУ (ФІНАЛЬНА ПЕРЕВІРКА DOM)
+// 🚀 ІНІЦІАЛІЗАЦІЯ ДОДАТКУ
 let app; 
-
 document.addEventListener('DOMContentLoaded', () => {
     app = new EnglishOlympiadApp();
     app.init(); 
+    // Робимо APP глобальною, щоб мати доступ до методів (наприклад, deleteUser) з HTML-коду
     window.app = app; 
-
-    console.log('🎯 English Olympiad System loaded successfully!');
+    console.log('✅ Olympiad System loaded in SPA mode. Navigation errors eliminated.');
 });
