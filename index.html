@@ -48,13 +48,8 @@
                     <label>Пароль</label>
                     <input type="password" id="studentPasswordInput" placeholder="Введіть ваш пароль">
                 </div>
-                <button id="studentLoginBtn" class="btn-primary">
-                    <span>Увійти до системи</span>
-                    <div class="btn-icon">→</div>
-                </button>
-                <button class="btn-secondary" id="backFromStudentBtn">
-                    <span>← Повернутися</span>
-                </button>
+                <button id="studentLoginBtn" class="btn-primary">Увійти до системи</button>
+                <button class="btn-secondary" id="backFromStudentBtn">← Повернутися</button>
                 <div id="studentError" class="error-message"></div>
             </div>
 
@@ -75,13 +70,8 @@
                     <label>Кодове слово</label>
                     <input type="password" id="adminCodeWord" placeholder="Секретне кодове слово">
                 </div>
-                <button id="adminLoginBtn" class="btn-primary">
-                    <span>Увійти в адмін панель</span>
-                    <div class="btn-icon">⚙️</div>
-                </button>
-                <button class="btn-secondary" id="backFromAdminBtn">
-                    <span>← Повернутися</span>
-                </button>
+                <button id="adminLoginBtn" class="btn-primary">Увійти в адмін панель</button>
+                <button class="btn-secondary" id="backFromAdminBtn">← Повернутися</button>
                 <div id="adminError" class="error-message"></div>
             </div>
         </div>
@@ -91,92 +81,14 @@
         </div>
     </div>
 
+    <script src="script.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.mode-card[data-mode]').forEach(card => {
-                card.addEventListener('click', function() {
-                    const mode = this.getAttribute('data-mode');
-                    showLoginForm(mode);
-                });
-            });
-
-            document.getElementById('studentLoginBtn').addEventListener('click', handleStudentLogin);
-            document.getElementById('backFromStudentBtn').addEventListener('click', showMainMenu);
-            document.getElementById('adminLoginBtn').addEventListener('click', handleAdminLogin);
-            document.getElementById('backFromAdminBtn').addEventListener('click', showMainMenu);
-
-            document.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    if (document.getElementById('studentLogin').style.display !== 'none') {
-                        handleStudentLogin();
-                    } else if (document.getElementById('adminLogin').style.display !== 'none') {
-                        handleAdminLogin();
-                    }
-                }
-            });
+            // Ініціалізація головної сторінки
+            if (typeof app !== 'undefined') {
+                app.initMainPage();
+            }
         });
-
-        function showMainMenu() {
-            document.getElementById('modeSelector').style.display = 'grid';
-            document.getElementById('studentLogin').style.display = 'none';
-            document.getElementById('adminLogin').style.display = 'none';
-        }
-
-        function showLoginForm(mode) {
-            document.getElementById('modeSelector').style.display = 'none';
-            
-            if (mode === 'student') {
-                document.getElementById('studentLogin').style.display = 'block';
-                document.getElementById('adminLogin').style.display = 'none';
-            } else {
-                document.getElementById('adminLogin').style.display = 'block';
-                document.getElementById('studentLogin').style.display = 'none';
-            }
-        }
-
-        function handleStudentLogin() {
-            const login = document.getElementById('studentLoginInput').value.trim();
-            const password = document.getElementById('studentPasswordInput').value.trim();
-            
-            if (!login || !password) {
-                showError('studentError', 'Будь ласка, заповніть всі обов\'язкові поля');
-                return;
-            }
-            
-            const users = JSON.parse(localStorage.getItem('olympiad_users')) || [];
-            const user = users.find(u => u.login === login && u.password === password);
-            
-            if (user) {
-                localStorage.setItem('current_user', JSON.stringify(user));
-                window.location.href = 'student.html';
-            } else {
-                showError('studentError', 'Невірні облікові дані. Перевірте логін та пароль.');
-            }
-        }
-
-        function handleAdminLogin() {
-            const login = document.getElementById('adminLoginInput').value.trim();
-            const password = document.getElementById('adminPasswordInput').value.trim();
-            const codeWord = document.getElementById('adminCodeWord').value.trim();
-            
-            if (login === 'admin' && password === 'admin123' && codeWord === 'olympiad2024') {
-                localStorage.setItem('admin_authenticated', 'true');
-                window.location.href = 'admin.html';
-            } else {
-                showError('adminError', 'Неавторизований доступ. Перевірте облікові дані.');
-            }
-        }
-
-        function showError(elementId, message) {
-            const element = document.getElementById(elementId);
-            if (element) {
-                element.textContent = message;
-                element.style.display = 'block';
-                setTimeout(() => {
-                    element.style.display = 'none';
-                }, 5000);
-            }
-        }
     </script>
 </body>
 </html>
