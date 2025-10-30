@@ -1,7 +1,7 @@
 {
   "name": "Олімпіада з Англійської мови",
-  "short_name": "EnglishOlympiad", 
-  "start_url": ".",
+  "short_name": "EnglishOlympiad",
+  "start_url": "index.html",
   "display": "standalone",
   "theme_color": "#424242",
   "background_color": "#424242"
