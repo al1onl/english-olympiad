@@ -1,462 +1,806 @@
-// Конфігурація системи
+// Глобальна конфігурація системи
 const CONFIG = {
     ADMIN_LOGIN: "admin",
     ADMIN_PASSWORD: "admin123", 
     ADMIN_CODE_WORD: "olympiad2024",
-    MAX_USERS: 1000
+    MAX_USERS: 1000,
+    OLYMPIAD_TIME: 60 * 60, // 60 хвилин у секундах
+    MAX_PARTICIPANTS: 100
 };
 
-// Стан програми
-let appState = {
-    users: JSON.parse(localStorage.getItem('olympiad_users')) || [],
-    currentUser: null,
-    olympiadActiveTask: null,
-    olympiadTimerInterval: null
-};
+// Централізоване сховище даних
+class DataStorage {
+    static getUsers() {
+        try {
+            return JSON.parse(localStorage.getItem('olympiad_users')) || [];
+        } catch (error) {
+            console.error('Помилка завантаження користувачів:', error);
+            return [];
+        }
+    }
 
-// Ініціалізація додатку
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Ініціалізація додатку олімпіади...');
-    initializeApplication();
-});
+    static saveUsers(users) {
+        try {
+            localStorage.setItem('olympiad_users', JSON.stringify(users));
+            return true;
+        } catch (error) {
+            console.error('Помилка збереження користувачів:', error);
+            return false;
+        }
+    }
 
-function initializeApplication() {
-    // Приховуємо всі екрани крім головного меню
-    hideAllScreens();
-    document.getElementById('modeSelector').style.display = 'grid';
-    
-    // Додаємо обробники подій
-    setupEventListeners();
-    
-    console.log('Додаток успішно ініціалізовано');
-    console.log('Завантажено користувачів:', appState.users.length);
+    static getCurrentUser() {
+        try {
+            return JSON.parse(localStorage.getItem('current_user'));
+        } catch (error) {
+            console.error('Помилка завантаження поточного користувача:', error);
+            return null;
+        }
+    }
+
+    static setCurrentUser(user) {
+        try {
+            localStorage.setItem('current_user', JSON.stringify(user));
+            return true;
+        } catch (error) {
+            console.error('Помилка збереження поточного користувача:', error);
+            return false;
+        }
+    }
+
+    static clearCurrentUser() {
+        localStorage.removeItem('current_user');
+    }
+
+    static getProgress() {
+        try {
+            return JSON.parse(localStorage.getItem('olympiad_progress')) || {};
+        } catch (error) {
+            console.error('Помилка завантаження прогресу:', error);
+            return {};
+        }
+    }
+
+    static saveProgress(progress) {
+        try {
+            localStorage.setItem('olympiad_progress', JSON.stringify(progress));
+            return true;
+        } catch (error) {
+            console.error('Помилка збереження прогресу:', error);
+            return false;
+        }
+    }
 }
 
-function hideAllScreens() {
-    const screens = [
-        'modeSelector',
-        'studentLogin', 
-        'adminLogin',
-        'adminPanel',
-        'olympiadApp'
-    ];
-    
-    screens.forEach(screenId => {
-        const element = document.getElementById(screenId);
+// Утиліти для роботи з даними
+class Utils {
+    static generateLogin(name) {
+        const base = name.toLowerCase()
+            .replace(/\s+/g, '')
+            .replace(/[^a-z0-9а-яіїєґ]/g, '')
+            .substring(0, 8);
+        
+        const users = DataStorage.getUsers();
+        let login = base;
+        let counter = 1;
+        
+        while (users.find(user => user.login === login)) {
+            login = base + counter;
+            counter++;
+            
+            if (counter > 100) {
+                login = base + Date.now().toString().slice(-3);
+                break;
+            }
+        }
+        
+        return login;
+    }
+
+    static generatePassword() {
+        const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+        let password = '';
+        for (let i = 0; i < 8; i++) {
+            password += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return password;
+    }
+
+    static validateEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    }
+
+    static formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    static showError(elementId, message) {
+        const element = document.getElementById(elementId);
         if (element) {
-            element.style.display = 'none';
+            element.textContent = message;
+            element.style.display = 'block';
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 5000);
         }
-    });
+    }
+
+    static showSuccess(message) {
+        alert(message); // Можна замінити на кращу систему сповіщень
+    }
 }
 
-function setupEventListeners() {
-    // Картки вибору режиму
-    const studentCard = document.querySelector('[data-mode="student"]');
-    const adminCard = document.querySelector('[data-mode="admin"]');
-    
-    if (studentCard) {
-        studentCard.addEventListener('click', function() {
-            showLoginForm('student');
+// Клас для управління олімпіадою
+class OlympiadManager {
+    constructor() {
+        this.currentTask = 1;
+        this.totalTasks = 3;
+        this.timeRemaining = CONFIG.OLYMPIAD_TIME;
+        this.timerInterval = null;
+        this.isFinished = false;
+    }
+
+    startTimer() {
+        this.stopTimer();
+        this.timerInterval = setInterval(() => {
+            if (this.timeRemaining > 0) {
+                this.timeRemaining--;
+                this.updateTimerDisplay();
+            } else {
+                this.finishOlympiad();
+            }
+        }, 1000);
+    }
+
+    stopTimer() {
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
+        }
+    }
+
+    updateTimerDisplay() {
+        const timerElement = document.getElementById('timer');
+        if (timerElement) {
+            timerElement.textContent = Utils.formatTime(this.timeRemaining);
+        }
+    }
+
+    goToTask(taskNumber) {
+        if (taskNumber < 1 || taskNumber > this.totalTasks) return;
+        
+        this.currentTask = taskNumber;
+        this.updateTaskDisplay();
+    }
+
+    updateTaskDisplay() {
+        // Приховати всі завдання
+        for (let i = 1; i <= this.totalTasks; i++) {
+            const taskElement = document.getElementById(`task${i}`);
+            if (taskElement) {
+                taskElement.style.display = 'none';
+            }
+        }
+        
+        // Показати поточне завдання
+        const currentTaskElement = document.getElementById(`task${this.currentTask}`);
+        if (currentTaskElement) {
+            currentTaskElement.style.display = 'block';
+        }
+    }
+
+    finishOlympiad() {
+        this.stopTimer();
+        this.isFinished = true;
+        
+        // Зберегти результати
+        this.saveResults();
+        
+        // Показати екран результатів
+        this.showResults();
+    }
+
+    saveResults() {
+        const progress = DataStorage.getProgress();
+        const currentUser = DataStorage.getCurrentUser();
+        
+        if (currentUser) {
+            progress[currentUser.id] = {
+                completed: true,
+                timestamp: new Date().toISOString(),
+                timeSpent: CONFIG.OLYMPIAD_TIME - this.timeRemaining,
+                score: this.calculateScore()
+            };
+            
+            DataStorage.saveProgress(progress);
+        }
+    }
+
+    calculateScore() {
+        // Тут буде логіка підрахунку балів
+        // Поки що повертаємо 0
+        return 0;
+    }
+
+    showResults() {
+        const resultsScreen = document.getElementById('resultsScreen');
+        const olympiadContent = document.getElementById('olympiadContent');
+        
+        if (resultsScreen && olympiadContent) {
+            olympiadContent.style.display = 'none';
+            resultsScreen.style.display = 'block';
+            
+            const currentUser = DataStorage.getCurrentUser();
+            const resultsContent = document.getElementById('resultsContent');
+            
+            if (resultsContent && currentUser) {
+                resultsContent.innerHTML = `
+                    <h3>Результати для ${currentUser.name}</h3>
+                    <p>Клас: ${currentUser.class}</p>
+                    <p>Час виконання: ${Utils.formatTime(CONFIG.OLYMPIAD_TIME - this.timeRemaining)}</p>
+                    <p style="margin-top: 20px; font-size: 1.2em;">
+                        <strong>Олімпіаду завершено!</strong>
+                    </p>
+                    <p style="color: var(--text-light); margin-top: 10px;">
+                        Дякуємо за участь! Результати будуть опубліковані пізніше.
+                    </p>
+                `;
+            }
+        }
+    }
+}
+
+// Головний клас додатку
+class EnglishOlympiadApp {
+    constructor() {
+        this.olympiadManager = new OlympiadManager();
+        this.init();
+    }
+
+    init() {
+        this.setupEventListeners();
+        this.checkCurrentPage();
+    }
+
+    setupEventListeners() {
+        // Глобальні обробники подій
+        document.addEventListener('DOMContentLoaded', () => {
+            this.handlePageLoad();
         });
     }
-    
-    if (adminCard) {
-        adminCard.addEventListener('click', function() {
-            showLoginForm('admin');
+
+    handlePageLoad() {
+        console.log('Додаток олімпіади завантажено');
+        this.updateUserCounters();
+    }
+
+    checkCurrentPage() {
+        const path = window.location.pathname;
+        
+        if (path.includes('admin.html')) {
+            this.initAdminPage();
+        } else if (path.includes('student.html')) {
+            this.initStudentPage();
+        } else {
+            this.initMainPage();
+        }
+    }
+
+    initMainPage() {
+        console.log('Ініціалізація головної сторінки');
+        
+        // Обробники для карток вибору режиму
+        document.querySelectorAll('.mode-card[data-mode]').forEach(card => {
+            card.addEventListener('click', (e) => {
+                const mode = e.currentTarget.getAttribute('data-mode');
+                this.showLoginForm(mode);
+            });
         });
-    }
-    
-    // Кнопки форми учня
-    const studentLoginBtn = document.getElementById('studentLoginBtn');
-    const backFromStudentBtn = document.getElementById('backFromStudentBtn');
-    
-    if (studentLoginBtn) {
-        studentLoginBtn.addEventListener('click', handleStudentLogin);
-    }
-    
-    if (backFromStudentBtn) {
-        backFromStudentBtn.addEventListener('click', showMainMenu);
-    }
-    
-    // Кнопки форми адміна
-    const adminLoginBtn = document.getElementById('adminLoginBtn');
-    const backFromAdminBtn = document.getElementById('backFromAdminBtn');
-    
-    if (adminLoginBtn) {
-        adminLoginBtn.addEventListener('click', handleAdminLogin);
-    }
-    
-    if (backFromAdminBtn) {
-        backFromAdminBtn.addEventListener('click', showMainMenu);
-    }
-}
 
-// Навігація між екранами
-function showMainMenu() {
-    hideAllScreens();
-    document.getElementById('modeSelector').style.display = 'grid';
-}
+        // Обробники для форми учня
+        const studentLoginBtn = document.getElementById('studentLoginBtn');
+        if (studentLoginBtn) {
+            studentLoginBtn.addEventListener('click', () => this.handleStudentLogin());
+        }
 
-function showLoginForm(mode) {
-    hideAllScreens();
-    
-    if (mode === 'student') {
-        document.getElementById('studentLogin').style.display = 'block';
-    } else if (mode === 'admin') {
-        document.getElementById('adminLogin').style.display = 'block';
-    }
-}
+        const backFromStudentBtn = document.getElementById('backFromStudentBtn');
+        if (backFromStudentBtn) {
+            backFromStudentBtn.addEventListener('click', () => this.showMainMenu());
+        }
 
-// Обробка входу
-function handleStudentLogin() {
-    const login = document.getElementById('studentLoginInput').value.trim();
-    const password = document.getElementById('studentPasswordInput').value.trim();
-    
-    if (!login || !password) {
-        alert('Будь ласка, заповніть всі поля');
-        return;
-    }
-    
-    // Пошук користувача в базі
-    const user = appState.users.find(u => u.login === login && u.password === password);
-    
-    if (user) {
-        appState.currentUser = user;
-        localStorage.setItem('current_user', JSON.stringify(user));
-        startOlympiad();
-    } else {
-        alert('Невірний логін або пароль. Зверніться до адміністратора для отримання облікових даних.');
-    }
-}
+        // Обробники для форми адміна
+        const adminLoginBtn = document.getElementById('adminLoginBtn');
+        if (adminLoginBtn) {
+            adminLoginBtn.addEventListener('click', () => this.handleAdminLogin());
+        }
 
-function handleAdminLogin() {
-    const login = document.getElementById('adminLoginInput').value.trim();
-    const password = document.getElementById('adminPasswordInput').value.trim();
-    const codeWord = document.getElementById('adminCodeWord').value.trim();
-    
-    if (login === CONFIG.ADMIN_LOGIN && 
-        password === CONFIG.ADMIN_PASSWORD && 
-        codeWord === CONFIG.ADMIN_CODE_WORD) {
-        showAdminPanel();
-    } else {
-        alert('Невірні облікові дані адміністратора');
-    }
-}
+        const backFromAdminBtn = document.getElementById('backFromAdminBtn');
+        if (backFromAdminBtn) {
+            backFromAdminBtn.addEventListener('click', () => this.showMainMenu());
+        }
 
-// АДМІН ПАНЕЛЬ - ПОВНИЙ ФУНКЦІОНАЛ
-function showAdminPanel() {
-    hideAllScreens();
-    const adminPanel = document.getElementById('adminPanel');
-    
-    if (adminPanel) {
-        adminPanel.style.display = 'block';
-        adminPanel.innerHTML = `
-            <div class="admin-header">
-                <h2>Адмін панель - Управління користувачами</h2>
-                <button id="adminPanelExitBtn" class="btn-secondary">Вийти</button>
-            </div>
-            
-            <div class="tabs">
-                <button class="tab active" id="usersTab">Користувачі</button>
-                <button class="tab" id="createUserTab">Створити користувача</button>
-                <button class="tab" id="statsTab">Статистика</button>
-            </div>
-            
-            <!-- Панель створення користувача -->
-            <div id="createUserPanel" class="panel">
-                <h3>Створити нового користувача</h3>
-                <div class="form-group">
-                    <label>Ім'я учня:</label>
-                    <input type="text" id="newUserName" placeholder="Введіть ім'я учня">
-                </div>
-                <div class="form-group">
-                    <label>Клас:</label>
-                    <select id="newUserClass">
-                        <option value="9">9 клас</option>
-                        <option value="10" selected>10 клас</option>
-                        <option value="11">11 клас</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Група (опціонально):</label>
-                    <input type="text" id="newUserGroup" placeholder="Назва групи або класу">
-                </div>
-                <button id="createUserBtn" class="btn-primary">Створити користувача</button>
+        // Enter для форми входу
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const studentLogin = document.getElementById('studentLogin');
+                const adminLogin = document.getElementById('adminLogin');
                 
-                <div id="createdCredentials" style="display: none; margin-top: 20px; padding: 15px; background: #e8f5e8; border-radius: 5px;">
-                    <h4>✅ Користувача створено!</h4>
-                    <div id="credentialsInfo"></div>
-                </div>
-            </div>
-            
-            <!-- Панель списку користувачів -->
-            <div id="usersPanel" class="panel active">
-                <h3>Список користувачів</h3>
-                <div class="user-list" id="usersListContainer">
-                    <!-- Список буде динамічно заповнений -->
-                </div>
-            </div>
-            
-            <!-- Панель статистики -->
-            <div id="statsPanel" class="panel">
-                <h3>Статистика системи</h3>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-number">${appState.users.length}</div>
-                        <div class="stat-label">Всього користувачів</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">${countUsersByClass(9)}</div>
-                        <div class="stat-label">9 клас</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">${countUsersByClass(10)}</div>
-                        <div class="stat-label">10 клас</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">${countUsersByClass(11)}</div>
-                        <div class="stat-label">11 клас</div>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        // Ініціалізація адмін панелі
-        setupAdminPanel();
-        
-        // Додаємо обробник для кнопки виходу
-        const exitBtn = document.getElementById('adminPanelExitBtn');
-        if (exitBtn) {
-            exitBtn.addEventListener('click', showMainMenu);
-        }
-    }
-}
-
-function setupAdminPanel() {
-    // Завантажуємо список користувачів
-    updateUsersList();
-    
-    // Обробники вкладок
-    document.getElementById('usersTab').addEventListener('click', () => switchAdminTab('users'));
-    document.getElementById('createUserTab').addEventListener('click', () => switchAdminTab('createUser'));
-    document.getElementById('statsTab').addEventListener('click', () => switchAdminTab('stats'));
-    
-    // Обробник створення користувача
-    document.getElementById('createUserBtn').addEventListener('click', createNewUser);
-}
-
-function switchAdminTab(tabName) {
-    // Деактивуємо всі вкладки
-    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-    document.querySelectorAll('.panel').forEach(panel => panel.classList.remove('active'));
-    
-    // Активуємо обрану вкладку
-    document.getElementById(tabName + 'Tab').classList.add('active');
-    document.getElementById(tabName + 'Panel').classList.add('active');
-    
-    // Оновлюємо дані при переключенні
-    if (tabName === 'users') {
-        updateUsersList();
-    } else if (tabName === 'stats') {
-        // Оновлюємо статистику
-        document.querySelectorAll('.stat-number')[0].textContent = appState.users.length;
-        document.querySelectorAll('.stat-number')[1].textContent = countUsersByClass(9);
-        document.querySelectorAll('.stat-number')[2].textContent = countUsersByClass(10);
-        document.querySelectorAll('.stat-number')[3].textContent = countUsersByClass(11);
-    }
-}
-
-function countUsersByClass(className) {
-    return appState.users.filter(user => user.class == className).length;
-}
-
-function createNewUser() {
-    const name = document.getElementById('newUserName').value.trim();
-    const studentClass = document.getElementById('newUserClass').value;
-    const group = document.getElementById('newUserGroup').value.trim();
-    
-    if (!name) {
-        alert('Будь ласка, введіть ім\'я учня');
-        return;
-    }
-    
-    // Генеруємо унікальний логін
-    const login = generateUniqueLogin(name);
-    const password = generatePassword();
-    
-    const newUser = {
-        id: Date.now(),
-        name: name,
-        class: studentClass,
-        group: group || '',
-        login: login,
-        password: password,
-        created: new Date().toLocaleString('uk-UA'),
-        progress: {}
-    };
-    
-    // Додаємо користувача
-    appState.users.push(newUser);
-    saveUsersToStorage();
-    
-    // Показуємо облікові дані
-    showCreatedCredentials(newUser);
-    
-    // Очищаємо форму
-    document.getElementById('newUserName').value = '';
-    document.getElementById('newUserGroup').value = '';
-    
-    console.log('Створено нового користувача:', newUser);
-}
-
-function generateUniqueLogin(name) {
-    const baseLogin = name.toLowerCase()
-        .replace(/\s+/g, '')
-        .replace(/[^a-z0-9а-яіїєґ]/g, '')
-        .substring(0, 8);
-    
-    let login = baseLogin;
-    let counter = 1;
-    
-    // Перевіряємо унікальність логіна
-    while (appState.users.find(user => user.login === login)) {
-        login = baseLogin + counter;
-        counter++;
-        
-        if (counter > 100) {
-            login = baseLogin + Date.now().toString().slice(-3);
-            break;
-        }
-    }
-    
-    return login;
-}
-
-function generatePassword() {
-    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-    let password = '';
-    for (let i = 0; i < 8; i++) {
-        password += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return password;
-}
-
-function showCreatedCredentials(user) {
-    const credentialsDiv = document.getElementById('createdCredentials');
-    const credentialsInfo = document.getElementById('credentialsInfo');
-    
-    credentialsInfo.innerHTML = `
-        <p><strong>Ім'я:</strong> ${user.name}</p>
-        <p><strong>Клас:</strong> ${user.class}</p>
-        <p><strong>Логін:</strong> ${user.login}</p>
-        <p><strong>Пароль:</strong> ${user.password}</p>
-        <p><strong>Дата створення:</strong> ${user.created}</p>
-    `;
-    
-    credentialsDiv.style.display = 'block';
-    
-    // Автоматично ховаємо через 10 секунд
-    setTimeout(() => {
-        credentialsDiv.style.display = 'none';
-    }, 10000);
-}
-
-function updateUsersList() {
-    const container = document.getElementById('usersListContainer');
-    if (!container) return;
-    
-    if (appState.users.length === 0) {
-        container.innerHTML = `
-            <div style="text-align: center; padding: 40px; color: #666;">
-                <p>Користувачів ще не створено</p>
-                <p>Перейдіть у вкладку "Створити користувача"</p>
-            </div>
-        `;
-        return;
-    }
-    
-    container.innerHTML = `
-        <div class="user-item header">
-            <div>Ім'я</div>
-            <div>Клас</div>
-            <div>Логін</div>
-            <div>Пароль</div>
-            <div>Дата створення</div>
-            <div>Дії</div>
-        </div>
-        ${appState.users.map(user => `
-            <div class="user-item">
-                <div>${user.name}</div>
-                <div>${user.class} клас</div>
-                <div>${user.login}</div>
-                <div>${user.password}</div>
-                <div>${user.created}</div>
-                <div>
-                    <button class="danger-btn" data-user-id="${user.id}">Видалити</button>
-                </div>
-            </div>
-        `).join('')}
-    `;
-    
-    // Додаємо обробники для кнопок видалення
-    container.querySelectorAll('.danger-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const userId = parseInt(this.getAttribute('data-user-id'));
-            deleteUser(userId);
+                if (studentLogin && studentLogin.style.display !== 'none') {
+                    this.handleStudentLogin();
+                } else if (adminLogin && adminLogin.style.display !== 'none') {
+                    this.handleAdminLogin();
+                }
+            }
         });
-    });
-}
-
-function deleteUser(userId) {
-    if (confirm('Ви впевнені, що хочете видалити цього користувача?')) {
-        appState.users = appState.users.filter(user => user.id !== userId);
-        saveUsersToStorage();
-        updateUsersList();
-        alert('Користувача видалено');
     }
-}
 
-function saveUsersToStorage() {
-    localStorage.setItem('olympiad_users', JSON.stringify(appState.users));
-}
+    initAdminPage() {
+        console.log('Ініціалізація адмін панелі');
+        
+        // Перевірка авторизації адміна
+        if (!this.isAdminAuthenticated()) {
+            window.location.href = 'index.html';
+            return;
+        }
 
-// Олімпіада
-function startOlympiad() {
-    hideAllScreens();
-    const olympiadApp = document.getElementById('olympiadApp');
-    
-    if (olympiadApp) {
-        olympiadApp.style.display = 'block';
-        olympiadApp.innerHTML = `
-            <div class="olympiad-container">
-                <div class="olympiad-header">
-                    <div class="olympiad-brand">
-                        <h1>Олімпіада з Англійської мови</h1>
-                        <div class="olympiad-subtitle">Учень: ${appState.currentUser.name} | Клас: ${appState.currentUser.class}</div>
-                    </div>
+        this.setupAdminPanel();
+    }
+
+    initStudentPage() {
+        console.log('Ініціалізація сторінки учня');
+        
+        // Перевірка авторизації учня
+        const currentUser = DataStorage.getCurrentUser();
+        if (!currentUser) {
+            window.location.href = 'index.html';
+            return;
+        }
+
+        this.setupStudentPage(currentUser);
+    }
+
+    isAdminAuthenticated() {
+        // Перевірка, чи адмін вже авторизований
+        // Можна реалізувати більш надійну перевірку
+        return localStorage.getItem('admin_authenticated') === 'true';
+    }
+
+    showMainMenu() {
+        document.getElementById('modeSelector').style.display = 'grid';
+        document.getElementById('studentLogin').style.display = 'none';
+        document.getElementById('adminLogin').style.display = 'none';
+    }
+
+    showLoginForm(mode) {
+        document.getElementById('modeSelector').style.display = 'none';
+        
+        if (mode === 'student') {
+            document.getElementById('studentLogin').style.display = 'block';
+            document.getElementById('adminLogin').style.display = 'none';
+            
+            // Очистити поля
+            document.getElementById('studentLoginInput').value = '';
+            document.getElementById('studentPasswordInput').value = '';
+        } else if (mode === 'admin') {
+            document.getElementById('adminLogin').style.display = 'block';
+            document.getElementById('studentLogin').style.display = 'none';
+            
+            // Очистити поля
+            document.getElementById('adminLoginInput').value = '';
+            document.getElementById('adminPasswordInput').value = '';
+            document.getElementById('adminCodeWord').value = '';
+        }
+    }
+
+    handleStudentLogin() {
+        const login = document.getElementById('studentLoginInput').value.trim();
+        const password = document.getElementById('studentPasswordInput').value.trim();
+        
+        if (!login || !password) {
+            Utils.showError('studentError', 'Будь ласка, заповніть всі поля');
+            return;
+        }
+        
+        const users = DataStorage.getUsers();
+        const user = users.find(u => u.login === login && u.password === password);
+        
+        if (user) {
+            DataStorage.setCurrentUser(user);
+            window.location.href = 'student.html';
+        } else {
+            Utils.showError('studentError', 'Невірний логін або пароль');
+        }
+    }
+
+    handleAdminLogin() {
+        const login = document.getElementById('adminLoginInput').value.trim();
+        const password = document.getElementById('adminPasswordInput').value.trim();
+        const codeWord = document.getElementById('adminCodeWord').value.trim();
+        
+        if (login === CONFIG.ADMIN_LOGIN && 
+            password === CONFIG.ADMIN_PASSWORD && 
+            codeWord === CONFIG.ADMIN_CODE_WORD) {
+            
+            localStorage.setItem('admin_authenticated', 'true');
+            window.location.href = 'admin.html';
+        } else {
+            Utils.showError('adminError', 'Невірні облікові дані адміністратора');
+        }
+    }
+
+    setupAdminPanel() {
+        // Обробники вкладок
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                const tabName = e.currentTarget.getAttribute('data-tab');
+                this.switchAdminTab(tabName);
+            });
+        });
+
+        // Обробник створення користувача
+        const createUserBtn = document.getElementById('createUserBtn');
+        if (createUserBtn) {
+            createUserBtn.addEventListener('click', () => this.createUser());
+        }
+
+        // Обробник пошуку
+        const userSearch = document.getElementById('userSearch');
+        if (userSearch) {
+            userSearch.addEventListener('input', (e) => {
+                this.filterUsers(e.target.value);
+            });
+        }
+
+        // Обробник експорту
+        const exportUsersBtn = document.getElementById('exportUsersBtn');
+        if (exportUsersBtn) {
+            exportUsersBtn.addEventListener('click', () => this.exportUsers());
+        }
+
+        // Обробник виходу
+        const adminLogoutBtn = document.getElementById('adminLogoutBtn');
+        if (adminLogoutBtn) {
+            adminLogoutBtn.addEventListener('click', () => {
+                localStorage.removeItem('admin_authenticated');
+                window.location.href = 'index.html';
+            });
+        }
+
+        // Завантажити початкові дані
+        this.updateUsersList();
+        this.updateStats();
+    }
+
+    switchAdminTab(tabName) {
+        // Деактивувати всі вкладки
+        document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach(panel => panel.classList.remove('active'));
+        
+        // Активувати обрану вкладку
+        const activeTab = document.querySelector(`.tab[data-tab="${tabName}"]`);
+        const activePanel = document.getElementById(`${tabName}Panel`);
+        
+        if (activeTab) activeTab.classList.add('active');
+        if (activePanel) activePanel.classList.add('active');
+        
+        // Оновити дані при переключенні
+        if (tabName === 'users') {
+            this.updateUsersList();
+        } else if (tabName === 'stats') {
+            this.updateStats();
+        }
+    }
+
+    createUser() {
+        const name = document.getElementById('newUserName').value.trim();
+        const studentClass = document.getElementById('newUserClass').value;
+        const group = document.getElementById('newUserGroup').value.trim();
+        
+        if (!name) {
+            Utils.showSuccess('Будь ласка, введіть ім\'я учня');
+            return;
+        }
+        
+        const login = Utils.generateLogin(name);
+        const password = Utils.generatePassword();
+        
+        const newUser = {
+            id: Date.now(),
+            name: name,
+            class: studentClass,
+            group: group || '',
+            login: login,
+            password: password,
+            created: new Date().toLocaleString('uk-UA'),
+            progress: {}
+        };
+        
+        const users = DataStorage.getUsers();
+        users.push(newUser);
+        
+        if (DataStorage.saveUsers(users)) {
+            this.showCreatedCredentials(newUser);
+            document.getElementById('newUserName').value = '';
+            document.getElementById('newUserGroup').value = '';
+            this.updateStats();
+        } else {
+            Utils.showSuccess('Помилка при створенні користувача');
+        }
+    }
+
+    showCreatedCredentials(user) {
+        const credentialsBox = document.getElementById('createdCredentials');
+        const credentialsInfo = document.getElementById('credentialsInfo');
+        const copyBtn = document.getElementById('copyCredentialsBtn');
+        
+        if (credentialsBox && credentialsInfo) {
+            credentialsInfo.innerHTML = `
+                <p><strong>Ім'я:</strong> ${user.name}</p>
+                <p><strong>Клас:</strong> ${user.class}</p>
+                <p><strong>Логін:</strong> ${user.login}</p>
+                <p><strong>Пароль:</strong> ${user.password}</p>
+                <p><strong>Дата створення:</strong> ${user.created}</p>
+            `;
+            
+            credentialsBox.style.display = 'block';
+            
+            // Обробник копіювання
+            if (copyBtn) {
+                copyBtn.onclick = () => {
+                    const text = `Ім'я: ${user.name}\nКлас: ${user.class}\nЛогін: ${user.login}\nПароль: ${user.password}`;
+                    navigator.clipboard.writeText(text).then(() => {
+                        Utils.showSuccess('Дані скопійовано в буфер обміну');
+                    });
+                };
+            }
+            
+            // Автоматично сховати через 30 секунд
+            setTimeout(() => {
+                credentialsBox.style.display = 'none';
+            }, 30000);
+        }
+    }
+
+    updateUsersList() {
+        const container = document.getElementById('usersListContainer');
+        if (!container) return;
+        
+        const users = DataStorage.getUsers();
+        
+        if (users.length === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: var(--text-light);">
+                    <p>Користувачів ще не створено</p>
+                    <p>Перейдіть у вкладку "Створити користувача"</p>
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = `
+            <div class="user-item header">
+                <div>Ім'я</div>
+                <div>Клас</div>
+                <div>Логін</div>
+                <div>Пароль</div>
+                <div>Дата створення</div>
+                <div>Дії</div>
+            </div>
+            ${users.map(user => `
+                <div class="user-item">
+                    <div>${user.name}</div>
+                    <div>${user.class} клас</div>
+                    <div>${user.login}</div>
+                    <div>${user.password}</div>
+                    <div>${user.created}</div>
                     <div>
-                        <button id="olympiadExitBtn" style="background: #e74c3c; padding: 8px 16px; border: none; border-radius: 5px; color: white; cursor: pointer; font-weight: 600;">Вийти</button>
+                        <button class="btn-danger" onclick="app.deleteUser(${user.id})">Видалити</button>
                     </div>
                 </div>
+            `).join('')}
+        `;
+    }
 
+    filterUsers(searchTerm) {
+        const users = DataStorage.getUsers();
+        const filteredUsers = users.filter(user => 
+            user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            user.login.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        
+        const container = document.getElementById('usersListContainer');
+        if (container) {
+            if (filteredUsers.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-light);">Користувачів не знайдено</div>';
+            } else {
+                container.innerHTML = `
+                    <div class="user-item header">
+                        <div>Ім'я</div>
+                        <div>Клас</div>
+                        <div>Логін</div>
+                        <div>Пароль</div>
+                        <div>Дата створення</div>
+                        <div>Дії</div>
+                    </div>
+                    ${filteredUsers.map(user => `
+                        <div class="user-item">
+                            <div>${user.name}</div>
+                            <div>${user.class} клас</div>
+                            <div>${user.login}</div>
+                            <div>${user.password}</div>
+                            <div>${user.created}</div>
+                            <div>
+                                <button class="btn-danger" onclick="app.deleteUser(${user.id})">Видалити</button>
+                            </div>
+                        </div>
+                    `).join('')}
+                `;
+            }
+        }
+    }
+
+    deleteUser(userId) {
+        if (confirm('Ви впевнені, що хочете видалити цього користувача?')) {
+            const users = DataStorage.getUsers();
+            const updatedUsers = users.filter(user => user.id !== userId);
+            
+            if (DataStorage.saveUsers(updatedUsers)) {
+                this.updateUsersList();
+                this.updateStats();
+                Utils.showSuccess('Користувача видалено');
+            } else {
+                Utils.showSuccess('Помилка при видаленні користувача');
+            }
+        }
+    }
+
+    updateStats() {
+        const users = DataStorage.getUsers();
+        
+        document.getElementById('totalUsers').textContent = users.length;
+        document.getElementById('class9Users').textContent = users.filter(u => u.class == 9).length;
+        document.getElementById('class10Users').textContent = users.filter(u => u.class == 10).length;
+        document.getElementById('class11Users').textContent = users.filter(u => u.class == 11).length;
+    }
+
+    exportUsers() {
+        const users = DataStorage.getUsers();
+        const csvContent = this.convertToCSV(users);
+        this.downloadCSV(csvContent, 'olympiad_users.csv');
+    }
+
+    convertToCSV(users) {
+        const headers = ['Ім\'я', 'Клас', 'Група', 'Логін', 'Пароль', 'Дата створення'];
+        const rows = users.map(user => [
+            user.name,
+            user.class,
+            user.group || '',
+            user.login,
+            user.password,
+            user.created
+        ]);
+        
+        return [headers, ...rows]
+            .map(row => row.map(field => `"${field}"`).join(','))
+            .join('\n');
+    }
+
+    downloadCSV(csvContent, filename) {
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        
+        link.setAttribute('href', url);
+        link.setAttribute('download', filename);
+        link.style.visibility = 'hidden';
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    setupStudentPage(currentUser) {
+        // Оновити інформацію про учня
+        const studentInfo = document.getElementById('studentInfo');
+        if (studentInfo) {
+            studentInfo.textContent = `Учень: ${currentUser.name} | Клас: ${currentUser.class}`;
+        }
+
+        // Обробник виходу
+        const olympiadLogoutBtn = document.getElementById('olympiadLogoutBtn');
+        if (olympiadLogoutBtn) {
+            olympiadLogoutBtn.addEventListener('click', () => {
+                DataStorage.clearCurrentUser();
+                window.location.href = 'index.html';
+            });
+        }
+
+        // Обробник повернення на головну
+        const backToHomeBtn = document.getElementById('backToHomeBtn');
+        if (backToHomeBtn) {
+            backToHomeBtn.addEventListener('click', () => {
+                window.location.href = 'index.html';
+            });
+        }
+
+        // Завантажити олімпіаду
+        this.loadOlympiadContent();
+    }
+
+    loadOlympiadContent() {
+        const loadingScreen = document.getElementById('loadingScreen');
+        const olympiadContent = document.getElementById('olympiadContent');
+        
+        // Імітація завантаження
+        setTimeout(() => {
+            if (loadingScreen) loadingScreen.style.display = 'none';
+            if (olympiadContent) olympiadContent.style.display = 'block';
+            
+            // Запустити таймер
+            this.olympiadManager.startTimer();
+            
+            // Завантажити завдання
+            this.loadTasks();
+        }, 2000);
+    }
+
+    loadTasks() {
+        // Тут буде завантаження завдань олімпіади
+        // Поки що просто показуємо повідомлення
+        const olympiadContent = document.getElementById('olympiadContent');
+        if (olympiadContent) {
+            olympiadContent.innerHTML = `
                 <div class="olympiad-card">
                     <div style="text-align: center; padding: 40px;">
                         <h2>Ласкаво просимо до олімпіади!</h2>
-                        <p style="margin: 20px 0; color: #666;">Ви успішно увійшли в систему</p>
-                        <p style="margin: 10px 0; color: #666;">Функціонал проходження олімпіади знаходиться в розробці</p>
-                        <button onclick="showMainMenu()" style="padding: 12px 24px; background: var(--accent); color: white; border: none; border-radius: 6px; cursor: pointer; margin-top: 20px;">Повернутися на головну</button>
+                        <p style="margin: 20px 0; color: var(--text-light);">
+                            Олімпіада розпочнеться найближчим часом.
+                        </p>
+                        <p style="color: var(--text-light);">
+                            Функціонал проходження олімпіади знаходиться в розробці.
+                        </p>
                     </div>
                 </div>
-            </div>
-        `;
+            `;
+        }
+    }
+
+    updateUserCounters() {
+        const users = DataStorage.getUsers();
+        const participantCounter = document.getElementById('participantCounter');
         
-        // Додаємо обробник для кнопки виходу
-        const exitBtn = document.getElementById('olympiadExitBtn');
-        if (exitBtn) {
-            exitBtn.addEventListener('click', showMainMenu);
+        if (participantCounter) {
+            participantCounter.textContent = `Зареєстровано користувачів: ${users.length}`;
         }
     }
 }
 
-// Глобальні функції для HTML
-window.showMainMenu = showMainMenu;
+// Файл 6: `manifest.json` (PWA маніфест)
+```json
+{
+  "name": "Олімпіада з Англійської мови",
+  "short_name": "EnglishOlympiad",
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#2c3e50",
+  "background_color": "#2c3e50",
+  "description": "Онлайн олімпіада з англійської мови для учнів 9-11 класів",
+  "orientation": "portrait",
+  "categories": ["education", "productivity"],
+  "lang": "uk-UA",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
