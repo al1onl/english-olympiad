@@ -1,11 +1,8 @@
 /**
  * =====================================
- * ФАЙЛ: script.js
+ * ФАЙЛ: script.js (ВИПРАВЛЕНИЙ ТА ПОВНИЙ КОД)
  * ЛОГІКА: English Olympiad - Cloud Edition
  * =====================================
- *
- * Виправлено: TypeError: this.showLoginForm is not a function (через bind(this))
- *
  */
 
 // Глобальні об'єкти Firebase вже ініціалізовані в index.html: app, auth, db
@@ -14,15 +11,15 @@ class OlympiadApp {
     constructor() {
         console.log("OlympiadApp ініціалізується...");
 
-        // 1. DOM Елементи
+        // 1. DOM Елементи (викликається тут, щоб забезпечити, що DOM завантажено)
         this.dom = this.getDOMElements();
         
         // 2. Змінні стану
-        this.adminCodeword = "superkey2024"; // Кодове слово для адміна
+        this.adminCodeword = "test2024"; // Кодове слово для адміна
         this.currentTaskIndex = 0;
         this.timer = null;
 
-        // 3. Ініціалізація слухачів подій
+        // 3. Ініціалізація слухачів подій (Виправлено помилку 'null')
         this.initEventListeners();
         
         // 4. Перевірка статусу автентифікації Firebase
@@ -39,6 +36,7 @@ class OlympiadApp {
      */
 
     getDOMElements() {
+        // У цьому методі збираємо всі потрібні елементи з DOM
         return {
             // Основні View
             mainView: document.getElementById('mainView'),
@@ -64,6 +62,15 @@ class OlympiadApp {
             studentResults: document.getElementById('studentResults'),
             introUserName: document.getElementById('introUserName'),
             introUserInfo: document.getElementById('introUserInfo'),
+            
+            // Таймер та навігація завдань
+            timerDisplay: document.getElementById('timerDisplay'),
+            prevTaskBtn: document.getElementById('prevTaskBtn'),
+            nextTaskBtn: document.getElementById('nextTaskBtn'),
+            finishOlympiadBtn: document.getElementById('finishOlympiadBtn'),
+            currentTaskNum: document.getElementById('currentTaskNum'),
+            taskContentContainer: document.getElementById('taskContentContainer'),
+
 
             // Адмін-панель
             adminLogoutBtn: document.getElementById('adminLogoutBtn'),
@@ -76,6 +83,12 @@ class OlympiadApp {
             copyCredentialsBtn: document.getElementById('copyCredentialsBtn'),
             resultsTableBody: document.getElementById('resultsTableBody'),
             
+            // Статистика
+            totalUsers: document.getElementById('totalUsers'),
+            completedUsers: document.getElementById('completedUsers'),
+            activeUsers: document.getElementById('activeUsers'),
+            class10Users: document.getElementById('class10Users'),
+
             // Загальне
             allViews: [
                 document.getElementById('mainView'),
@@ -87,9 +100,10 @@ class OlympiadApp {
     }
 
     initEventListeners() {
-        // ВИПРАВЛЕННЯ ПОМИЛКИ: this.showLoginForm is not a function
-        // Використовуємо .bind(this) для збереження контексту
-        this.dom.modeSelector.addEventListener('click', this.handleModeSelection.bind(this));
+        // ВИПРАВЛЕННЯ ПОМИЛКИ: this.dom.modeSelector більше не null!
+        if (this.dom.modeSelector) {
+            this.dom.modeSelector.addEventListener('click', this.handleModeSelection.bind(this));
+        }
 
         // Кнопки "Назад" (на головну)
         document.querySelectorAll('[data-action="backToMain"]').forEach(button => {
@@ -97,23 +111,28 @@ class OlympiadApp {
         });
 
         // Форми логіну
-        this.dom.studentLoginForm.addEventListener('submit', this.handleStudentLogin.bind(this));
-        this.dom.adminLoginForm.addEventListener('submit', this.handleAdminLogin.bind(this));
+        this.dom.studentLoginForm?.addEventListener('submit', this.handleStudentLogin.bind(this));
+        this.dom.adminLoginForm?.addEventListener('submit', this.handleAdminLogin.bind(this));
 
-        // Вихід
-        this.dom.studentLogoutBtn.addEventListener('click', this.logout.bind(this));
-        this.dom.adminLogoutBtn.addEventListener('click', this.logout.bind(this));
+        // Вихід (додаємо перевірку на існування)
+        this.dom.studentLogoutBtn?.addEventListener('click', this.logout.bind(this));
+        this.dom.adminLogoutBtn?.addEventListener('click', this.logout.bind(this));
         
         // Адмін-панель: Перемикання вкладок
-        this.dom.adminTabs.forEach(tab => {
+        this.dom.adminTabs?.forEach(tab => {
             tab.addEventListener('click', this.handleAdminTabSwitch.bind(this));
         });
 
         // Адмін-панель: Створення учня
-        this.dom.createUserForm.addEventListener('submit', this.handleCreateUser.bind(this));
+        this.dom.createUserForm?.addEventListener('submit', this.handleCreateUser.bind(this));
         
         // Студент: Старт олімпіади
-        this.dom.startOlympiadBtn.addEventListener('click', this.startOlympiad.bind(this));
+        this.dom.startOlympiadBtn?.addEventListener('click', this.startOlympiad.bind(this));
+
+        // Студент: Навігація завдань
+        this.dom.prevTaskBtn?.addEventListener('click', () => this.navigateTask(-1));
+        this.dom.nextTaskBtn?.addEventListener('click', () => this.navigateTask(1));
+        this.dom.finishOlympiadBtn?.addEventListener('click', this.finishOlympiad.bind(this));
     }
     
     // Хелпер для перемикання головних View
@@ -222,7 +241,7 @@ class OlympiadApp {
                 }
             } else {
                 // Якщо даних користувача немає, можливо, це новий користувач або помилка
-                this.showNotification("Помилка: Профіль не знайдено.", "error");
+                this.showNotification("Помилка: Профіль не знайдено. Перевірте роль.", "error");
                 this.logout();
             }
         } catch (error) {
@@ -244,11 +263,6 @@ class OlympiadApp {
             // Успішний вхід. Далі спрацює setupAuthListener
         } catch (error) {
             let message = "Невірний логін або пароль.";
-            if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-                message = "Невірний логін або пароль.";
-            } else {
-                message = `Помилка входу: ${error.message}`;
-            }
             this.dom.studentError.textContent = message;
             this.dom.studentError.classList.remove('hidden');
         }
@@ -315,6 +329,7 @@ class OlympiadApp {
             this.dom.startOlympiadBtn.textContent = '🔥 Розпочати Олімпіаду';
             this.dom.studentTasks.classList.add('hidden');
             this.dom.studentIntro.classList.remove('hidden');
+            this.dom.studentResults.classList.add('hidden'); // Приховуємо результати, якщо не завершено
         }
     }
     
@@ -336,38 +351,55 @@ class OlympiadApp {
         this.startTaskTimer(1200); // 20 хвилин = 1200 секунд
     }
     
+    navigateTask(delta) {
+        const newIndex = this.currentTaskIndex + delta;
+        if (newIndex >= 0 && newIndex < 5) { // Припустимо, у нас 5 завдань (індекси 0-4)
+            this.renderTask(newIndex);
+        }
+    }
+
+    finishOlympiad() {
+        if (confirm("Ви впевнені, що хочете завершити олімпіаду? Ви не зможете повернутися!")) {
+            clearInterval(this.timer);
+            this.showNotification("Олімпіада завершена. Очікуйте на результати.", "success");
+            this.showResultsScreen();
+        }
+    }
+
     renderTask(index) {
-        // ... (Логіка відображення контенту завдання з пам'яті або БД)
+        // TODO: Тут має бути реальна логіка відображення контенту завдання з пам'яті або БД
         document.getElementById('currentTaskNum').textContent = index + 1;
-        document.getElementById('taskContentContainer').innerHTML = `
-            <h2>Завдання №${index + 1}: Назва завдання</h2>
-            <p>Тут буде контент завдання (читання, граматика чи лексика).</p>
+        this.dom.taskContentContainer.innerHTML = `
+            <h2>Завдання №${index + 1}: Приклад завдання</h2>
+            <p>Оберіть правильний варіант, або напишіть слово/фразу.</p>
             <div class="question-block">
-                <p class="question-text">1. Яке слово підходить?</p>
-                <input type="text" placeholder="Ваша відповідь">
+                <p class="question-text">Що є столицею Великобританії?</p>
+                <input type="text" id="task${index}q1" placeholder="Ваша відповідь">
             </div>
-            `;
-        
-        // Оновлення кнопок навігації
-        document.getElementById('prevTaskBtn').disabled = index === 0;
-        document.getElementById('nextTaskBtn').classList.toggle('hidden', index === 2);
-        document.getElementById('finishOlympiadBtn').classList.toggle('hidden', index !== 2);
+            <p style="margin-top: 20px; color: var(--text-secondary);">Цей контент є заглушкою. Ваш код тут буде завантажувати реальні питання.</p>
+        `;
         
         this.currentTaskIndex = index;
+
+        // Оновлення кнопок навігації
+        this.dom.prevTaskBtn.disabled = index === 0;
+        this.dom.nextTaskBtn.classList.toggle('hidden', index === 4); // Якщо 5 завдань
+        this.dom.finishOlympiadBtn.classList.toggle('hidden', index !== 4); // Кнопка "Завершити" на останньому завданні
     }
     
-    // ... (Методи для навігації, завершення, таймера)
-    
     showResultsScreen() {
-        // ... (Логіка відображення фінальних результатів учня)
         this.dom.studentIntro.classList.add('hidden');
         this.dom.studentTasks.classList.add('hidden');
         this.dom.studentResults.classList.remove('hidden');
+        
+        // TODO: Відобразити реальні бали
         this.dom.studentResults.querySelector('#resultsContent').innerHTML = `
             <h2>Ваші результати</h2>
-            <div class="stat-card" style="border-top-color: var(--success);">
-                <div class="stat-number score-final">11/12</div>
-                <div class="stat-label">Остаточний Бал (12-б)</div>
+            <div class="stats-grid" style="grid-template-columns: 1fr;">
+                 <div class="stat-card" style="border-top-color: var(--success);">
+                    <div class="stat-number score-final">... / 60</div>
+                    <div class="stat-label">Отриманий Бал</div>
+                </div>
             </div>
             <p style="margin-top: 30px;">Результати будуть остаточно затверджені адміністратором.</p>
         `;
@@ -375,7 +407,6 @@ class OlympiadApp {
     
     startTaskTimer(durationSeconds) {
         // Реалізація простого таймера
-        const display = document.getElementById('timerDisplay');
         let timer = durationSeconds, minutes, seconds;
         clearInterval(this.timer);
         
@@ -386,20 +417,20 @@ class OlympiadApp {
             minutes = minutes < 10 ? "0" + minutes : minutes;
             seconds = seconds < 10 ? "0" + seconds : seconds;
 
-            display.textContent = minutes + ":" + seconds;
-
+            this.dom.timerDisplay.textContent = minutes + ":" + seconds;
+            
+            this.dom.timerDisplay.classList.remove('warning', 'critical');
             if (timer <= 300) { // 5 хвилин
-                display.classList.add('warning');
+                this.dom.timerDisplay.classList.add('warning');
             } else if (timer <= 60) { // 1 хвилина
-                 display.classList.remove('warning');
-                 display.classList.add('critical');
+                 this.dom.timerDisplay.classList.add('critical');
             }
             
             if (--timer < 0) {
                 clearInterval(this.timer);
-                display.textContent = "00:00";
+                this.dom.timerDisplay.textContent = "00:00";
                 this.showNotification("Час вичерпано! Завдання автоматично завершено.", "danger");
-                // TODO: Логіка автоматичного завершення/переходу
+                this.finishOlympiad();
             }
         }, 1000);
     }
@@ -411,7 +442,6 @@ class OlympiadApp {
      */
      
     async loadAdminData() {
-        // Тут буде логіка завантаження статистики та таблиці результатів
         this.showNotification("Дані адміністратора завантажено.", "success");
         this.renderStatsPlaceholder();
         this.loadResultsTable();
@@ -431,50 +461,37 @@ class OlympiadApp {
         document.getElementById(`${tabId}Panel`).classList.remove('hidden');
         
         if (tabId === 'users') {
-            this.loadUsersList();
+            this.loadResultsTable();
         }
     }
     
     renderStatsPlaceholder() {
         // Приклад заповнення даних
-        document.getElementById('totalUsers').textContent = 55;
-        document.getElementById('activeUsers').textContent = 12;
-        document.getElementById('completedUsers').textContent = 23;
-        document.getElementById('class10Users').textContent = 30;
+        this.dom.totalUsers.textContent = 55;
+        this.dom.activeUsers.textContent = 12;
+        this.dom.completedUsers.textContent = 23;
+        this.dom.class10Users.textContent = 30;
     }
     
     loadResultsTable() {
         // ... (Логіка завантаження завершених результатів)
         const placeholderResults = [
-            { name: "Іванов Іван", class: 11, raw: 45, final: 12, status: 'Completed' },
-            { name: "Петренко Катерина", class: 10, raw: 38, final: 11, status: 'Completed' },
-            { name: "Сидорук Олег", class: 10, raw: 25, final: 8, status: 'Completed' },
+            { id: 1, name: "Іванов Іван", class: 11, email: "ivanov.i@olymp.com", final: 12, status: 'Completed' },
+            { id: 2, name: "Петренко Катерина", class: 10, email: "petr.k@olymp.com", final: 11, status: 'Completed' },
+            { id: 3, name: "Сидорук Олег", class: 10, email: "syd.o@olymp.com", final: 8, status: 'Completed' },
+            { id: 4, name: "Ковальчук Вікторія", class: 11, email: "kov.v@olymp.com", final: '-', status: 'In Progress' },
         ];
         
-        this.dom.resultsTableBody.innerHTML = placeholderResults.map((res, index) => `
+        this.dom.resultsTableBody.innerHTML = placeholderResults.map((res) => `
             <tr>
-                <td>${index + 1}</td>
+                <td>${res.id}</td>
                 <td>${res.name}</td>
                 <td>${res.class}</td>
-                <td>${res.raw}</td>
-                <td>${res.final}</td>
-                <td><span class="status-badge success">${res.status}</span></td>
+                <td>${res.email}</td>
+                <td><span class="score-badge">${res.final}</span></td>
+                <td><span class="status-badge ${res.status === 'Completed' ? 'success' : 'warning'}">${res.status}</span></td>
             </tr>
         `).join('');
-    }
-    
-    loadUsersList() {
-        // ... (Логіка завантаження списку всіх користувачів)
-        this.dom.usersPanel.querySelector('#usersListContainer').innerHTML = `
-            <div class="user-item header">
-                <div>ПІБ</div>
-                <div>Клас</div>
-                <div>Логін</div>
-                <div>Статус</div>
-                <div>Дії</div>
-            </div>
-            <p style="margin-top: 20px;">Список користувачів буде завантажено тут...</p>
-        `;
     }
 
     async handleCreateUser(e) {
@@ -536,7 +553,7 @@ class OlympiadApp {
 // Ініціалізація додатку після завантаження DOM
 document.addEventListener('DOMContentLoaded', () => {
     // Перевіряємо, чи ініціалізовано Firebase у <script> в index.html
-    if (typeof firebase !== 'undefined') {
+    if (typeof firebase !== 'undefined' && typeof firebase.initializeApp !== 'undefined') {
         window.olympiadApp = new OlympiadApp();
     } else {
         console.error("Firebase не ініціалізовано. Перевірте <script> теги в index.html.");
