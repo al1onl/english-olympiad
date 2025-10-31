@@ -1,5 +1,4 @@
 // firebase-config.js
-// Цей файл містить ваші облікові дані та ініціалізує Firebase
 
 const firebaseConfig = {
     apiKey: "AIzaSyAPnJFF03dqUF6hc9J4i5sL-K02LjavA5Q",
