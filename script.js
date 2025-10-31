@@ -1,13 +1,11 @@
 /**
  * =====================================
- * ФАЙЛ: script.js (ФІНАЛЬНА ВЕРСІЯ 2.0)
+ * ФАЙЛ: script.js (ФІНАЛЬНА ВЕРСІЯ 3.0)
  * =====================================
- * Виправлено: 
- * 1. Критична помилка: Автентифікація адміністратора після створення учня (Admin Auth Flaw).
- * - Тепер зберігаємо email/password адміна в пам'яті (ТІЛЬКИ НА ЧАС СЕСІЇ) і примусово відновлюємо сесію.
- * 2. Критична помилка: Відображення паролів у таблиці адміністратора (Admin Panel Passwords).
- * - Пароль зберігається у Firestore і відображається в таблиці.
- * 3. Логіка пагінації та 12-бальна система оцінювання.
+ * Виправлено критичні помилки: 
+ * 1. TypeError: this.showLoginForm is not a function.
+ * 2. TypeError: Cannot read properties of undefined (reading 'bind') на методах адмін-панелі.
+ * 3. Вся логіка (студента, адміністратора, пагінація) тепер повністю включена.
  */
 
 // Глобальні об'єкти Firebase доступні через firebase-config.js: auth, db
@@ -24,9 +22,6 @@ class OlympiadApp {
         this.studentAnswers = {};
         
         // КРИТИЧНЕ ВИПРАВЛЕННЯ #1: Тимчасове зберігання даних адміна для відновлення сесії
-        // **Увага:** Зберігання пароля в пам'яті (не в сховищі) є вимушеним рішенням для client-side фіксу проблеми
-        // втрати сесії, спричиненої Firebase. Після перезавантаження сторінки дані втрачаються, але сесія адміна
-        // відновлюється завдяки токену Firebase, а для створення учнів потрібне свіже збереження.
         this._adminEmail = null; 
         this._adminPassword = null; 
         this.adminUID = null; 
@@ -47,7 +42,7 @@ class OlympiadApp {
     }
 
     getOlympiadData() {
-        // Контент завдань (залишається без змін, оскільки він коректний і містить усі 3 завдання)
+        // Контент завдань (залишається без змін)
         return [
             {
                 id: 1,
@@ -116,7 +111,6 @@ class OlympiadApp {
     }
     
     getDOMElements() {
-        // ... (DOM елементи без змін)
          return {
             // General
             notificationArea: document.getElementById('notificationArea'),
@@ -180,6 +174,7 @@ class OlympiadApp {
     }
 
     initEventListeners() {
+        // ВИПРАВЛЕННЯ ПОМИЛКИ #1: this.showLoginForm is not a function
         this.dom.showStudentLoginBtn?.addEventListener('click', () => this.showLoginForm('student'));
         this.dom.showAdminLoginBtn?.addEventListener('click', () => this.showLoginForm('admin'));
         this.dom.backToMainStudent?.addEventListener('click', () => this.resetToMain());
@@ -192,6 +187,7 @@ class OlympiadApp {
         this.dom.adminLogoutBtn?.addEventListener('click', this.logout.bind(this));
         this.dom.resultsLogoutBtn?.addEventListener('click', this.logout.bind(this));
 
+        // ВИПРАВЛЕННЯ ПОМИЛКИ #2: Cannot read properties of undefined (reading 'bind') - через відсутність handleAdminTabSwitch
         this.dom.adminTabs?.forEach(tab => {
             tab.addEventListener('click', this.handleAdminTabSwitch.bind(this));
         });
@@ -221,9 +217,31 @@ class OlympiadApp {
     
     /**
      * ====================================================
-     * ЧАСТИНА 2: АВТЕНТИФІКАЦІЯ ТА ПЕРЕНАПРАВЛЕННЯ
+     * ЧАСТИНА 2: АВТЕНТИФІКАЦІЯ ТА ПЕРЕНАПРАВЛЕННЯ (Фікси)
      * ====================================================
      */
+
+    // ВИПРАВЛЕННЯ: Додано відсутній метод
+    showLoginForm(mode) {
+        if (!this.dom.modeSelector) return;
+        this.dom.modeSelector.classList.add('hidden');
+        if (mode === 'student') {
+            this.dom.studentLogin?.classList.remove('hidden');
+        } else {
+            this.dom.adminLogin?.classList.remove('hidden');
+        }
+    }
+
+    // ВИПРАВЛЕННЯ: Додано відсутній метод
+    resetToMain() {
+         if (window.location.pathname.includes('index.html') && this.dom.modeSelector) {
+            this.dom.modeSelector.classList.remove('hidden');
+             this.dom.studentLogin?.classList.add('hidden');
+             this.dom.adminLogin?.classList.add('hidden');
+        } else {
+             window.location.href = 'index.html';
+        }
+    }
 
     setupAuthListener() {
         if (typeof auth === 'undefined') return;
@@ -254,7 +272,7 @@ class OlympiadApp {
                     if (!currentPath.includes('admin.html')) {
                         window.location.href = 'admin.html';
                     } else if (this.dom.adminTabs) {
-                        this.loadAdminData();
+                        this.loadAdminData(); // Викликаємо завантаження даних адміна
                     }
                 } else { // student
                     if (!currentPath.includes('student.html')) {
@@ -310,7 +328,7 @@ class OlympiadApp {
                 this.dom.adminError.classList.remove('hidden');
                 return;
             }
-            // КРИТИЧНЕ ВИПРАВЛЕННЯ #1: Зберігаємо дані адміна для відновлення сесії
+            // Зберігаємо дані адміна для відновлення сесії
             this._adminEmail = email; 
             this._adminPassword = password; 
         } catch (error) {
@@ -331,20 +349,183 @@ class OlympiadApp {
         });
     }
     
-    // ... (Методи учня: renderStudentIntro, startOlympiad, saveCurrentAnswer, loadTaskContent, renderTask, navigateTask, calculateFinalScore, showResultsScreen, startTaskTimer)
+    /**
+     * ====================================================
+     * ЧАСТИНА 3: ЛОГІКА УЧНЯ (Відновлені методи)
+     * ====================================================
+     */
+
+    renderStudentIntro(userData) {
+        this.dom.introUserName.textContent = `Ласкаво просимо, ${userData.name}!`;
+        this.dom.introUserInfo.innerHTML = `
+            <p><strong>Клас:</strong> ${userData.class}</p>
+            <p><strong>Логін:</strong> ${userData.email}</p>
+            <p><strong>Тривалість:</strong> 40 хвилин</p>
+            <p><strong>Завдань:</strong> ${this.OLYMPIAD_DATA.length}</p>
+        `;
+
+        if (userData.completed) {
+            this.dom.startOlympiadBtn.disabled = true;
+            this.dom.startOlympiadBtn.textContent = 'Олімпіада вже завершена';
+            this.showResultsScreen(userData.finalScore, userData.rawScore);
+            this.dom.studentIntro.classList.add('hidden');
+            this.dom.studentTasks.classList.add('hidden');
+            this.dom.studentResults.classList.remove('hidden');
+        } else {
+            this.timeRemaining = userData.timeRemaining || this.totalDuration;
+            // Якщо є збережені відповіді, завантажуємо їх
+            if (Object.keys(userData.answers || {}).length > 0) {
+                this.studentAnswers = userData.answers;
+                this.dom.startOlympiadBtn.textContent = 'Продовжити олімпіаду';
+            }
+        }
+    }
+
+    startOlympiad() {
+        this.dom.studentIntro.classList.add('hidden');
+        this.dom.studentTasks.classList.remove('hidden');
+        this.dom.totalTasksNumber.textContent = this.OLYMPIAD_DATA.length;
+        
+        this.startTaskTimer();
+        this.currentTaskIndex = 0;
+        this.loadTaskContent();
+    }
+
+    startTaskTimer() {
+        if (this.timer) clearInterval(this.timer);
+        
+        const updateTimer = () => {
+            if (this.timeRemaining <= 0) {
+                clearInterval(this.timer);
+                this.showNotification("Час вичерпано! Автоматичне завершення олімпіади.", "danger");
+                this.finishOlympiad();
+                return;
+            }
+
+            const minutes = Math.floor(this.timeRemaining / 60);
+            const seconds = this.timeRemaining % 60;
+            const display = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            this.dom.timerDisplay.textContent = display;
+
+            this.dom.timerDisplay.classList.remove('warning', 'critical');
+            if (this.timeRemaining <= 5 * 60) {
+                this.dom.timerDisplay.classList.add('critical');
+            } else if (this.timeRemaining <= 10 * 60) {
+                this.dom.timerDisplay.classList.add('warning');
+            }
+            
+            this.timeRemaining--;
+
+            // Зберігаємо час кожні 30 секунд
+            if (this.timeRemaining % 30 === 0) {
+                 this.saveProgress();
+            }
+        };
+
+        updateTimer();
+        this.timer = setInterval(updateTimer, 1000);
+    }
+    
+    async saveProgress() {
+        try {
+            const user = auth.currentUser;
+            if (!user) return;
+            
+            this.saveCurrentAnswer(); // Зберігаємо поточну відповідь перед збереженням прогресу
+            
+            await db.collection('users').doc(user.uid).update({
+                answers: this.studentAnswers,
+                timeRemaining: this.timeRemaining,
+                lastActivity: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            // console.log("Прогрес збережено.");
+        } catch (error) {
+            console.error("Помилка збереження прогресу:", error);
+        }
+    }
+
+    saveCurrentAnswer() {
+        const currentTask = this.OLYMPIAD_DATA[this.currentTaskIndex];
+        if (!currentTask) return;
+
+        currentTask.questions.forEach(q => {
+            const input = document.getElementById(q.id);
+            if (input) {
+                this.studentAnswers[q.id] = input.value.trim();
+            }
+        });
+    }
+
+    loadTaskContent() {
+        this.saveCurrentAnswer(); // Зберігаємо відповідь перед переходом
+        const task = this.OLYMPIAD_DATA[this.currentTaskIndex];
+        if (!task) return;
+
+        this.dom.currentTaskNumber.textContent = this.currentTaskIndex + 1;
+        this.dom.taskNameDisplay.textContent = task.name;
+        this.dom.taskMaxPoints.textContent = task.points;
+        this.dom.taskInstructions.innerHTML = task.instructions;
+
+        this.renderTask(task);
+        this.updateNavigationControls();
+    }
+    
+    renderTask(task) {
+        const contentHTML = task.questions.map(q => {
+            const savedAnswer = this.studentAnswers[q.id] || '';
+            const inputType = q.answer_key.length <= 10 ? 'text' : 'text'; // Можна змінити на 'textarea' для довших відповідей
+            const placeholder = inputType === 'textarea' ? 'Напишіть свою відповідь тут...' : 'Введіть відповідь...';
+
+            return `
+                <div class="question-block">
+                    <p class="question-text">${q.text}</p>
+                    <input type="${inputType}" id="${q.id}" class="answer-input" placeholder="${placeholder}" value="${savedAnswer}">
+                </div>
+            `;
+        }).join('');
+
+        this.dom.taskContentContainer.innerHTML = contentHTML;
+    }
+
+    navigateTask(delta) {
+        let newIndex = this.currentTaskIndex + delta;
+
+        if (newIndex >= 0 && newIndex < this.OLYMPIAD_DATA.length) {
+            this.currentTaskIndex = newIndex;
+            this.loadTaskContent();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }
+    
+    updateNavigationControls() {
+        this.dom.prevTaskBtn.disabled = this.currentTaskIndex === 0;
+        this.dom.nextTaskBtn.disabled = this.currentTaskIndex === this.OLYMPIAD_DATA.length - 1;
+        
+        if (this.currentTaskIndex === this.OLYMPIAD_DATA.length - 1) {
+            this.dom.nextTaskBtn.classList.add('hidden');
+            this.dom.finishOlympiadBtn.classList.remove('hidden');
+        } else {
+            this.dom.nextTaskBtn.classList.remove('hidden');
+            this.dom.finishOlympiadBtn.classList.add('hidden');
+        }
+    }
     
     calculateFinalScore() {
         let rawScore = 0;
         
         this.OLYMPIAD_DATA.forEach(task => {
+            const pointsPerQuestion = task.points / task.questions.length;
+
             task.questions.forEach(q => {
                 const studentAnswer = (this.studentAnswers[q.id] || '').toLowerCase().trim();
                 const correctAnswer = q.answer_key.toLowerCase().trim();
                 if (studentAnswer === correctAnswer) {
-                    rawScore += (task.points / task.questions.length);
+                    rawScore += pointsPerQuestion;
                 }
             });
         });
+
+        // Конвертація в 12-бальну шкалу
         const finalScore = Math.round((rawScore / this.MAX_RAW_SCORE) * 12);
         
         return {
@@ -353,11 +534,31 @@ class OlympiadApp {
         };
     }
     
+    showResultsScreen(finalScore, rawScore) {
+        if (!this.dom.studentResults) return;
+        
+        this.dom.studentTasks?.classList.add('hidden');
+
+        this.dom.studentResults.innerHTML = `
+            <h2>🎉 Ваші результати</h2>
+            <div class="results-section">
+                <p class="scale-info">Фінальний бал (12-бальна шкала):</p>
+                <div class="score-final-badge">${finalScore}</div>
+                <p class="scale-info">Сирий бал: ${rawScore} / ${this.MAX_RAW_SCORE}</p>
+                <p style="margin-top: 20px;">Дякуємо за участь в олімпіаді!</p>
+                <button id="resultsLogoutBtn" class="btn btn-primary" style="margin-top: 30px;">Вихід</button>
+            </div>
+        `;
+        // Оновлюємо слухача після рендерингу
+        document.getElementById('resultsLogoutBtn')?.addEventListener('click', this.logout.bind(this));
+    }
+    
     async finishOlympiad() {
         if (!confirm("Ви впевнені, що хочете завершити олімпіаду? Ви не зможете повернутися!")) return;
 
         clearInterval(this.timer);
         this.timeRemaining = 0;
+        this.saveCurrentAnswer(); // Фінальне збереження відповідей
 
         try {
             const user = auth.currentUser;
@@ -383,8 +584,81 @@ class OlympiadApp {
         }
     }
     
-    // ... (Методи адміністратора: loadAdminData, handleAdminTabSwitch, renderStats)
-    
+    /**
+     * ====================================================
+     * ЧАСТИНА 4: ЛОГІКА АДМІНІСТРАТОРА (Відновлені/Виправлені методи)
+     * ====================================================
+     */
+
+    // ВИПРАВЛЕННЯ: Додано відсутній метод
+    loadAdminData() {
+        this.renderStats(); // Завантаження початкової статистики
+        // Відображення панелі статистики за замовчуванням
+        this.dom.statsPanel?.classList.remove('hidden');
+        this.dom.usersPanel?.classList.add('hidden');
+        this.dom.createPanel?.classList.add('hidden');
+        // Оновлення максимального балу
+        if (this.dom.maxRawScore) {
+            this.dom.maxRawScore.textContent = this.MAX_RAW_SCORE;
+        }
+        // Встановлення активної вкладки
+        this.dom.adminTabs?.forEach(tab => {
+            if (tab.dataset.tab === 'stats') {
+                tab.classList.add('active');
+            } else {
+                tab.classList.remove('active');
+            }
+        });
+    }
+
+    // ВИПРАВЛЕННЯ: Додано відсутній метод (викликає TypeError 2)
+    handleAdminTabSwitch(e) {
+        const targetTab = e.target.dataset.tab;
+        
+        // Hide all panels
+        this.dom.statsPanel?.classList.add('hidden');
+        this.dom.usersPanel?.classList.add('hidden');
+        this.dom.createPanel?.classList.add('hidden');
+
+        // Show active panel
+        document.getElementById(`${targetTab}Panel`)?.classList.remove('hidden');
+
+        // Update active tab styling
+        this.dom.adminTabs?.forEach(tab => tab.classList.remove('active'));
+        e.target.classList.add('active');
+
+        // Load data specific to the tab
+        if (targetTab === 'users') {
+            this.paginationState.currentPage = 1;
+            this.paginationState.pageHistory = [null];
+            this.loadUsersTable();
+        } else if (targetTab === 'stats') {
+            this.renderStats(); 
+        }
+    }
+
+    // ВИПРАВЛЕННЯ: Додано відсутній метод
+    renderStats() {
+        if (typeof db === 'undefined' || !this.dom.totalUsers) return;
+
+        db.collection('users').where('role', '==', 'student').get().then(snapshot => {
+            const total = snapshot.size;
+            let completed = 0;
+            snapshot.forEach(doc => {
+                if (doc.data().completed) {
+                    completed++;
+                }
+            });
+            this.dom.totalUsers.textContent = total;
+            this.dom.completedUsers.textContent = completed;
+            this.dom.activeUsers.textContent = total - completed;
+            this.dom.maxRawScore.textContent = this.MAX_RAW_SCORE;
+        }).catch(error => {
+            console.error("Помилка завантаження статистики:", error);
+            this.showNotification("Помилка завантаження статистики.", "error");
+        });
+    }
+
     async loadUsersTable() {
         if (typeof db === 'undefined' || !this.dom.resultsTableBody) return;
 
@@ -412,6 +686,7 @@ class OlympiadApp {
             });
 
             if (hasNextPage && this.paginationState.currentPage === this.paginationState.pageHistory.length) {
+                // Зберігаємо останній документ на поточній сторінці як маркер початку наступної
                 this.paginationState.pageHistory.push(snapshot.docs[this.PAGE_SIZE - 1]);
             }
             
@@ -423,7 +698,7 @@ class OlympiadApp {
                 const finalScore = res.finalScore !== undefined ? res.finalScore : '-';
                 const rawScore = res.rawScore !== undefined ? res.rawScore : '-';
                 
-                // КРИТИЧНЕ ВИПРАВЛЕННЯ #2: Відображення пароля
+                // Відображення пароля
                 const passwordDisplay = res.password ? `<code style="background-color: #f8e6ff; padding: 3px 6px; border-radius: 4px; font-weight: bold;">${res.password}</code>` : '-';
 
 
@@ -457,7 +732,34 @@ class OlympiadApp {
         }
     }
     
-    // ... (updatePaginationControls, changePage, transliterate)
+    // ВИПРАВЛЕННЯ: Додано відсутній метод
+    updatePaginationControls(hasNextPage, currentUsersCount) {
+        if (!this.dom.paginationInfo || !this.dom.prevPageBtn || !this.dom.nextPageBtn) return;
+
+        this.dom.paginationInfo.textContent = `Сторінка ${this.paginationState.currentPage}`;
+        this.dom.prevPageBtn.disabled = this.paginationState.currentPage === 1;
+        this.dom.nextPageBtn.disabled = !hasNextPage;
+
+        // Якщо поточна сторінка остання, але не перша, ми можемо видалити зайвий елемент з pageHistory, якщо він не потрібен
+        if (!hasNextPage && this.paginationState.pageHistory.length > this.paginationState.currentPage) {
+             this.paginationState.pageHistory.pop();
+        }
+    }
+
+    // ВИПРАВЛЕННЯ: Додано відсутній метод
+    changePage(delta) {
+        const newPage = this.paginationState.currentPage + delta;
+        if (newPage < 1) return;
+        
+        // Для повернення назад
+        if (delta === -1) {
+            this.paginationState.pageHistory.pop(); // Видаляємо маркер початку поточної сторінки
+        }
+
+        this.paginationState.currentPage = newPage;
+        this.loadUsersTable();
+    }
+
     transliterate(text) {
         const map = {
             'а': 'a', 'б': 'b', 'в': 'v', 'г': 'h', 'ґ': 'g', 'д': 'd', 'е': 'e', 'є': 'ye', 'ж': 'zh',
@@ -489,7 +791,6 @@ class OlympiadApp {
         const transliteratedName = this.transliterate(name);
         const parts = transliteratedName.toLowerCase().split(' ').filter(p => p.length > 0);
         
-        // ... (логіка генерації email)
         let emailBase;
         if (parts.length >= 2) {
             emailBase = `${parts[0]}.${parts[1].charAt(0)}`;
@@ -516,7 +817,7 @@ class OlympiadApp {
             await auth.createUserWithEmailAndPassword(finalEmail, password);
             const newUID = auth.currentUser.uid;
 
-            // Крок 2: Зберігання метаданих у Firestore (КРИТИЧНЕ ВИПРАВЛЕННЯ #2: Зберігаємо пароль)
+            // Крок 2: Зберігання метаданих у Firestore (Зберігаємо пароль)
             await db.collection('users').doc(newUID).set({
                 uid: newUID,
                 name: name,
@@ -531,7 +832,7 @@ class OlympiadApp {
                 timeRemaining: this.totalDuration 
             });
 
-            // Крок 3: ВИПРАВЛЕННЯ #1 - ПРИМУСОВЕ ВІДНОВЛЕННЯ СЕСІЇ АДМІНА
+            // Крок 3: ПРИМУСОВЕ ВІДНОВЛЕННЯ СЕСІЇ АДМІНА
             await auth.signOut(); // Вихід з акаунта щойно створеного учня
             
             // ПРИМУСОВИЙ ПЕРЕЛОГІН АДМІНА
