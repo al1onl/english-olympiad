@@ -14,7 +14,7 @@
     <div id="studentAppView" class="container app-container">
         <header class="app-header">
             <h1 style="flex-grow: 1;">Olympiad Master (Учень)</h1>
-            <button id="studentLogoutBtn" class="btn-danger-small">Вихід</button>
+            <button id="studentLogoutBtn" class="btn btn-danger">Вихід</button>
         </header>
 
         <main class="app-content">
@@ -28,31 +28,47 @@
                 <button id="startOlympiadBtn" class="btn-large btn-success" style="margin-top: 30px;">
                     🔥 Розпочати Олімпіаду
                 </button>
+                <p id="timeReminder" class="subtitle" style="margin-top: 20px;">
+                    Загальний час на виконання: **40 хвилин** (по 10-15 хвилин на кожне завдання).
+                </p>
             </div>
 
             <div id="studentTasks" class="task-section hidden">
                 <div class="task-header">
-                    <h2>Завдання 1 / 3</h2>
+                    <div class="task-navigation">
+                        <div id="taskNameDisplay" class="task-name-display">Завдання: Reading</div>
+                    </div>
                     <div class="timer-display">
                         <span id="timerDisplay">00:00</span>
                     </div>
+                </div>
+
+                <div id="taskInfoBar" class="task-info-bar">
+                    <p><strong>Завдання <span id="currentTaskNumber">1</span> з <span id="totalTasksNumber">3</span></strong></p>
+                    <p>Максимальний бал за це завдання: <strong id="taskMaxPoints">0</strong></p>
+                    <p>Інструкції: <span id="taskInstructions">...</span></p>
                 </div>
 
                 <div id="taskContentContainer" class="task-content">
                     </div>
 
                 <div class="task-controls">
-                    <button id="prevTaskBtn" class="btn-secondary" disabled>← Попереднє завдання</button>
-                    <button id="nextTaskBtn" class="btn-primary">Наступне завдання →</button>
-                    <button id="finishOlympiadBtn" class="btn-danger hidden">Завершити олімпіаду</button>
+                    <button id="prevTaskBtn" class="btn btn-secondary" disabled>← Попереднє завдання</button>
+                    <button id="nextTaskBtn" class="btn btn-primary">Наступне завдання →</button>
+                    <button id="finishOlympiadBtn" class="btn-large btn-danger hidden">Завершити олімпіаду</button>
                 </div>
             </div>
 
             <div id="studentResults" class="results-section hidden">
                 <div id="resultsContent">
-                    <h2>Ваші попередні результати</h2>
-                    </div>
-                <button id="resultsLogoutBtn" class="btn-danger-small" style="margin-top: 20px;">
+                    <h2>Ваші Фінальні Результати</h2>
+                    <span id="finalScoreDisplay" class="score-final-badge">0 / 12</span>
+                    <p class="scale-info">Фінальний бал за 12-бальною шкалою (Raw: <span id="rawScoreInfo">0</span>)</p>
+                </div>
+                <p style="margin-top: 30px;">
+                    Ваші відповіді були успішно збережені та перевірені системою. 
+                </p>
+                <button id="resultsLogoutBtn" class="btn btn-danger" style="margin-top: 20px;">
                     Вийти з системи
                 </button>
             </div>
