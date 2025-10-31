@@ -14,7 +14,7 @@
     <div id="adminAppView" class="container app-container">
         <header class="app-header">
             <h1 style="flex-grow: 1;">Olympiad Master (Адмін)</h1>
-            <button id="adminLogoutBtn" class="btn-danger-small">Вихід</button>
+            <button id="adminLogoutBtn" class="btn btn-danger">Вихід</button>
         </header>
 
         <div class="tabs">
@@ -28,21 +28,21 @@
             <div id="statsPanel" class="admin-panel">
                 <h2>📈 Загальна Статистика</h2>
                 <div class="stats-grid">
-                    <div class="stat-card" style="border-top-color: var(--primary);">
+                    <div class="stat-card stat-primary">
                         <div id="totalUsers" class="stat-number">0</div>
-                        <div class="stat-label">Всього Учнів (Студентів)</div>
+                        <div class="stat-label">Всього Учнів</div>
                     </div>
-                    <div class="stat-card" style="border-top-color: var(--success);">
+                    <div class="stat-card stat-success">
                         <div id="completedUsers" class="stat-number">0</div>
                         <div class="stat-label">Завершили Олімпіаду</div>
                     </div>
-                    <div class="stat-card" style="border-top-color: var(--warning);">
+                    <div class="stat-card stat-warning">
                         <div id="activeUsers" class="stat-number">0</div>
                         <div class="stat-label">Активні / В процесі</div>
                     </div>
-                    <div class="stat-card" style="border-top-color: var(--secondary);">
-                        <div id="class10Users" class="stat-number">0</div>
-                        <div class="stat-label">Учнів 10-го класу</div>
+                    <div class="stat-card stat-danger">
+                         <div id="maxRawScore" class="stat-number">0</div>
+                        <div class="stat-label">Макс. Сирий Бал</div>
                     </div>
                 </div>
             </div>
@@ -58,8 +58,9 @@
                                 <th>№</th>
                                 <th>ПІБ</th>
                                 <th>Клас</th>
-                                <th>Email (Логін)</th>
-                                <th>Рахунок</th>
+                                <th>Логін</th>
+                                <th>Бал (12)</th>
+                                <th>Сирий Бал</th>
                                 <th>Статус</th>
                             </tr>
                         </thead>
@@ -69,30 +70,35 @@
                 </div>
 
                 <div class="pagination-controls">
-                    <button id="prevPageBtn" class="btn-secondary" disabled>← Попередня сторінка</button>
+                    <button id="prevPageBtn" class="btn btn-secondary" disabled>← Попередня сторінка</button>
                     <div id="paginationInfo">Сторінка 1</div>
-                    <button id="nextPageBtn" class="btn-primary" disabled>Наступна сторінка →</button>
+                    <button id="nextPageBtn" class="btn btn-primary" disabled>Наступна сторінка →</button>
                 </div>
             </div>
 
             <div id="createPanel" class="admin-panel hidden">
                 <h2>➕ Створити Нового Учня</h2>
+                <p class="subtitle">Створення нового облікового запису учня. Згенерований пароль буде відображено нижче.</p>
+                
                 <form id="createUserForm" class="create-form">
-                    <input type="text" id="newUserName" placeholder="ПІБ учня (Іванов Іван)" required>
+                    <input type="text" id="newUserName" placeholder="ПІБ учня (Іванов Іван Петрович)" required>
                     <select id="newUserClass" required>
                         <option value="" disabled selected>Виберіть клас</option>
                         <option value="10">10-й клас</option>
                         <option value="11">11-й клас</option>
                     </select>
-                    <button type="submit" class="btn-success">Створити акаунт</button>
+                    <button type="submit" class="btn btn-success">Створити акаунт</button>
                 </form>
 
                 <div id="createdCredentials" class="credentials-box hidden">
                     <h3>Облікові дані створеного учня:</h3>
                     <div id="credentialsInfo">
-                        </div>
-                    <button id="copyCredentialsBtn" class="btn-secondary" style="margin-top: 15px;">
-                        Копіювати дані
+                        <p><strong>Ім'я:</strong> <span id="copyName"></span></p>
+                        <p><strong>Логін (Email):</strong> <code id="copyEmail"></code></p>
+                        <p><strong>Пароль:</strong> <code id="copyPassword"></code></p>
+                    </div>
+                    <button id="copyCredentialsBtn" class="btn btn-secondary" style="margin-top: 15px;">
+                        📋 Копіювати дані
                     </button>
                 </div>
             </div>
